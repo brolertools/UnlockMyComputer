@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/title_WLAN"
-        android:text="服务器列表(WLAN)"
+        android:text="@string/wlanList"
         android:textSize="20sp"
         android:layout_marginTop="8dp"
         android:layout_marginLeft="16dp"
@@ -39,16 +39,35 @@
         android:layout_marginLeft="8dp"
         >
 
-
-
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/lst_WLAN"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/floatbtn_wifi_stopSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                app:srcCompat="?attr/actionModeCutDrawable"
+                android:layout_gravity="bottom|right"
+                android:layout_margin="20dp"
+                android:visibility="visible"
+                />
+
+            <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lst_WLAN"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
 
+
+
         </androidx.recyclerview.widget.RecyclerView>
+
+
+
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -15,8 +15,8 @@ public class Connect {
                 connection.start(context,data);
             }
             else{
-                WLANConnect connection=new WLANConnect();
-                connection.start(context,data);
+                WLANConnect connection=new WLANConnect(context,data);
+                connection.start();
             }
         }
         else return;

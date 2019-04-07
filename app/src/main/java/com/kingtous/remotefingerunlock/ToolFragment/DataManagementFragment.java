@@ -2,7 +2,6 @@ package com.kingtous.remotefingerunlock.ToolFragment;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -46,8 +45,10 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
 
     int WRITE_PERMISSION=2;
 
-    String macRegex="[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}";
-    Pattern pattern=Pattern.compile(macRegex);
+    public static String ipRegex="((25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))";
+    public static String macRegex="[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}";
+    Pattern maCpattern =Pattern.compile(macRegex);
+    Pattern iPpattern=Pattern.compile(ipRegex);
 
 
     private ArrayList<RecordData> recordDataArrayList;
@@ -189,14 +190,15 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                         return;
                                     }
                                     final EditText mac=diaView.findViewById(R.id.manual_mac_edit);
-                                    Matcher matcher=pattern.matcher(mac.getText().toString());
+                                    Matcher matcher1= maCpattern.matcher(mac.getText().toString());
+                                    Matcher matcher2=iPpattern.matcher(mac.getText().toString());
                                     final EditText user=diaView.findViewById(R.id.manual_user_edit);
                                     final EditText passwd=diaView.findViewById(R.id.manual_passwd_edit);
                                     CheckBox checkBox=diaView.findViewById(R.id.manual_setDefault);
                                     //先测试
-                                    if (!matcher.matches())
+                                    if (!matcher1.matches() && !matcher2.matches())
                                     {
-                                        Toast.makeText(getContext(),"MAC地址不合法",Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getContext(),"地址不合法",Toast.LENGTH_LONG).show();
                                         return;
                                     }
                                     if (checkBox.isChecked()){

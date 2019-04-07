@@ -4,18 +4,18 @@ public class WLANDeviceData  {
 
     static int port=2085;
 
-
     String name;
     String mac;
     String currentIP;
 
-    public WLANDeviceData(String name, String mac) {
+    public WLANDeviceData(String name, String mac,String IP) {
         if (name==null ||name.equals(""))
         {
             this.name="(未指定)";
         }
         this.name = name;
         this.mac = mac;
+        this.currentIP=IP;
     }
 
     public String getName() {

@@ -2,20 +2,15 @@ package com.kingtous.remotefingerunlock.WLANConnectTool;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class WLANClient extends AsyncTask<Void, String, String> {
 
@@ -33,43 +28,32 @@ public class WLANClient extends AsyncTask<Void, String, String> {
 
     @Override
     protected String doInBackground(Void... arg0) {
-        Socket socket = null;
+        //  连接
         try {
-            InetAddress address = InetAddress.getByName(host);
-            socket = new Socket(address, port);
-            Log.d("async-client","connected to: " + host + ":" + port);
-            OutputStream os = socket.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os);
-            BufferedWriter bw = new BufferedWriter(osw);
-            Gson gson=new Gson();
-            bw.write(gson.toJson(data));
-            bw.flush();
-
-            Log.d("async-client","sent message: " + gson.toJson(data));
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String response = in.readLine();
-            Log.d("async-client","recieved message: " + response);
-            return response;
-        } catch (IOException exception) {
-            Toast.makeText(context,"连接失败，请检查服务器设置",Toast.LENGTH_LONG).show();
-            Log.d("async-client", "the server is offline?");
-        }finally {
-            Toast.makeText(context,"发送",Toast.LENGTH_LONG).show();
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            Socket socket=new Socket(host,port);
+            OutputStream stream=socket.getOutputStream();
+            JSONObject object = new JSONObject();
+            object.put("username", data.getUser());
+            object.put("passwd", data.getPasswd());
+            stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
+            stream.close();
+        } catch (IOException ignored) {
+        } catch (JSONException ignored) {
         }
         return null;
     }
 
     @Override
+    protected void onProgressUpdate(String... values) {
+        super.onProgressUpdate(values);
+    }
+
+    @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
+
+
+
     }
 
 }

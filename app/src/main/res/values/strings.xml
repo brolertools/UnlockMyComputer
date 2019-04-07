@@ -9,4 +9,5 @@
     <string name="UnlockTip">验证指纹解锁</string>
     <string name="app_version">Version 1.2</string>
     <string name="sqlDBName">DataBase</string>
+    <string name="wlanList">服务器列表(WLAN)</string>
 </resources>

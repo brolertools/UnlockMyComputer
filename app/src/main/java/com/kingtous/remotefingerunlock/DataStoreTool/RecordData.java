@@ -5,12 +5,11 @@ public class RecordData {
     private String type;
     private String user;
     private String passwd;
+    //蓝牙的mac即mac，WLAN连接则为ip地址
     private String mac;
     private int isDefault;
-
     public static int FALSE=0;
     public static int TRUE=1;
-
 
     public RecordData(){
 

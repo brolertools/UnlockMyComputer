@@ -238,7 +238,6 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
     {
         if (!bluetoothAdapter.isEnabled())
         {
-
             final NiftyDialogBuilder builder=NiftyDialogBuilder.getInstance(BluetoothConnectActivity.this);
             builder.withEffect(Effectstype.Shake)
                     .withDialogColor(R.color.dodgerblue)

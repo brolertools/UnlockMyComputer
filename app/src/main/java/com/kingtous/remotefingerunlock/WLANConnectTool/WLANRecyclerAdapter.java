@@ -66,8 +66,8 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if (getItemViewType(position)==TYPE_DEVICES){
-            ((WLANRecyclerAdapter.deviceHolder)holder).name.setText(devices.get(position).getName());
-            ((WLANRecyclerAdapter.deviceHolder)holder).mac.setText(devices.get(position).getMac());
+            ((deviceHolder)holder).currentIP.setText(devices.get(position).getName());
+            ((deviceHolder)holder).mac.setText(devices.get(position).getMac());
             //=======通过接口回调===========
             ((WLANRecyclerAdapter.deviceHolder) holder).cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -108,7 +108,6 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public class deviceHolder extends RecyclerView.ViewHolder{
 
         public CardView cardView;
-        public TextView name;
         public TextView mac;
         public TextView currentIP;
 
@@ -117,7 +116,6 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             if (itemView==footer)
                 return;
             else {
-                name=itemView.findViewById(R.id.name_WLAN_device_name);
                 mac=itemView.findViewById(R.id.name_WLAN_device_mac);
                 cardView=itemView.findViewById(R.id.card_WLAN);
                 currentIP=itemView.findViewById(R.id.name_WLAN_device_ip);

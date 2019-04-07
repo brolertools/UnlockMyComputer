@@ -54,7 +54,7 @@
         android:id="@+id/manual_mac"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MAC地址"
+        android:text="地址"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:layout_marginLeft="20dp"
@@ -69,7 +69,7 @@
         android:layout_below="@+id/manual_mac"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:hint="Mac Address..." />
+        android:hint="Address..." />
 
     <TextView
         android:id="@+id/manual_user"

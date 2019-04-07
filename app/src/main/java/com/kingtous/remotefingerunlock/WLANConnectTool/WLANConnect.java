@@ -11,32 +11,31 @@ import android.widget.Toast;
 
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 
-import java.util.TooManyListenersException;
+import java.util.Objects;
 
 import androidx.appcompat.app.AlertDialog;
 
 public class WLANConnect {
 
 
-    WifiManager manager;
+    private WifiManager manager;
+    private Context context;
+    private RecordData data;
 
-    Context context;
-    RecordData data;
-
-    public void start(Context context, RecordData data){
+    public WLANConnect(Context context, RecordData data){
         manager=(WifiManager) context.getApplicationContext().getSystemService(Activity.WIFI_SERVICE);
         this.context=context;
         this.data=data;
-        if (manager!=null){
-            IntentFilter filter=new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
-            context.registerReceiver(receiver,filter);
+    }
 
+    public void start(){
+        if (manager!=null){
+            checkAndConnectWLAN(context, Objects.requireNonNull(manager));
         }
-        else return;
     }
 
 
-    public static void checkWLAN(final Context context, final WifiManager manager){
+    private void checkAndConnectWLAN(final Context context, final WifiManager manager){
         if (!manager.isWifiEnabled()){
             new AlertDialog.Builder(context)
                     .setMessage("未打开WLAN，请问是否开启?")
@@ -50,27 +49,11 @@ public class WLANConnect {
                     .show();
 
         }
-        else return;
+        else {
+            startConnect(context,data);
+        }
 
     }
-
-    private BroadcastReceiver receiver=new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action=intent.getAction();
-            assert action != null;
-            if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)){
-                int state=intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE,-1);
-                switch (state){
-                    case WifiManager.WIFI_STATE_ENABLED:
-                        startConnect(context,data);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    };
 
 
     private void startConnect(Context context,RecordData data){
