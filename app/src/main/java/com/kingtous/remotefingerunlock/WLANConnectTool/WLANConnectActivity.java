@@ -193,7 +193,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
                                 EditText User=view.findViewById(R.id.edit_WIFI_username);
                                 EditText passwd=view.findViewById(R.id.edit_WIFI_passwd);
                                 EditText address=view.findViewById(R.id.edit_WIFI_address);
-                                CheckBox box_store=view.findViewById(R.id.dialog_checkbox_storeConnection);
+                                CheckBox box_store=view.findViewById(R.id.dialog_wifi_checkbox_storeConnection);
                                 CheckBox box_default=view.findViewById(R.id.dialog_wifi_checkbox_setDefault);
                                 Pattern pattern=Pattern.compile(RegexTool.ipRegex);
                                 Matcher matcher=pattern.matcher(address.getText());
