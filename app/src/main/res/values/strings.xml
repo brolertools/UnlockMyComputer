@@ -3,11 +3,11 @@
     <string name="navigation_drawer_open">打开菜单栏</string>
     <string name="navigation_drawer_close">关闭菜单栏</string>
     <string name="nav_header_title">指纹解锁</string>
-    <string name="nav_header_subtitle">一款开源的远程指纹解锁App</string>
+    <string name="nav_header_subtitle">一款远程指纹解锁App</string>
     <string name="nav_header_desc">菜单栏</string>
     <string name="action_settings">设置</string>
     <string name="UnlockTip">验证指纹解锁</string>
-    <string name="app_version">Version 1.2</string>
+    <string name="app_version">Version 1.3</string>
     <string name="sqlDBName">DataBase</string>
     <string name="wlanList">服务器列表(WLAN)</string>
 </resources>

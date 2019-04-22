@@ -70,7 +70,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
     TextView BluetoothStatusView;
 
     Button btn_search;
-    Button btn_connect;
+//    Button btn_connect;
     Button btn_back;
 
     //请求码
@@ -96,7 +96,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
         registerReceiver(mReceiver, filter);
 
         btn_search=(Button) findViewById(R.id.btn_BLUETOOTH_search);
-        btn_connect=(Button)findViewById(R.id.btn_BLUETOOTH_connect);
+//        btn_connect=(Button)findViewById(R.id.btn_BLUETOOTH_connect);
         btn_back=(Button)findViewById(R.id.btn_BLUETOOTH_back);
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -356,7 +356,8 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                                 if (stream!= null)
                                 {
                                     stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
-                                    log("发送成功\n内容:"+object.toString());
+//                                    log("发送成功\n内容:"+object.toString());
+                                    log("远程设备端已接收到请求");
                                 }
                                 else {
                                     log("未打开输出流，请检查设备是否开启服务端");

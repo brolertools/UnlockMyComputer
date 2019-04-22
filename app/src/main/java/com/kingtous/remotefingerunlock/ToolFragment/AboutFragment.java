@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.kingtous.remotefingerunlock.R;
 
@@ -36,11 +37,12 @@ public class AboutFragment extends Fragment {
         btn_url.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.VIEW");
-                Uri content_url = Uri.parse(address);
-                intent.setData(content_url);
-                startActivity(intent);
+//                Intent intent = new Intent();
+//                intent.setAction("android.intent.action.VIEW");
+//                Uri content_url = Uri.parse(address);
+//                intent.setData(content_url);
+//                startActivity(intent);
+                Toast.makeText(getContext(),"参赛作品，暂不开源",Toast.LENGTH_LONG).show();
             }
         });
         return view;
