@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kingtous.remotefingerunlock.Common.Connect;
+import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordAdapter;
@@ -240,7 +241,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                     View view1= LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add,null,false);
 
                     final String recordType= recordData.getType();
-                    String mac= recordData.getMac();
+                    final String mac= recordData.getMac();
                     String user= recordData.getUser();
                     String passwd= recordData.getPasswd();
                     int isDefault=recordData.getIsDefault();
@@ -272,15 +273,30 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     RecordData newRecordData =new RecordData();
-
-                                    if (group.getCheckedRadioButtonId()==R.id.manual_type_bluetooth){
-                                        newRecordData.setType("Bluetooth");
-                                    }
-
-                                    else newRecordData.setType("WLAN");
                                     newRecordData.setMac(macEdit.getText().toString());
                                     newRecordData.setUser(userEdit.getText().toString());
                                     newRecordData.setPasswd(passwdEdit.getText().toString());
+                                    if (group.getCheckedRadioButtonId()==R.id.manual_type_bluetooth){
+                                        newRecordData.setType("Bluetooth");
+                                        Pattern pattern=Pattern.compile(RegexTool.macRegex);
+                                        Matcher matcher=pattern.matcher(macEdit.getText().toString());
+                                        if (!matcher.matches()){
+                                            Toast.makeText(getContext(),"地址不合法",Toast.LENGTH_LONG).show();
+                                            return;
+                                        }
+                                    }
+                                    else {
+                                        newRecordData.setType("WLAN");
+                                        Pattern pattern=Pattern.compile(RegexTool.ipRegex);
+                                        Matcher matcher=pattern.matcher(macEdit.getText().toString());
+                                        if (!matcher.matches()){
+                                            Toast.makeText(getContext(),"地址不合法",Toast.LENGTH_LONG).show();
+                                            return;
+                                        }
+                                    }
+
+
+
 
                                     if (checkBox.isChecked())
                                     {

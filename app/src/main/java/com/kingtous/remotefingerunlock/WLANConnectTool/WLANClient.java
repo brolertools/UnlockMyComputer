@@ -37,11 +37,11 @@ public class WLANClient extends AsyncTask<Void, String, String> {
             object.put("passwd", data.getPasswd());
             stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
             stream.close();
-            log("远程设备端已接收到请求");
+            publishProgress("远程设备端已接收到请求");
         } catch (IOException ignored) {
-            log("设备未准备好，请检查设备是否开启服务端");
+            publishProgress("设备未准备好，请检查设备是否开启服务端");
         } catch (JSONException ignored) {
-            log("数据异常");
+            publishProgress("数据异常");
         }
         return null;
     }
@@ -49,6 +49,7 @@ public class WLANClient extends AsyncTask<Void, String, String> {
     @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
+        log(values[0]);
     }
 
     @Override
