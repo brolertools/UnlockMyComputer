@@ -212,7 +212,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                         SQLiteOpenHelper helper=new DataQueryHelper(BluetoothConnectActivity.this,getString(R.string.sqlDBName),null,1);
                         if (box_store.isChecked()){
                             //保存
-                            boolean result=RecordSQLTool.addtoSQL(helper,new RecordData("Bluetooth",name,passwd,deviceSelected.getAddress()));
+                            boolean result=RecordSQLTool.addtoSQL(helper,new RecordData("Bluetooth",name,passwd,deviceSelected.getAddress().toUpperCase()));
                             if (!result)
                                 log("保存失败，存在同MAC地址的记录或者数据库异常");
                         }

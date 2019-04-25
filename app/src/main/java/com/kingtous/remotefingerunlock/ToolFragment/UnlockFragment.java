@@ -114,4 +114,9 @@ public class UnlockFragment extends Fragment {
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        startFingerListening();
+    }
 }

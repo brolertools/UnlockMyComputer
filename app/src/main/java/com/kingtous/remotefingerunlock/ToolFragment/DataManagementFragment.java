@@ -46,10 +46,9 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
 
     int WRITE_PERMISSION=2;
 
-    public static String ipRegex="((25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))";
-    public static String macRegex="[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}-[0-9A-F]{2}";
-    Pattern maCpattern =Pattern.compile(macRegex);
-    Pattern iPpattern=Pattern.compile(ipRegex);
+
+    Pattern maCpattern =Pattern.compile(RegexTool.macRegex);
+    Pattern iPpattern=Pattern.compile(RegexTool.ipRegex);
 
 
     private ArrayList<RecordData> recordDataArrayList;
@@ -191,8 +190,8 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                         return;
                                     }
                                     final EditText mac=diaView.findViewById(R.id.manual_mac_edit);
-                                    Matcher matcher1= maCpattern.matcher(mac.getText().toString());
-                                    Matcher matcher2=iPpattern.matcher(mac.getText().toString());
+                                    Matcher matcher1= maCpattern.matcher(mac.getText().toString().toUpperCase());
+                                    Matcher matcher2=iPpattern.matcher(mac.getText().toString().toUpperCase());
                                     final EditText user=diaView.findViewById(R.id.manual_user_edit);
                                     final EditText passwd=diaView.findViewById(R.id.manual_passwd_edit);
                                     CheckBox checkBox=diaView.findViewById(R.id.manual_setDefault);
@@ -204,10 +203,10 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                     }
                                     if (checkBox.isChecked()){
                                         addRecord(type,user.getText().toString(),passwd.getText().toString()
-                                                ,mac.getText().toString(),RecordData.TRUE);
+                                                ,mac.getText().toString().toUpperCase(),RecordData.TRUE);
                                     }
                                     else addRecord(type,user.getText().toString(),passwd.getText().toString()
-                                            ,mac.getText().toString(),RecordData.FALSE);
+                                            ,mac.getText().toString().toUpperCase(),RecordData.FALSE);
                             }
                         })
                         .setNegativeButton("取消",null)
@@ -273,13 +272,13 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     RecordData newRecordData =new RecordData();
-                                    newRecordData.setMac(macEdit.getText().toString());
+                                    newRecordData.setMac(macEdit.getText().toString().toUpperCase());
                                     newRecordData.setUser(userEdit.getText().toString());
                                     newRecordData.setPasswd(passwdEdit.getText().toString());
                                     if (group.getCheckedRadioButtonId()==R.id.manual_type_bluetooth){
                                         newRecordData.setType("Bluetooth");
                                         Pattern pattern=Pattern.compile(RegexTool.macRegex);
-                                        Matcher matcher=pattern.matcher(macEdit.getText().toString());
+                                        Matcher matcher=pattern.matcher(macEdit.getText().toString().toUpperCase());
                                         if (!matcher.matches()){
                                             Toast.makeText(getContext(),"地址不合法",Toast.LENGTH_LONG).show();
                                             return;
@@ -294,10 +293,6 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                             return;
                                         }
                                     }
-
-
-
-
                                     if (checkBox.isChecked())
                                     {
                                         newRecordData.setIsDefault(RecordData.TRUE);
@@ -306,11 +301,11 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                     //更新数据库
                                     updateRecord(recordData, newRecordData);
                                     //更新前端
-                                    for (int i=0;i<recordDataArrayList.size();++i){
+                                    int length=recordDataArrayList.size();
+                                    for (int i=0;i<length;++i){
                                         if (recordDataArrayList.get(i).getMac().equals(recordData.getMac())){
                                             recordDataArrayList.remove(i);
                                             recordDataArrayList.add(i,newRecordData);
-                                            break;
                                         }
                                         else {
                                             if (newRecordData.getIsDefault()==RecordData.TRUE){
