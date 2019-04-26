@@ -31,6 +31,7 @@ import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
 import com.kingtous.remotefingerunlock.MainActivity;
 import com.kingtous.remotefingerunlock.R;
+import com.kingtous.remotefingerunlock.Widget.UnlockWidget;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -219,6 +220,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                         if (box_default.isChecked()){
                             //设置为指纹默认
                             RecordSQLTool.updateDefaultRecord(helper,deviceSelected.getAddress());
+                            UnlockWidget.update(getApplicationContext());
                         }
                         helper=null;
                         startConnect();

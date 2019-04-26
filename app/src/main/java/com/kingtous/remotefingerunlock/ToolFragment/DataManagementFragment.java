@@ -24,6 +24,7 @@ import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordAdapter;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
 import com.kingtous.remotefingerunlock.R;
+import com.kingtous.remotefingerunlock.Widget.UnlockWidget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +91,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
         }
         else app_empty.setVisibility(View.GONE);
         adapter.notifyDataSetChanged();
+        UnlockWidget.update(getActivity().getApplicationContext());
     }
 
     private void deleteRecord(RecordData recordData)
@@ -204,6 +206,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                     if (checkBox.isChecked()){
                                         addRecord(type,user.getText().toString(),passwd.getText().toString()
                                                 ,mac.getText().toString().toUpperCase(),RecordData.TRUE);
+
                                     }
                                     else addRecord(type,user.getText().toString(),passwd.getText().toString()
                                             ,mac.getText().toString().toUpperCase(),RecordData.FALSE);

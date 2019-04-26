@@ -1,5 +1,7 @@
 package com.kingtous.remotefingerunlock.DataStoreTool;
 
+import android.util.Base64;
+
 public class SecurityTransform {
 
 
