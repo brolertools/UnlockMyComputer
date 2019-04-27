@@ -1,8 +1,7 @@
 package com.kingtous.remotefingerunlock;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
@@ -11,7 +10,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.kingtous.remotefingerunlock.ToolFragment.AboutFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.ScanFragment;
-import com.kingtous.remotefingerunlock.ToolFragment.SettingsFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.UnlockFragment;
 
 import androidx.core.view.GravityCompat;
@@ -22,12 +20,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -72,12 +72,13 @@ public class MainActivity extends AppCompatActivity
         fragmentManager=getSupportFragmentManager();
         unlock=new UnlockFragment();
         scan=new ScanFragment();
-        settings=new SettingsFragment();
+//        settings=new SettingsFragment();
         dataManagement=new DataManagementFragment();
         about=new AboutFragment();
         switchFragment(unlock).commit();
-
-
+        Window w=getWindow();
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        w.setStatusBarColor(getResources().getColor(R.color.deepskyblue));
     }
 
 
@@ -124,27 +125,27 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -163,12 +164,14 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.DataManagement) {
             switchFragment(dataManagement)
                     .commit();
-        } else if (id == R.id.Settings) {
-            switchFragment(settings)
-                    .commit();
-        } else if (id == R.id.Share) {
-
-        } else if (id == R.id.About) {
+        }
+//        else if (id == R.id.Settings) {
+//            switchFragment(settings)
+//                    .commit();
+//        } else if (id == R.id.Share) {
+//
+//        }
+        else if (id == R.id.About) {
             switchFragment(about)
                     .commit();
         }

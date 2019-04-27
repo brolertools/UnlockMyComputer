@@ -1,6 +1,7 @@
 package com.kingtous.remotefingerunlock.ToolFragment;
 
 import android.app.Activity;
+
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 
 import android.os.CancellationSignal;
 import android.view.LayoutInflater;
@@ -112,4 +114,9 @@ public class UnlockFragment extends Fragment {
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        startFingerListening();
+    }
 }

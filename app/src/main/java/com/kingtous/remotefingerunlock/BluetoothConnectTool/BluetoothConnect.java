@@ -98,7 +98,8 @@ public class BluetoothConnect {
                             }
                             if (stream != null) {
                                 stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
-                                log("发送成功\n内容:" + object.toString());
+//                                log("发送成功\n内容:" + object.toString());
+                                log("远程设备端已接收到请求");
                             } else {
                                 log("未打开输出流，请检查设备是否开启服务端");
                             }
@@ -139,12 +140,9 @@ public class BluetoothConnect {
         }
     };
 
-
     private void log(String text){
         if (context!=null){
             Toast.makeText(context,text,Toast.LENGTH_LONG).show();
         }
     }
-
-
 }

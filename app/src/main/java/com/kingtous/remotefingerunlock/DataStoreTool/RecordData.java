@@ -1,5 +1,7 @@
 package com.kingtous.remotefingerunlock.DataStoreTool;
 
+import com.kingtous.remotefingerunlock.Security.SecurityTransform;
+
 public class RecordData {
 
     private String type;

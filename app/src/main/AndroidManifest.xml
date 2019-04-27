@@ -7,14 +7,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!--<uses-permission android:name="android.permission.INTERNET" />-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -22,10 +20,20 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver android:name=".Widget.UnlockWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/unlock_widget_info" />
+        </receiver>
 
         <activity
             android:name=".MainActivity"
-            android:label="🔓远程解锁"
+            android:label="远程解锁"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,20 +41,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BluetoothConnectTool.BluetoothConnectActivity"
+        <activity
+            android:name=".BluetoothConnectTool.BluetoothConnectActivity"
             android:label="🔍蓝牙选择"
-
-            />
-        <activity android:name=".ToolFragment.AboutFragment"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ToolFragment.AboutFragment"
             android:label="关于"
-            />
-        <activity android:name=".ToolActivity.Unlock" />
-        <activity android:name=".ToolActivity.Scan" />
-        <activity android:name=".ToolActivity.DataManagement" />
-        <activity android:name=".ToolActivity.Settings" />
-        <activity android:name=".WLANConnectTool.WLANConnectActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ToolActivity.Unlock"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ToolActivity.Scan"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ToolActivity.DataManagement"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ToolActivity.Settings"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".WLANConnectTool.WLANConnectActivity"
             android:label="🔍无线局域网选择"
-            />
+            android:screenOrientation="portrait" />
+
+        <service android:name=".service.UnlockWidgetService" />
     </application>
 
 </manifest>
