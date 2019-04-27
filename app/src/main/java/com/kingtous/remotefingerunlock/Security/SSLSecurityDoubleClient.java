@@ -3,6 +3,7 @@ package com.kingtous.remotefingerunlock.Security;
 import android.content.Context;
 import android.content.res.AssetManager;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
+import com.kingtous.remotefingerunlock.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,10 +31,7 @@ public class SSLSecurityDoubleClient {
         try {
             SSLContext sslContext = SSLContext.getInstance("SSL");
             KeyStore store = KeyStore.getInstance("BKS");
-            AssetManager manager = context.getAssets();
-            InputStream is = manager.open("remoteunlock.keystore");
-            store.load(is, "Server".toCharArray());
-            is.close();
+            store.load(context.getResources().openRawResource(R.raw.remoteunlock), "jintao123".toCharArray());
             TrustManagerFactory trustManagerFactory =
                     TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(store);

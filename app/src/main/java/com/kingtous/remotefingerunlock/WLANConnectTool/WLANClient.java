@@ -36,7 +36,6 @@ public class WLANClient extends AsyncTask<Void, String, String> {
     protected String doInBackground(Void... arg0) {
         //  连接
         try {
-            Looper.prepare();
             Socket socket= SSLSecurityClient.CreateSocket(context,host,port);
             OutputStream stream=socket.getOutputStream();
             JSONObject object = new JSONObject();
@@ -45,7 +44,6 @@ public class WLANClient extends AsyncTask<Void, String, String> {
             stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
             stream.close();
             publishProgress("远程设备端已接收到请求");
-            Looper.loop();
         } catch (IOException ignored) {
             publishProgress("设备未准备好，请检查设备是否开启服务端\n"+ignored.getMessage());
         } catch (JSONException ignored) {
