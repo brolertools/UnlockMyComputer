@@ -2,15 +2,21 @@ package com.kingtous.remotefingerunlock.WLANConnectTool;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
+import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
+import com.kingtous.remotefingerunlock.Security.SSLSecurityDoubleClient;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+
+import javax.net.ssl.SSLSocket;
 
 public class WLANClient extends AsyncTask<Void, String, String> {
 
@@ -30,7 +36,8 @@ public class WLANClient extends AsyncTask<Void, String, String> {
     protected String doInBackground(Void... arg0) {
         //  连接
         try {
-            Socket socket=new Socket(host,port);
+            Looper.prepare();
+            Socket socket= SSLSecurityClient.CreateSocket(context,host,port);
             OutputStream stream=socket.getOutputStream();
             JSONObject object = new JSONObject();
             object.put("username", data.getUser());
@@ -38,10 +45,11 @@ public class WLANClient extends AsyncTask<Void, String, String> {
             stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
             stream.close();
             publishProgress("远程设备端已接收到请求");
+            Looper.loop();
         } catch (IOException ignored) {
-            publishProgress("设备未准备好，请检查设备是否开启服务端");
+            publishProgress("设备未准备好，请检查设备是否开启服务端\n"+ignored.getMessage());
         } catch (JSONException ignored) {
-            publishProgress("数据异常");
+            publishProgress("数据异常\n"+ignored.getMessage());
         }
         return null;
     }
