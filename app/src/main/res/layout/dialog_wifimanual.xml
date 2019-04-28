@@ -14,6 +14,19 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="别名"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            />
+        <EditText
+            android:id="@+id/edit_WIFI_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="IP地址"
             android:textColor="@color/black"
             android:textSize="20sp"

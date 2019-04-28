@@ -22,8 +22,7 @@ import javax.net.ssl.TrustManagerFactory;
  */
 
 /*
-准备双向连接，
-TODO SSL证书生成
+准备双向连接
 */
 
 public class SSLSecurityDoubleClient {

@@ -3,12 +3,16 @@ package com.kingtous.remotefingerunlock.Widget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
+import android.net.wifi.SupplicantState;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -17,7 +21,6 @@ import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
 import com.kingtous.remotefingerunlock.R;
-import com.kingtous.remotefingerunlock.service.UnlockWidgetService;
 
 /**
  * Implementation of App Widget functionality.
@@ -54,7 +57,7 @@ public class UnlockWidget extends AppWidgetProvider {
             appWidgetManager.updateAppWidget(new ComponentName(context, UnlockWidget.class), views);
     }
 
-    public static RemoteViews updateViewMethod(DataQueryHelper helper,Context context){
+    public static RemoteViews updateViewMethod(DataQueryHelper helper, Context context){
         RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.unlock_widget);
         if (helper==null){
             helper=new DataQueryHelper(context,context.getString(R.string.sqlDBName),null,1);
@@ -99,6 +102,27 @@ public class UnlockWidget extends AppWidgetProvider {
                 RecordData defaultRecordData= RecordSQLTool.getDefaultRecordData(d);
                 if (defaultRecordData!=null)
                 {
+                    //检测是否开启WiFi，因为小控件无法弹出窗口
+                    if (defaultRecordData.getType().equals("WLAN")){
+                        WifiManager manager= (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                        WifiInfo info=manager.getConnectionInfo();
+                        SupplicantState state=info.getSupplicantState();
+                        if (state.name().equals("DISCONNECTED")){
+                            Toast.makeText(context,"WiFi未连接...",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                    }
+                    else if (defaultRecordData.getType().equals("Bluetooth")){
+                        BluetoothManager manager= (BluetoothManager) context.getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
+                        BluetoothAdapter adapter=manager.getAdapter();
+                        if (!adapter.isEnabled()){
+                            Toast.makeText(context,"蓝牙未连接...",Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                    }
+
                     Toast.makeText(context,"验证成功，连接中...",Toast.LENGTH_SHORT).show();
                     Connect.start(context.getApplicationContext(),defaultRecordData);
                 }

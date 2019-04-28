@@ -47,6 +47,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
             ((recordHolder)holder).type.setText(recordDataArrayList.get(position).getType());
+            ((recordHolder)holder).name.setText(recordDataArrayList.get(position).getName());
             ((recordHolder)holder).user.setText(recordDataArrayList.get(position).getUser());
             ((recordHolder)holder).mac.setText(recordDataArrayList.get(position).getMac());
             ((recordHolder)holder).toEdit.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +87,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public class recordHolder extends RecyclerView.ViewHolder{
 
+        public TextView name;
         public TextView type;
         public TextView user;
         public TextView mac;
@@ -96,6 +98,7 @@ public class RecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public recordHolder(@NonNull View itemView) {
             super(itemView);
+            name=itemView.findViewById(R.id.record_name);
             user=itemView.findViewById(R.id.record_user);
             mac=itemView.findViewById(R.id.record_mac);
             type=itemView.findViewById(R.id.record_type);

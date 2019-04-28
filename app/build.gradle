@@ -32,4 +32,5 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'me.imid.swipebacklayout.lib:library:1.1.0'
     implementation 'com.github.sd6352051:NiftyDialogEffects:v1.0.3'
+    implementation 'com.github.stealthcopter:AndroidNetworkTools:0.4.0'
 }

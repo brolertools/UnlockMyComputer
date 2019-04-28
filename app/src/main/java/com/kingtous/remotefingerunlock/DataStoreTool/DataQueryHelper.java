@@ -10,10 +10,13 @@ public class DataQueryHelper extends SQLiteOpenHelper{
 
     private final String CreateBook="create table data(" +
             "Type text,"+
-            "Mac text PRIMARY KEY," +
+            "Name text,"+
+            "Mac text," +
             "User text," +
+            "Ip Integer,"+
             "Passwd text," +
-            "isDefault Integer)";
+            "isDefault Integer," +
+            "PRIMARY KEY(Mac,User))";
 
 
     public DataQueryHelper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {

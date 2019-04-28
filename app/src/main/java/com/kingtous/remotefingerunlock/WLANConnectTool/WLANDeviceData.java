@@ -2,20 +2,20 @@ package com.kingtous.remotefingerunlock.WLANConnectTool;
 
 public class WLANDeviceData  {
 
-    static int port=2085;
+    static int port=2084;
 
     String name;
     String mac;
-    String currentIP;
+    String ip;
 
-    public WLANDeviceData(String name, String mac,String IP) {
+    public WLANDeviceData(String name, String mac,String ip) {
         if (name==null ||name.equals(""))
         {
             this.name="(未指定)";
         }
         this.name = name;
         this.mac = mac;
-        this.currentIP=IP;
+        this.ip=ip;
     }
 
     public String getName() {
@@ -34,12 +34,11 @@ public class WLANDeviceData  {
         this.mac = mac;
     }
 
-
-    public String getCurrentIP() {
-        return currentIP;
+    public String getIp() {
+        return ip;
     }
 
-    public void setCurrentIP(String currentIP) {
-        this.currentIP = currentIP;
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

@@ -5,8 +5,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.kingtous.remotefingerunlock.WLANConnectTool.WLANRecyclerAdapter;
 import com.kingtous.remotefingerunlock.R;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -41,16 +42,6 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
     //=========暴露接口=========
 
-    public View getFooter() {
-        return footer;
-    }
-
-    public void setFooter(View footer) {
-        this.footer = footer;
-        notifyItemInserted(getItemCount()-1);
-    }
-
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -66,8 +57,9 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if (getItemViewType(position)==TYPE_DEVICES){
-            ((deviceHolder)holder).currentIP.setText(devices.get(position).getName());
+            ((deviceHolder)holder).ip.setText(devices.get(position).getIp());
             ((deviceHolder)holder).mac.setText(devices.get(position).getMac());
+            ((deviceHolder)holder).name.setText(devices.get(position).getName());
             //=======通过接口回调===========
             ((WLANRecyclerAdapter.deviceHolder) holder).cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -76,14 +68,6 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 }
             });
         }
-        else if (getItemViewType(position)==TYPE_FOOTER)
-        {
-            return;
-        }
-        else {
-            return;
-        }
-
     }
 
     @Override
@@ -98,18 +82,15 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemViewType(int position) {
-//        if (position==getItemCount()-1){
-//            //最后是footer
-//            return TYPE_FOOTER;
-//        }
         return TYPE_DEVICES;
     }
 
     public class deviceHolder extends RecyclerView.ViewHolder{
 
         public CardView cardView;
+        public TextView name;
         public TextView mac;
-        public TextView currentIP;
+        public TextView ip;
 
         public deviceHolder(@NonNull View itemView) {
             super(itemView);
@@ -118,7 +99,8 @@ public class WLANRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             else {
                 mac=itemView.findViewById(R.id.name_WLAN_device_mac);
                 cardView=itemView.findViewById(R.id.card_WLAN);
-                currentIP=itemView.findViewById(R.id.name_WLAN_device_ip);
+                name=itemView.findViewById(R.id.name_WLAN_device_name);
+                ip=itemView.findViewById(R.id.name_WLAN_device_ip);
             }
         }
     }

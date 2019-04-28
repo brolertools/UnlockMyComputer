@@ -29,7 +29,6 @@ import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
-import com.kingtous.remotefingerunlock.MainActivity;
 import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Widget.UnlockWidget;
 
@@ -47,7 +46,6 @@ import java.util.UUID;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -79,6 +77,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
     static String MY_UUID="4E5877C0-8297-4AAE-B7BD-73A8CBC1EDAF";
 
     //
+    String user;
     String name;
     String passwd;
 
@@ -167,10 +166,6 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
         lst_view.setItemAnimator(defaultItemAnimator);
 
         lst_view.setAdapter(adapter);
-//        setFooterButtons(lst_view);
-
-
-
         //已配对
         if (bluetoothAdapter!=null)
             getDeviceList();
@@ -187,11 +182,14 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
         final View view=LayoutInflater.from(this).inflate(R.layout.dialog_user_passwd,null,false);
 
         //设置CheckBox关系
+        //按下确定键后的事件
+        ((EditText)view.findViewById(R.id.edit_name)).setText(deviceSelected.getName());
+
         final CheckBox box_store=view.findViewById(R.id.dialog_checkbox_storeConnection);
         final CheckBox box_default=view.findViewById(R.id.dialog_checkbox_setDefault);
 
-        box_default.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
+        box_default.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked){
@@ -205,21 +203,22 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                 .setPositiveButton("发送", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        //按下确定键后的事件
-                        name=((EditText)view.findViewById(R.id.edit_username)).getText().toString();
+
+                        name=((EditText)view.findViewById(R.id.edit_name)).getText().toString();
+                        user=((EditText)view.findViewById(R.id.edit_username)).getText().toString();
                         passwd=((EditText)view.findViewById(R.id.edit_passwd)).getText().toString();
-                        //检查checkbox
 
                         SQLiteOpenHelper helper=new DataQueryHelper(BluetoothConnectActivity.this,getString(R.string.sqlDBName),null,1);
                         if (box_store.isChecked()){
                             //保存
-                            boolean result=RecordSQLTool.addtoSQL(helper,new RecordData("Bluetooth",name,passwd,deviceSelected.getAddress().toUpperCase()));
+                            boolean result=RecordSQLTool.addtoSQL(helper,
+                                    new RecordData("Bluetooth",name,user,passwd,null,deviceSelected.getAddress().toUpperCase()));
                             if (!result)
                                 log("保存失败，存在同MAC地址的记录或者数据库异常");
                         }
                         if (box_default.isChecked()){
                             //设置为指纹默认
-                            RecordSQLTool.updateDefaultRecord(helper,deviceSelected.getAddress());
+                            RecordSQLTool.updateDefaultRecord(helper,deviceSelected.getAddress(),user);
                             UnlockWidget.update(getApplicationContext());
                         }
                         helper=null;
@@ -241,11 +240,12 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
         if (!bluetoothAdapter.isEnabled())
         {
             final NiftyDialogBuilder builder=NiftyDialogBuilder.getInstance(BluetoothConnectActivity.this);
-            builder.withEffect(Effectstype.Shake)
-                    .withDialogColor(R.color.dodgerblue)
+            builder.withEffect(Effectstype.Fall)
+                    .withDialogColor(R.color.deepskyblue)
                     .withMessage("蓝牙未打开，是否打开蓝牙？")
                     .withButton1Text("打开")
                     .withButton2Text("取消")
+                    .isCancelableOnTouchOutside(false)
                     .setButton1Click(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

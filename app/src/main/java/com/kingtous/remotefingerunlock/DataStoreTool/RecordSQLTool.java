@@ -20,8 +20,14 @@ public class RecordSQLTool {
                 case "Type":
                     recordData.setType(cursor.getString(cursor.getColumnIndex(colomnName)));
                     break;
+                case "Name":
+                    recordData.setName(cursor.getString(cursor.getColumnIndex(colomnName)));
+                    break;
                 case "Mac":
                     recordData.setMac(cursor.getString(cursor.getColumnIndex(colomnName)));
+                    break;
+                case "Ip":
+                    recordData.setIp(cursor.getString(cursor.getColumnIndex(colomnName)));
                     break;
                 case "User":
                     recordData.setUser(cursor.getString(cursor.getColumnIndex(colomnName)));
@@ -42,17 +48,12 @@ public class RecordSQLTool {
     public static boolean updatetoSQL(SQLiteDatabase writableDatabase, RecordData old_record,RecordData new_record){
         if (writableDatabase!=null && old_record!=null && new_record!=null) {
 
-            ContentValues values = new ContentValues();
-            values.put("Type", new_record.getType());
-            values.put("Mac", new_record.getMac());
-            values.put("User", new_record.getUser());
-            values.put("Passwd", new_record.getPasswd());
-            values.put("isDefault",new_record.getIsDefault());
-
+            ContentValues values = loadValues(new_record);
             boolean result = false;
-            //先在数据库中查找是否有Mac相同的值
-            String[] cond = new String[]{old_record.getMac()};
-            int cnt=writableDatabase.update("data",values,"Mac=?",cond);
+            //先在数据库中查找是否有Mac,User相同的值
+            String[] cond = new String[]{old_record.getMac(),old_record.getUser()};
+
+            int cnt=writableDatabase.update("data",values,"Mac=? and User=?",cond);
             if (cnt>0){
                 result=true;
             }
@@ -62,14 +63,26 @@ public class RecordSQLTool {
         else return false;
     }
 
+    private static ContentValues loadValues(RecordData record){
+        ContentValues values=new ContentValues();
+        values.put("Type", record.getType());
+        values.put("Name", record.getName());
+        values.put("Mac", record.getMac());
+        values.put("User", record.getUser());
+        values.put("Ip", record.getIp());
+        values.put("Passwd", record.getPasswd());
+        values.put("isDefault",record.getIsDefault());
+        return values;
+    }
+
 
     public static boolean deleteRecordFromSQL(SQLiteDatabase writableDatabase, RecordData data){
         if (writableDatabase!=null && data!=null) {
 
             boolean result = false;
             //先在数据库中查找是否有Mac相同的值
-            String[] cond = new String[]{data.getMac()};
-            int cnt=writableDatabase.delete("data","Mac=?",cond);
+            String[] cond = new String[]{data.getMac(),data.getUser()};
+            int cnt=writableDatabase.delete("data","Mac=? and User=?",cond);
             if (cnt>0){
                 result=true;
             }
@@ -85,17 +98,14 @@ public class RecordSQLTool {
 
         if (writableDatabase!=null && data!=null) {
 
-            ContentValues values = new ContentValues();
-            values.put("Type", data.getType());
-            values.put("Mac", data.getMac());
-            values.put("User", data.getUser());
-            values.put("Passwd", data.getPasswd());
-            values.put("isDefault",data.getIsDefault());
+            ContentValues values = loadValues(data);
 
             boolean result = false;
-            //先在数据库中查找是否有Mac相同的值
-            String[] cond = new String[]{data.getMac()};
-            Cursor cursor = writableDatabase.query("data", null, "Mac=?", cond, null, null, null);
+            //先在数据库中查找是否有Mac,User相同的值
+            String[] cond = new String[]{data.getMac(),data.getUser()};
+
+            Cursor cursor = writableDatabase.rawQuery
+                    ("select Mac,User from data where Mac='"+data.getMac()+"' and User='"+data.getUser()+"'",new String[]{});
             if (cursor.moveToNext()) {
                 //有值，放弃插入
                 return result;
@@ -104,7 +114,7 @@ public class RecordSQLTool {
                 writableDatabase.insert("data", null, values);
                 if (data.getIsDefault()==RecordData.TRUE){
                     //去除default
-                    updateDefaultRecord(helper,data.getMac());
+                    updateDefaultRecord(helper,data.getMac(),data.getUser());
                 }
                 result = true;
             } catch (Exception e) {
@@ -129,7 +139,7 @@ public class RecordSQLTool {
         return null;
     }
 
-    public static boolean updateDefaultRecord(SQLiteOpenHelper helper, String macAddress){
+    public static boolean updateDefaultRecord(SQLiteOpenHelper helper, String macAddress,String user){
         SQLiteDatabase readSQL=helper.getReadableDatabase();
         SQLiteDatabase writeSQL=helper.getWritableDatabase();
         if (readSQL!=null && writeSQL!=null){
@@ -148,7 +158,7 @@ public class RecordSQLTool {
                 //设置为newlyRecordData
                 ContentValues values=new ContentValues();
                 values.put("isDefault",RecordData.TRUE);
-                writeSQL.update("data",values,"Mac=?",new String[]{macAddress});
+                writeSQL.update("data",values,"Mac=? and User=?",new String[]{macAddress,user});
                 cursor.close();
                 result=true;
             }

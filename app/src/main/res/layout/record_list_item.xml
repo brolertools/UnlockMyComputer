@@ -10,22 +10,31 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/record_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Record Name"
+            android:textSize="25sp"
+            android:gravity="center_horizontal"
+            android:layout_margin="5dp"
+            />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/record_type_and_default"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/record_name">
 
             <TextView
-                android:id="@+id/record_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Record Type"
-                android:textSize="25sp"
-                android:gravity="center_horizontal"
-                android:layout_margin="5dp"
-                />
-
+            android:id="@+id/record_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Record Type"
+            android:textSize="20sp"
+            android:gravity="center_horizontal"
+            android:layout_margin="5dp"
+            />
             <TextView
                 android:id="@+id/record_sign_default"
                 android:layout_width="wrap_content"
@@ -36,10 +45,7 @@
                 android:visibility="gone"
                 />
 
-
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
 
         <LinearLayout
             android:id="@+id/record_mac_user_field"
