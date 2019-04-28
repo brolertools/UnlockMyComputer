@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/recordData"
     android:layout_margin="20dp"
+    android:background="@color/white"
     >
 
     <RelativeLayout

@@ -16,6 +16,8 @@ import android.os.CancellationSignal;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kingtous.remotefingerunlock.Common.Connect;
@@ -34,6 +36,8 @@ public class UnlockFragment extends Fragment {
     CancellationSignal cancellationSignal;
     FingerprintManager.AuthenticationCallback authenticationCallback;
     SQLiteOpenHelper helper;
+    FrameLayout messageFrame;
+    View messageView;
 
     Context context;
     public UnlockFragment() {
@@ -43,6 +47,7 @@ public class UnlockFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        messageView=inflater.inflate(R.layout.unlock_status,container,false);
         return inflater.inflate(R.layout.unlock, container, false);
     }
 
@@ -50,11 +55,32 @@ public class UnlockFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         helper=new DataQueryHelper(context,getString(R.string.sqlDBName),null,1);
+        messageFrame= Objects.requireNonNull(getActivity()).findViewById(R.id.FingerMessage);
+        messageFrame.addView(messageView);
+        updateStatus();
+    }
+
+    private void updateStatus(){
+        RecordData data=RecordSQLTool.getDefaultRecordData(helper.getReadableDatabase());
+        if (data==null){
+            ((TextView)messageView.findViewById(R.id.appwidget_user)).setText(getString(R.string.defaultUser));
+            ((TextView)messageView.findViewById(R.id.appwidget_method)).setText(getString(R.string.defaultUnlockMethod));
+        }
+        else {
+            String type=data.getType();
+            String user=data.getUser();
+            ((TextView)messageView.findViewById(R.id.appwidget_user)).setText("默认用户名："+user);
+            ((TextView)messageView.findViewById(R.id.appwidget_method)).setText("解锁方式："+type);
+        }
+
+
+
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         fingerprintManager = (FingerprintManager) Objects.requireNonNull(getActivity()).getSystemService(Activity.FINGERPRINT_SERVICE);
         keyguardManager = (KeyguardManager) getActivity().getSystemService(Activity.KEYGUARD_SERVICE);
         cancellationSignal = new CancellationSignal();
@@ -118,5 +144,6 @@ public class UnlockFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startFingerListening();
+        updateStatus();
     }
 }

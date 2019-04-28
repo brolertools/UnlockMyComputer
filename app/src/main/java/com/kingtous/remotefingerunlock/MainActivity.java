@@ -1,6 +1,7 @@
 package com.kingtous.remotefingerunlock;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -11,7 +12,10 @@ import com.kingtous.remotefingerunlock.ToolFragment.AboutFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.ScanFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.UnlockFragment;
+import com.special.ResideMenu.ResideMenu;
+import com.special.ResideMenu.ResideMenuItem;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -45,11 +49,62 @@ public class MainActivity extends AppCompatActivity
 
     FragmentManager fragmentManager;
 
-    Fragment unlock,scan,settings,dataManagement,about;
+    Fragment unlock,scan,dataManagement,about;
     Fragment currentFragment;
     //request code
     int FINGER_REQUEST_CODE=1;
 
+    void initSideMenu(){
+        String titles[] = { "解锁", "搜索设备", "数据管理","关于","退出"};
+        int icon[] = { R.drawable.back2, R.drawable.back2, R.drawable.back2,R.drawable.back2,R.drawable.back2};
+        final ResideMenu menu=new ResideMenu(this);
+        menu.setBackground(R.drawable.background);
+        menu.attachToActivity(this);
+        for (int i = 0; i < titles.length; i++){
+            ResideMenuItem item = new ResideMenuItem(this, icon[i], titles[i]);
+            final int finalI = i;
+            item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    switch (finalI){
+                        case 0:
+                            //解锁
+                            switchFragment(unlock)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 1:
+                            // 搜索
+                            switchFragment(scan)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 2:
+                            // 退出登录，跳转到登录页面
+                            switchFragment(dataManagement)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 3:
+                            // 关于
+                            switchFragment(about)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 4:
+                            //退出
+                            menu.closeMenu();
+                            finish();
+                            break;
+                    }
+                }
+            });
+            menu.addMenuItem(item, ResideMenu.DIRECTION_LEFT); // or  ResideMenu.DIRECTION_RIGHT
+        }
+        menu.setSwipeDirectionDisable(ResideMenu.DIRECTION_RIGHT);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,14 +112,16 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        initSideMenu();
 
-        navigationView = (NavigationView) findViewById(R.id.nav);
-        navigationView.setNavigationItemSelectedListener(this);
+//        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        toggle = new ActionBarDrawerToggle(
+//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.addDrawerListener(toggle);
+//        toggle.syncState();
+//
+//        navigationView = (NavigationView) findViewById(R.id.nav);
+//        navigationView.setNavigationItemSelectedListener(this);
 
         checkPermission();
 

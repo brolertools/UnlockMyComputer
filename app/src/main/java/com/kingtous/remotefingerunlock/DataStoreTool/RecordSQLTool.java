@@ -130,6 +130,9 @@ public class RecordSQLTool {
 
 
     public static RecordData getDefaultRecordData(SQLiteDatabase readableDatabase){
+        if (readableDatabase == null){
+            return null;
+        }
         String[] cond=new String[]{String.valueOf(RecordData.TRUE)};
         Cursor cursor=readableDatabase.query("data",null,"isDefault=?",cond,null,null,null);
         if(cursor.moveToNext())

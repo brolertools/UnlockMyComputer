@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.kingtous.remotefingerunlock"
-        minSdkVersion 19
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -33,4 +33,5 @@ dependencies {
     implementation 'me.imid.swipebacklayout.lib:library:1.1.0'
     implementation 'com.github.sd6352051:NiftyDialogEffects:v1.0.3'
     implementation 'com.github.stealthcopter:AndroidNetworkTools:0.4.0'
+    implementation 'com.specyci:residemenu:1.6+'
 }

@@ -7,6 +7,7 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="end"
     android:statusBarColor="@color/deepskyblue"
+    android:background="@color/white"
     >
 
     <include
