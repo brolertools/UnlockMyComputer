@@ -55,44 +55,54 @@ public class WLANClient extends Thread {
             Ping p=Ping.onAddress(host);
             p.setTimeOutMillis(1000);
             PingResult result=p.doPing();
+
+
             if (!result.isReachable() || !ARPInfo.getMACFromIPAddress(host).equals(data.getMac())){
-                log("IP已更改，正在重新查找");
-                // 尝试用Mac搜索新的host
-                RecordData dataTmp=data;
-                String ip=ARPInfo.getIPAddressFromMAC(dataTmp.getMac());
-                if (ip==null){
-                    final String[] ipTmp = new String[1];
-                    //搜索子网
-                    SubnetDevices devices=SubnetDevices.fromLocalAddress();
-                    devices.findDevices(new SubnetDevices.OnSubnetDeviceFound() {
-                        @Override
-                        public void onDeviceFound(Device device) {
-                            if (device.mac!=null && device.mac.toUpperCase().equals(data.getMac())){
-                                ipTmp[0] =device.ip;
-                            }
-                        }
-                        @Override
-                        public void onFinished(ArrayList<Device> arrayList) {
-                        }
-                    });
-                    if (ipTmp[0]==null){
-                        //TODO 后期更新，当WiFi无法ping通时调用蓝牙
-                        log("无法建立连接，请检查设备是否开启服务端");
-                        return;
-                    }
-                    else {
-                        ip=ipTmp[0];
-                        host=ip;
-                    }
+
+                if (data.getMac().equals("") || data.getMac()==null){
 
                 }
-                dataTmp.setIp(ip);
-                // 更新数据库
-                DataQueryHelper helper=new DataQueryHelper(context,context.getString(R.string.sqlDBName),null,1);
-                if (RecordSQLTool.updatetoSQL(helper.getWritableDatabase(),data, dataTmp)){
-                    log("IP变化，已更新数据");
+                else {
+                    log("IP已更改，正在重新查找");
+                    // 尝试用Mac搜索新的host
+                    RecordData dataTmp=data;
+                    String ip=ARPInfo.getIPAddressFromMAC(dataTmp.getMac());
+                    if (ip==null){
+                        final String[] ipTmp = new String[1];
+                        //搜索子网
+                        SubnetDevices devices=SubnetDevices.fromLocalAddress();
+                        devices.findDevices(new SubnetDevices.OnSubnetDeviceFound() {
+                            @Override
+                            public void onDeviceFound(Device device) {
+                                if (device.mac!=null && device.mac.toUpperCase().equals(data.getMac())){
+                                    ipTmp[0] =device.ip;
+                                }
+                            }
+                            @Override
+                            public void onFinished(ArrayList<Device> arrayList) {
+                            }
+                        });
+                        if (ipTmp[0]==null){
+                            //TODO 后期更新，当WiFi无法ping通时调用蓝牙
+                            log("无法建立连接，请检查设备是否开启服务端");
+                            return;
+                        }
+                        else {
+                            ip=ipTmp[0];
+                            host=ip;
+                        }
+
+                    }
+                    dataTmp.setIp(ip.toUpperCase());
+                    // 更新数据库
+                    DataQueryHelper helper=new DataQueryHelper(context,context.getString(R.string.sqlDBName),null,1);
+                    if (RecordSQLTool.updatetoSQL(helper.getWritableDatabase(),data, dataTmp)){
+                        log("IP变化，已更新数据");
+                    }
                 }
             }
+
+
             Socket socket= SSLSecurityClient.CreateSocket(context,host,port);//new Socket(host,port);//SSLSecurityClient.CreateSocket(context,host,port);
             if (socket==null){
                 log("无法建立连接，请检查设备是否开启服务端");

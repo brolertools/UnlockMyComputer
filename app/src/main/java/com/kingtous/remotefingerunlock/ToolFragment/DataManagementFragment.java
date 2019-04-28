@@ -219,10 +219,17 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                         Toast.makeText(getContext(),"地址不合法",Toast.LENGTH_LONG).show();
                                         return;
                                     }
-                                    String s=ARPInfo.getMACFromIPAddress(ip.getText().toString());
-                                    if (s==null){
-                                        Toast.makeText(getContext(),"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
+                                    if (type.equals("WLAN")){
+                                        String s=ARPInfo.getMACFromIPAddress(ip.getText().toString());
+                                        if (s==null){
+//                                            Toast.makeText(getContext(),"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
+                                        }
+                                        else {
+                                            Toast.makeText(getContext(),"自动获取到ip对应的mac地址\n"+s.toUpperCase(),Toast.LENGTH_LONG).show();
+                                            mac.setText(s.toUpperCase());
+                                        }
                                     }
+
                                     if (checkBox.isChecked()){
                                         addRecord(type,
                                                 name.getText().toString(),
@@ -327,9 +334,10 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                             // ping，获取mac
                                             String s=ARPInfo.getMACFromIPAddress(ipEdit.getText().toString());
                                             if (s==null){
-                                                Toast.makeText(getContext(),"未获取到ip对应的mac地址,不作更改",Toast.LENGTH_LONG).show();
+//                                                Toast.makeText(getContext(),"未获取到ip对应的mac地址,不作更改",Toast.LENGTH_LONG).show();
                                             } else {
-                                                newRecordData.setMac(s);
+                                                newRecordData.setMac(s.toUpperCase());
+                                                Toast.makeText(getContext(),"更新成功并获取到Ip对应的Mac地址",Toast.LENGTH_LONG).show();
                                             }
 
                                         }
