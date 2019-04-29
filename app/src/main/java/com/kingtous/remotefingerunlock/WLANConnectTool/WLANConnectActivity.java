@@ -113,7 +113,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
                 public void onDeviceFound(Device device) {
                     WLANDeviceData data=new WLANDeviceData(device.hostname,device.mac,device.ip);
                     for (WLANDeviceData listData : deviceDatalist){
-                        if (data.getMac()==null || listData.getMac().equals(data.getMac())){
+                        if (data.getMac()==null || listData.getMac()==null || listData.getMac().equals(data.getMac())){
                             return;
                         }
                     }

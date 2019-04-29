@@ -32,7 +32,11 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+import javax.net.ssl.HandshakeCompletedEvent;
+import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 public class WLANClient extends Thread {
 
@@ -101,8 +105,6 @@ public class WLANClient extends Thread {
                     }
                 }
             }
-
-
             Socket socket= SSLSecurityClient.CreateSocket(context,host,port);//new Socket(host,port);//SSLSecurityClient.CreateSocket(context,host,port);
             if (socket==null){
                 log("无法建立连接，请检查设备是否开启服务端");
