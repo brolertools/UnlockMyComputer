@@ -6,11 +6,10 @@ public class BluetoothDeviceData {
     String mac;
 
     public BluetoothDeviceData(String name, String mac) {
-        if (name==null || name.equals(""))
-        {
-            this.name="(未指定)";
+        if (name == null || name.equals("")) {
+            this.name = mac;
         }
-        this.name = name;
+        else this.name = name;
         this.mac = mac;
     }
 

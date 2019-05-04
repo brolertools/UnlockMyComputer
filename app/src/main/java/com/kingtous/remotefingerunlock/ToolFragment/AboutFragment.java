@@ -20,10 +20,9 @@ public class AboutFragment extends Fragment {
 
     Button btn_url;
 
-    String address="https://github.com/Kingtous/RemoteUnlockMyComputer";
+    String address = "https://github.com/Kingtous/RemoteUnlockMyComputer";
 
-    public AboutFragment()
-    {
+    public AboutFragment() {
 
     }
 
@@ -31,8 +30,8 @@ public class AboutFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view=LayoutInflater.from(getContext()).inflate(R.layout.app_about,container,false);
-        btn_url=view.findViewById(R.id.btn_welcome_url);
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.app_about, container, false);
+        btn_url = view.findViewById(R.id.btn_welcome_url);
 
         btn_url.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,7 +41,7 @@ public class AboutFragment extends Fragment {
 //                Uri content_url = Uri.parse(address);
 //                intent.setData(content_url);
 //                startActivity(intent);
-                Toast.makeText(getContext(),"参赛作品，暂不开源",Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "参赛作品，暂不开源", Toast.LENGTH_LONG).show();
             }
         });
         return view;

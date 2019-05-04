@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
+    android:background="@color/white"
     >
 <LinearLayout
     android:id="@+id/manual_type_group"
@@ -51,15 +52,54 @@
 </LinearLayout>
 
     <TextView
-        android:id="@+id/manual_mac"
+        android:id="@+id/manual_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="地址"
+        android:text="别名"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_below="@+id/manual_type_group"
+        />
+    <EditText
+        android:id="@+id/manual_name_edit"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/manual_name"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:hint="NickName..." />
+    <TextView
+        android:id="@+id/manual_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="IP地址(蓝牙不填)"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_below="@+id/manual_name_edit"
+        />
+    <EditText
+        android:id="@+id/manual_ip_edit"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/manual_ip"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:hint="IP Address..." />
+
+    <TextView
+        android:id="@+id/manual_mac"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mac地址(WLAN选填)"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_below="@+id/manual_ip_edit"
         />
 
     <EditText
@@ -69,7 +109,7 @@
         android:layout_below="@+id/manual_mac"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:hint="Address..." />
+        android:hint="Mac Address..." />
 
     <TextView
         android:id="@+id/manual_user"

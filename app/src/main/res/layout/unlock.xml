@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="@color/white">
 
 
     <ImageView
@@ -27,7 +28,7 @@
         android:textSize="20sp"
         />
 
-    <TextView
+    <FrameLayout
         android:id="@+id/FingerMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

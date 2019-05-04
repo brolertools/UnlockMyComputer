@@ -1,6 +1,7 @@
 package com.kingtous.remotefingerunlock;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -11,7 +12,10 @@ import com.kingtous.remotefingerunlock.ToolFragment.AboutFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.ScanFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.UnlockFragment;
+import com.special.ResideMenu.ResideMenu;
+import com.special.ResideMenu.ResideMenuItem;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -35,7 +39,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,EasyPermissions.PermissionCallbacks {
+        implements NavigationView.OnNavigationItemSelectedListener, EasyPermissions.PermissionCallbacks {
 
     Toolbar toolbar;
     DrawerLayout drawer;
@@ -45,11 +49,62 @@ public class MainActivity extends AppCompatActivity
 
     FragmentManager fragmentManager;
 
-    Fragment unlock,scan,settings,dataManagement,about;
+    Fragment unlock, scan, dataManagement, about;
     Fragment currentFragment;
     //request code
-    int FINGER_REQUEST_CODE=1;
+    int FINGER_REQUEST_CODE = 1;
 
+    void initSideMenu() {
+        String titles[] = {"解锁", "搜索设备", "数据管理", "关于", "退出"};
+        int icon[] = {R.drawable.back2, R.drawable.back2, R.drawable.back2, R.drawable.back2, R.drawable.back2};
+        final ResideMenu menu = new ResideMenu(this);
+        menu.setBackground(R.drawable.background);
+        menu.attachToActivity(this);
+        for (int i = 0; i < titles.length; i++) {
+            ResideMenuItem item = new ResideMenuItem(this, icon[i], titles[i]);
+            final int finalI = i;
+            item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    switch (finalI) {
+                        case 0:
+                            //解锁
+                            switchFragment(unlock)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 1:
+                            // 搜索
+                            switchFragment(scan)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 2:
+                            // 退出登录，跳转到登录页面
+                            switchFragment(dataManagement)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 3:
+                            // 关于
+                            switchFragment(about)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 4:
+                            //退出
+                            menu.closeMenu();
+                            finish();
+                            break;
+                    }
+                }
+            });
+            menu.addMenuItem(item, ResideMenu.DIRECTION_LEFT); // or  ResideMenu.DIRECTION_RIGHT
+        }
+        menu.setSwipeDirectionDisable(ResideMenu.DIRECTION_RIGHT);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,48 +112,50 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        initSideMenu();
 
-        navigationView = (NavigationView) findViewById(R.id.nav);
-        navigationView.setNavigationItemSelectedListener(this);
+//        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        toggle = new ActionBarDrawerToggle(
+//                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.addDrawerListener(toggle);
+//        toggle.syncState();
+//
+//        navigationView = (NavigationView) findViewById(R.id.nav);
+//        navigationView.setNavigationItemSelectedListener(this);
 
         checkPermission();
 
         //fragment
-        fragmentManager=getSupportFragmentManager();
-        unlock=new UnlockFragment();
-        scan=new ScanFragment();
+        fragmentManager = getSupportFragmentManager();
+        unlock = new UnlockFragment();
+        scan = new ScanFragment();
 //        settings=new SettingsFragment();
-        dataManagement=new DataManagementFragment();
-        about=new AboutFragment();
+        dataManagement = new DataManagementFragment();
+        about = new AboutFragment();
         switchFragment(unlock).commit();
-        Window w=getWindow();
+        Window w = getWindow();
         w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         w.setStatusBarColor(getResources().getColor(R.color.deepskyblue));
     }
 
 
-    private void checkPermission(){
-        if (!EasyPermissions.hasPermissions(this, Manifest.permission.USE_FINGERPRINT)){
-            String[] permissions=new String[]{Manifest.permission.USE_FINGERPRINT,Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN};
-            EasyPermissions.requestPermissions(this,"需要申请指纹权限",FINGER_REQUEST_CODE,permissions);
+    private void checkPermission() {
+        if (!EasyPermissions.hasPermissions(this, Manifest.permission.USE_FINGERPRINT)) {
+            String[] permissions = new String[]{Manifest.permission.USE_FINGERPRINT, Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN};
+            EasyPermissions.requestPermissions(this, "需要申请指纹权限", FINGER_REQUEST_CODE, permissions);
         }
     }
 
     @Override
     public void onPermissionsGranted(int requestCode, @androidx.annotation.NonNull List<String> perms) {
-        return ;
+        return;
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, @androidx.annotation.NonNull List<String> perms) {
 
-        final NiftyDialogBuilder builder=NiftyDialogBuilder.getInstance(MainActivity.this);
+        final NiftyDialogBuilder builder = NiftyDialogBuilder.getInstance(MainActivity.this);
         builder.withTitle("权限获取")
                 .withEffect(Effectstype.Shake)
                 .withMessage("权限获取失败，请允许指纹权限")
@@ -187,9 +244,9 @@ public class MainActivity extends AppCompatActivity
         transaction.setTransitionStyle(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 
         if (!targetFragment.isAdded()) {
-            transaction.add(R.id.fragmentShow,targetFragment,targetFragment.getClass().getName());
+            transaction.add(R.id.fragmentShow, targetFragment, targetFragment.getClass().getName());
         }
-        transaction.replace(R.id.fragmentShow,targetFragment);
+        transaction.replace(R.id.fragmentShow, targetFragment);
         currentFragment = targetFragment;
         return transaction;
     }

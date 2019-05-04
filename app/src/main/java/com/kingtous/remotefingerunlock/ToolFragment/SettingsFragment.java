@@ -17,18 +17,18 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.settings,menu);
+        inflater.inflate(R.menu.settings, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    public SettingsFragment(){
+    public SettingsFragment() {
 
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.settings_menu,container,false);
+        return inflater.inflate(R.layout.settings_menu, container, false);
     }
 
 }

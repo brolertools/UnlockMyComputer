@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".BluetoothConnectTool.BluetoothConnectActivity">
+    tools:context=".BluetoothConnectTool.BluetoothConnectActivity"
+    android:background="@color/white">
 
 
     <TextView
@@ -43,16 +44,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/floatbtn_wifi_stopSearch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                app:srcCompat="?attr/actionModeCutDrawable"
-                android:layout_gravity="bottom|right"
-                android:layout_margin="20dp"
-                android:visibility="visible"
-                />
 
             <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lst_WLAN"

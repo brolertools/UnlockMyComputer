@@ -38,26 +38,24 @@ public class BluetoothConnect {
     private Context context;
     private RecordData record;
 
-    public void start(@NonNull Context context,@NonNull RecordData data){
-        this.context=context;
-        record=data;
+    public void start(@NonNull Context context, @NonNull RecordData data) {
+        this.context = context;
+        record = data;
 
-        manager=(BluetoothManager) context.getSystemService(Activity.BLUETOOTH_SERVICE);
+        manager = (BluetoothManager) context.getSystemService(Activity.BLUETOOTH_SERVICE);
 
-        adapter=manager.getAdapter();
+        adapter = manager.getAdapter();
 
-        checkBluetooth(context,adapter);
+        checkBluetooth(context, adapter);
 
-        IntentFilter filter=new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        context.registerReceiver(receiver,filter);
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        context.registerReceiver(receiver, filter);
 
 
     }
 
-    private void checkBluetooth(Context context, final BluetoothAdapter bluetoothAdapter)
-    {
-        if (!bluetoothAdapter.isEnabled())
-        {
+    private void checkBluetooth(Context context, final BluetoothAdapter bluetoothAdapter) {
+        if (!bluetoothAdapter.isEnabled()) {
             new AlertDialog.Builder(context)
                     .setMessage("蓝牙未打开")
                     .setMessage("请打开蓝牙")
@@ -69,13 +67,12 @@ public class BluetoothConnect {
                     })
                     .setNegativeButton("取消", null)
                     .show();
-        }
-        else startConnect();
+        } else startConnect();
     }
 
 
-    private void startConnect(){
-        final BluetoothDevice deviceSelected=adapter.getRemoteDevice(record.getMac());
+    private void startConnect() {
+        final BluetoothDevice deviceSelected = adapter.getRemoteDevice(record.getMac());
         if (deviceSelected.getBondState() == BluetoothDevice.BOND_NONE) {
             deviceSelected.createBond();
         } else {
@@ -120,15 +117,15 @@ public class BluetoothConnect {
 
     }
 
-    private BroadcastReceiver receiver= new BroadcastReceiver(){
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action=intent.getAction();
+            String action = intent.getAction();
             assert action != null;
-            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)){
-                int state=intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,-1);
-                switch (state){
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+                switch (state) {
                     case (BluetoothAdapter.STATE_ON):
                         startConnect();
                         break;
@@ -140,9 +137,9 @@ public class BluetoothConnect {
         }
     };
 
-    private void log(String text){
-        if (context!=null){
-            Toast.makeText(context,text,Toast.LENGTH_LONG).show();
+    private void log(String text) {
+        if (context != null) {
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
         }
     }
 }

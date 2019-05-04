@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     tools:context=".MainActivity"
     android:statusBarColor="@color/deepskyblue"
+    android:background="@color/white"
     >
 
     <com.google.android.material.appbar.AppBarLayout
