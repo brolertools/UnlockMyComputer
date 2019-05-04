@@ -14,30 +14,29 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-
 public class BluetoothRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    int footer_postion=0;
+    int footer_postion = 0;
     //原来加了footer的，现在不需要了
-    int TYPE_FOOTER=0;
-    int TYPE_DEVICES=1;
+    int TYPE_FOOTER = 0;
+    int TYPE_DEVICES = 1;
 
     ArrayList<BluetoothDeviceData> devices;
     View footer;
 
-    BluetoothRecyclerAdapter(ArrayList<BluetoothDeviceData> list){
-       devices=list;
+    BluetoothRecyclerAdapter(ArrayList<BluetoothDeviceData> list) {
+        devices = list;
     }
 
 
     //========接口============
-    public interface OnItemClickListener{
-        void OnClick(View view,int Position);
+    public interface OnItemClickListener {
+        void OnClick(View view, int Position);
     }
 
     private OnItemClickListener mOnItemClickListener;
 
-    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener){
+    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener) {
         this.mOnItemClickListener = mOnItemClickListener;
     }
     //=========暴露接口=========
@@ -48,7 +47,7 @@ public class BluetoothRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
 
     public void setFooter(View footer) {
         this.footer = footer;
-        notifyItemInserted(getItemCount()-1);
+        notifyItemInserted(getItemCount() - 1);
     }
 
 
@@ -56,46 +55,39 @@ public class BluetoothRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        if (viewType==footer_postion && footer!=null)
-        {
+        if (viewType == footer_postion && footer != null) {
             return new deviceHolder(footer);
         }
-        View layout= LayoutInflater.from(parent.getContext()).inflate(R.layout.bluetooth_device_item,parent,false);
+        View layout = LayoutInflater.from(parent.getContext()).inflate(R.layout.bluetooth_device_item, parent, false);
         return new deviceHolder(layout);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
-        if (getItemViewType(position)==TYPE_DEVICES){
-            ((deviceHolder)holder).name.setText(devices.get(position).getName());
-            ((deviceHolder)holder).mac.setText(devices.get(position).getMac());
+        if (getItemViewType(position) == TYPE_DEVICES) {
+            ((deviceHolder) holder).name.setText(devices.get(position).getName());
+            ((deviceHolder) holder).mac.setText(devices.get(position).getMac());
             //=======通过接口回调===========
             ((deviceHolder) holder).cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnItemClickListener.OnClick(((deviceHolder) holder).cardView,position);
+                    mOnItemClickListener.OnClick(((deviceHolder) holder).cardView, position);
                 }
             });
-        }
-        else if (getItemViewType(position)==TYPE_FOOTER)
-        {
+        } else if (getItemViewType(position) == TYPE_FOOTER) {
+            return;
+        } else {
             return;
         }
-        else {
-            return;
-        }
-
 
 
     }
 
     @Override
     public int getItemCount() {
-        if (footer!=null)
-        {
-            return devices.size()+1;
-        }
-        else
+        if (footer != null) {
+            return devices.size() + 1;
+        } else
             return devices.size();
     }
 
@@ -109,7 +101,7 @@ public class BluetoothRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
         return TYPE_DEVICES;
     }
 
-    public class deviceHolder extends RecyclerView.ViewHolder{
+    public class deviceHolder extends RecyclerView.ViewHolder {
 
         public CardView cardView;
         public TextView name;
@@ -117,12 +109,12 @@ public class BluetoothRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
 
         public deviceHolder(@NonNull View itemView) {
             super(itemView);
-            if (itemView==footer)
+            if (itemView == footer)
                 return;
             else {
-                name=itemView.findViewById(R.id.name_bluetooth_device_name);
-                mac=itemView.findViewById(R.id.name_bluetooth_device_mac);
-                cardView=itemView.findViewById(R.id.card_BLUETOOTH);
+                name = itemView.findViewById(R.id.name_bluetooth_device_name);
+                mac = itemView.findViewById(R.id.name_bluetooth_device_mac);
+                cardView = itemView.findViewById(R.id.card_BLUETOOTH);
             }
         }
     }

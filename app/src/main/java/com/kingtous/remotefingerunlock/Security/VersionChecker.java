@@ -10,11 +10,11 @@ import org.json.JSONObject;
  */
 public class VersionChecker {
 
-    public static float versionRequirement=2;
+    public static float versionRequirement = 2;
 
     public static boolean versionAvaliable(String readline) throws JSONException {
-        JSONObject array=new JSONObject(readline);
-        if (Float.valueOf(array.getString("version"))>=versionRequirement)
+        JSONObject array = new JSONObject(readline);
+        if (Float.valueOf(array.getString("version")) >= versionRequirement)
             return true;
         else return false;
     }

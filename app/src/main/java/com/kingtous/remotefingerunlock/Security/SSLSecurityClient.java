@@ -34,8 +34,7 @@ public class SSLSecurityClient {
             MyX509TrustManager trustManager = new MyX509TrustManager();
             sslContext.init(null, new TrustManager[]{trustManager}, new SecureRandom());
             return sslContext.getSocketFactory().createSocket(Address, port);
-        }
-        catch (KeyManagementException e) {
+        } catch (KeyManagementException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

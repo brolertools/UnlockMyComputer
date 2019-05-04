@@ -45,8 +45,8 @@ public class WLANClient extends Thread {
     RecordData data;
     private Context context;
 
-    WLANClient(Context context,String host, int port, RecordData data) {
-        this.context=context;
+    WLANClient(Context context, String host, int port, RecordData data) {
+        this.context = context;
         this.host = host;
         this.port = port;
         this.data = data;
@@ -56,57 +56,56 @@ public class WLANClient extends Thread {
     public void run() {
         Looper.prepare();
         try {
-            Ping p=Ping.onAddress(host);
+            Ping p = Ping.onAddress(host);
             p.setTimeOutMillis(1000);
-            PingResult result=p.doPing();
+            PingResult result = p.doPing();
+            String macinfo=ARPInfo.getMACFromIPAddress(host);
+            if (!result.isReachable() || (macinfo!=null && !ARPInfo.getMACFromIPAddress(host).equals(data.getMac()))) {
 
+                if (data.getMac().equals("") || data.getMac() == null) {
 
-            if (!result.isReachable() || !ARPInfo.getMACFromIPAddress(host).equals(data.getMac())){
-
-                if (data.getMac().equals("") || data.getMac()==null){
-
-                }
-                else {
+                } else {
                     log("IP已更改，正在重新查找");
                     // 尝试用Mac搜索新的host
-                    RecordData dataTmp=data;
-                    String ip=ARPInfo.getIPAddressFromMAC(dataTmp.getMac());
-                    if (ip==null){
+                    RecordData dataTmp = data;
+                    String ip = ARPInfo.getIPAddressFromMAC(dataTmp.getMac());
+                    if (ip == null) {
                         final String[] ipTmp = new String[1];
                         //搜索子网
-                        SubnetDevices devices=SubnetDevices.fromLocalAddress();
+                        SubnetDevices devices = SubnetDevices.fromLocalAddress();
                         devices.findDevices(new SubnetDevices.OnSubnetDeviceFound() {
                             @Override
                             public void onDeviceFound(Device device) {
-                                if (device.mac!=null && device.mac.toUpperCase().equals(data.getMac())){
-                                    ipTmp[0] =device.ip;
+                                if (device.mac != null && device.mac.toUpperCase().equals(data.getMac())) {
+                                    ipTmp[0] = device.ip;
                                 }
                             }
+
                             @Override
                             public void onFinished(ArrayList<Device> arrayList) {
                             }
                         });
-                        if (ipTmp[0]==null){
+                        if (ipTmp[0] == null) {
                             //TODO 后期更新，当WiFi无法ping通时调用蓝牙
                             log("无法建立连接，请检查设备是否开启服务端");
                             return;
-                        }
-                        else {
-                            ip=ipTmp[0];
-                            host=ip;
+                        } else {
+                            ip = ipTmp[0];
+                            host = ip;
                         }
 
                     }
                     dataTmp.setIp(ip.toUpperCase());
                     // 更新数据库
-                    DataQueryHelper helper=new DataQueryHelper(context,context.getString(R.string.sqlDBName),null,1);
-                    if (RecordSQLTool.updatetoSQL(helper.getWritableDatabase(),data, dataTmp)){
+                    DataQueryHelper helper = new DataQueryHelper(context, context.getString(R.string.sqlDBName), null, 1);
+                    if (RecordSQLTool.updatetoSQL(helper.getWritableDatabase(), data, dataTmp)) {
                         log("IP变化，已更新数据");
                     }
                 }
             }
-            Socket socket= SSLSecurityClient.CreateSocket(context,host,port);//new Socket(host,port);//SSLSecurityClient.CreateSocket(context,host,port);
-            if (socket==null){
+
+            Socket socket = SSLSecurityClient.CreateSocket(context, host, port);//new Socket(host,port);//SSLSecurityClient.CreateSocket(context,host,port);
+            if (socket == null) {
                 log("无法建立连接，请检查设备是否开启服务端");
                 return;
             }
@@ -120,7 +119,7 @@ public class WLANClient extends Thread {
 //                    return;
 //                }
 //            }
-            OutputStream stream=socket.getOutputStream();
+            OutputStream stream = socket.getOutputStream();
             JSONObject object = new JSONObject();
             object.put("username", data.getUser());
             object.put("passwd", data.getPasswd());
@@ -128,19 +127,18 @@ public class WLANClient extends Thread {
             stream.close();
             log("远程设备端已接收到请求");
         } catch (IOException ignored) {
-            log("设备未准备好\n"+ignored.getMessage());
+            log("设备未准备好\n" + ignored.getMessage());
         } catch (JSONException ignored) {
-            log("数据异常\n"+ignored.getMessage());
-        }
-        finally {
+            log("数据异常\n" + ignored.getMessage());
+        } finally {
             Looper.loop();
         }
 
     }
 
-    private void log(String text){
-        if (context!=null){
-            Toast.makeText(context,text,Toast.LENGTH_LONG).show();
+    private void log(String text) {
+        if (context != null) {
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
         }
     }
 

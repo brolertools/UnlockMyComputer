@@ -19,32 +19,32 @@ import androidx.fragment.app.Fragment;
 
 public class ScanFragment extends Fragment {
 
-    public ScanFragment(){
+    public ScanFragment() {
 
     }
 
     Button btn_WL;
     Button btn_BT;
 
-    int BT_RequestCode=1;
-    int WL_RequestCode=2;
+    int BT_RequestCode = 1;
+    int WL_RequestCode = 2;
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view=inflater.inflate(R.layout.scan_list,container,false);
-        btn_WL=view.findViewById(R.id.btn_WLAN);
-        btn_BT=view.findViewById(R.id.btn_BLUETOOTH);
+        View view = inflater.inflate(R.layout.scan_list, container, false);
+        btn_WL = view.findViewById(R.id.btn_WLAN);
+        btn_BT = view.findViewById(R.id.btn_BLUETOOTH);
 
         btn_WL.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                Snackbar.make(v, "正在开发中...", Snackbar.LENGTH_LONG)
 //                        .setAction("OK", null).show();
-                Intent intent=new Intent(getContext(), WLANConnectActivity.class);
-                startActivityForResult(intent,WL_RequestCode);
+                Intent intent = new Intent(getContext(), WLANConnectActivity.class);
+                startActivityForResult(intent, WL_RequestCode);
             }
         });
 
@@ -52,8 +52,8 @@ public class ScanFragment extends Fragment {
         btn_BT.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(getContext(), BluetoothConnectActivity.class);
-                startActivityForResult(intent,BT_RequestCode);
+                Intent intent = new Intent(getContext(), BluetoothConnectActivity.class);
+                startActivityForResult(intent, BT_RequestCode);
             }
         });
 
@@ -64,12 +64,9 @@ public class ScanFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode==BT_RequestCode)
-        {
+        if (requestCode == BT_RequestCode) {
 
-        }
-        else if (requestCode==WL_RequestCode)
-        {
+        } else if (requestCode == WL_RequestCode) {
 
         }
     }

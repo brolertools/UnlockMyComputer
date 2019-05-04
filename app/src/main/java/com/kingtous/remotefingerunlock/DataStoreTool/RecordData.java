@@ -12,33 +12,31 @@ public class RecordData {
     //蓝牙的mac即mac，WLAN连接则为ip地址
     private String mac;
     private int isDefault;
-    public static int FALSE=0;
-    public static int TRUE=1;
+    public static int FALSE = 0;
+    public static int TRUE = 1;
 
-    public RecordData(){
+    public RecordData() {
 
     }
 
-    public RecordData(String Type,String name,String User,String Passwd,String ip,String Mac)
-    {
-        this.name=name;
-        this.type=Type;
-        this.user=User;
-        this.ip=ip;
-        this.passwd=SecurityTransform.encrypt(Passwd);
-        this.mac=Mac;
-        this.isDefault=FALSE;
+    public RecordData(String Type, String name, String User, String Passwd, String ip, String Mac) {
+        this.name = name;
+        this.type = Type;
+        this.user = User;
+        this.ip = ip;
+        this.passwd = SecurityTransform.encrypt(Passwd);
+        this.mac = Mac;
+        this.isDefault = FALSE;
     }
 
-    public RecordData(String Type,String name,String User,String Passwd,String ip,String Mac,int isDefault)
-    {
-        this.name=name;
-        this.type=Type;
-        this.user=User;
-        this.ip=ip;
-        this.passwd=SecurityTransform.encrypt(Passwd);
-        this.mac=Mac;
-        this.isDefault=isDefault;
+    public RecordData(String Type, String name, String User, String Passwd, String ip, String Mac, int isDefault) {
+        this.name = name;
+        this.type = Type;
+        this.user = User;
+        this.ip = ip;
+        this.passwd = SecurityTransform.encrypt(Passwd);
+        this.mac = Mac;
+        this.isDefault = isDefault;
     }
 
     public String getIp() {

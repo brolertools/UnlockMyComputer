@@ -2,6 +2,7 @@ package com.kingtous.remotefingerunlock.Security;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.R;
 
@@ -16,6 +17,7 @@ import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+
 /**
  * Author：Kingtous
  * Date：2019/4/27

@@ -84,7 +84,7 @@
                 android:id="@+id/record_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/record_mac_user_field"
+
                 android:text="修改"
                 android:layout_weight="100"
                 />
@@ -93,8 +93,6 @@
                 android:id="@+id/record_delete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/record_mac_user_field"
-                android:layout_toEndOf="@+id/record_edit"
                 android:text="删除"
                 android:layout_weight="100"
                 />
@@ -102,9 +100,14 @@
                 android:id="@+id/record_connect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/record_mac_user_field"
-                android:layout_toEndOf="@+id/record_edit"
                 android:text="连接"
+                android:layout_weight="100"
+                />
+            <Button
+                android:id="@+id/record_more"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="更多"
                 android:layout_weight="100"
                 />
 
