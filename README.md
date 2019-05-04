@@ -3,10 +3,19 @@
 > 作者：Kingtous
 
 功能：
+- 解锁电脑
+- Wake On LAN
+- 文件传输(暂未开发)
+- 锁上电脑(暂未开发)
 
-- 提供指纹和账号密码两种方式解锁电脑等设备
+# 下载地址
+[Release](https://github.com/Kingtous/UnlockMyComputer/releases)
 
 # 时间轴
+
+## May 4,2019
+正式发布1.0版本，有安卓、Windows、Linux三端
+
 ## Apr 13,2019
 更新WLAN、蓝牙客户端 For Linux (using systemd)
 - 使用到的python套件
