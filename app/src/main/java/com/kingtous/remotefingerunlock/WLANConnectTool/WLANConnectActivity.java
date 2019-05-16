@@ -325,7 +325,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
                     switch (extra) {
                         case WifiManager.WIFI_STATE_ENABLED:
                             //检测wifi是否连接无线局域网
-                            if (isWifiConnected()) {
+                            if (isWifiConnected(context)) {
                                 //wifi已开启，开始向局域网广播
                                 startSearch();
                             } else {
@@ -359,12 +359,12 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
         }
     };
 
-    private boolean isWifiConnected() {
+    public static boolean isWifiConnected(Context context) {
         /*
         判断是否为Wifi连接
          */
         ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         int state = networkInfo.getType();
         switch (state) {
