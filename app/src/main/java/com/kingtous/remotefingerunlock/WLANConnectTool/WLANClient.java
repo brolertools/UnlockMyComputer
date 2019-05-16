@@ -60,8 +60,8 @@ public class WLANClient extends Thread {
             p.setTimeOutMillis(1000);
             PingResult result = p.doPing();
             String macinfo=ARPInfo.getMACFromIPAddress(host);
-            if (!result.isReachable() || (macinfo!=null && !ARPInfo.getMACFromIPAddress(host).equals(data.getMac()))) {
-
+//弃用            if (!result.isReachable() || (macinfo!=null && !ARPInfo.getMACFromIPAddress(host).equals(data.getMac()))) {
+            if (!result.isReachable()) {
                 if (data.getMac().equals("") || data.getMac() == null) {
 
                 } else {
