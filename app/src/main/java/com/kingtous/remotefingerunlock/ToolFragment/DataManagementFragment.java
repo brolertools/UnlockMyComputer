@@ -325,6 +325,11 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                     //更新前端
                                     int length = recordDataArrayList.size();
                                     for (int i = 0; i < length; ++i) {
+
+                                        if (recordDataArrayList.get(i).getMac()==null || recordData.getMac()==null){
+                                            continue;
+                                        }
+
                                         if (recordDataArrayList.get(i).getMac().equals(recordData.getMac())) {
                                             recordDataArrayList.remove(i);
                                             recordDataArrayList.add(i, newRecordData);
