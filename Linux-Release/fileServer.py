@@ -2,9 +2,12 @@ import threading
 import socket
 import ssl
 from common import *
-import os
+
 encoding = 'utf-8'
 BUFSIZE = 1024
+
+FILE = 0
+FOLDER = 1
 
 
 # a read thread, read data from remote
@@ -19,15 +22,28 @@ class Reader(threading.Thread):
             if data:
                 string = bytes.decode(data, encoding)
 
-                act=json.loads(string)
+                act = json.loads(string)
 
-                jsonTobeSend=dict()
-
-                if act.get('Query',-1)!=-1:
+                if act.get('Query', -1) != -1:
+                    json_tobe_send = dict()
                     # 文件
-                    path=act['Query']
-                    os.lis
+                    path = act['Query']
 
+                    json_tobe_send[path] = path
+
+                    if os.path.exists(path):
+                        file_list = os.listdir(path)
+                        for f in file_list:
+                            if os.path.isfile(os.path.join(path, f)):
+                                json_tobe_send[f] = FILE
+                            else:
+                                json_tobe_send[f] = FOLDER
+
+                    send_str = json.JSONEncoder().encode(json_tobe_send)
+                    # try:
+                    if self.client.sendall(send_str.encode('utf-8')) is None:
+                        print('发送成功')
+                        break
 
 
     def readline(self):
@@ -49,8 +65,8 @@ class Listener(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
         # SSL
-        self.SSLContext=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-        self.SSLContext.load_cert_chain(certfile='cacert.pem',keyfile='privkey.pem')
+        self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        self.SSLContext.load_cert_chain(certfile='cacert.pem', keyfile='privkey.pem')
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -61,7 +77,7 @@ class Listener(threading.Thread):
         print("listener started")
         while True:
             client, cltadd = self.sock.accept()
-            ssl_conn=self.SSLContext.wrap_socket(client,server_side=True)
+            ssl_conn = self.SSLContext.wrap_socket(client, server_side=True)
             Reader(ssl_conn).start()
             cltadd = cltadd
             print("accept a connect")
@@ -72,5 +88,5 @@ def startWLAN():
     lst.start()  # then start
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     startWLAN()

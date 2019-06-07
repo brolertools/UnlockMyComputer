@@ -74,6 +74,10 @@
             android:name=".WLANConnectTool.WLANConnectActivity"
             android:label="🔍无线局域网选择"
             android:screenOrientation="portrait" />
+        <activity android:name=".FileTransferTool.FileTransferActivity"
+            android:label="📃文件传输"
+            />
+        <activity android:name=".FileTransferTool.FileTransferFolderActivity" />
 
         <service android:name=".service.UnlockWidgetService" />
     </application>

@@ -1,7 +1,13 @@
-蓝牙客户端 For Linux using systemd
+蓝牙客户端 For Linux using systemd+loginctl
+
+## 使用方法(python3)
+
+- blue.py 开启蓝牙单模式
+- wifi.py 开启WiFi单模式
+- \_\_init\_\_.py 开启蓝牙+WiFi双通道模式
 
 
-## 2019.04.13
+## 使用说明
 - 使用到的python套件
     - json
     - pybluez

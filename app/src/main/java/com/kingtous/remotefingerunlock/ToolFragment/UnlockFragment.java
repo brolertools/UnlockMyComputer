@@ -42,6 +42,8 @@ public class UnlockFragment extends Fragment {
 
     Context context;
 
+    public boolean isVisible;
+
     public UnlockFragment() {
 
     }
@@ -125,11 +127,13 @@ public class UnlockFragment extends Fragment {
     }
 
     private void startFingerListening() {
-        fingerprintManager.authenticate(null,
-                cancellationSignal,
-                0,
-                authenticationCallback,
-                null);
+//        if (isVisible){
+            fingerprintManager.authenticate(null,
+                    cancellationSignal,
+                    0,
+                    authenticationCallback,
+                    null);
+//        }
     }
 
     @Override
@@ -145,4 +149,16 @@ public class UnlockFragment extends Fragment {
         startFingerListening();
         updateStatus();
     }
+
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(getUserVisibleHint()) {
+            isVisible = true;
+        } else {
+            isVisible = false;
+        }
+    }
+
 }

@@ -5,6 +5,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import java.util.ArrayList;
 
 public class RecordSQLTool {
 
@@ -58,6 +61,38 @@ public class RecordSQLTool {
             return result;
 
         } else return false;
+    }
+
+    public static ArrayList<RecordData> getAllWLANData(SQLiteDatabase db){
+        if (db!=null){
+            Cursor cursor=db.query("data",null,"Type=?", new String[]{"WLAN"},null,null,"Name");
+            ArrayList<RecordData> list=new ArrayList<>();
+            while (cursor.moveToNext()){
+                list.add(toRecordData(cursor));
+            }
+            cursor.close();
+            return list;
+        }
+        else {
+            Log.e("数据库","db为null");
+        }
+        return null;
+    }
+
+    public static ArrayList<RecordData> getAllBluetoothData(SQLiteDatabase db){
+        if (db!=null){
+            Cursor cursor=db.query("data",null,"Type=?", new String[]{"Bluetooth"},null,null,"Name");
+            ArrayList<RecordData> list=new ArrayList<>();
+            while (cursor.moveToNext()){
+                list.add(toRecordData(cursor));
+            }
+            cursor.close();
+            return list;
+        }
+        else {
+            Log.e("数据库","db为null");
+        }
+        return null;
     }
 
     private static ContentValues loadValues(RecordData record) {
