@@ -97,7 +97,7 @@ public class UnlockWidget_icon extends AppWidgetProvider {
 
     private static PendingIntent getPendingIntent(Context context, int resID) {
         Intent intent = new Intent();
-        intent.setClass(context, UnlockWidget_icon.class);//如果没有这一句，表示匿名的。加上表示是显式的。在单个按钮的时候是没啥区别的，但是多个的时候就有问题了
+        intent.setClass(context, UnlockWidget.class);//如果没有这一句，表示匿名的。加上表示是显式的。在单个按钮的时候是没啥区别的，但是多个的时候就有问题了
         intent.setAction("unlock");
         //设置data域的时候，把控件id一起设置进去，
         // 因为在绑定的时候，是将同一个id绑定在一起的，所以哪个控件点击，发送的intent中data中的id就是哪个控件的id

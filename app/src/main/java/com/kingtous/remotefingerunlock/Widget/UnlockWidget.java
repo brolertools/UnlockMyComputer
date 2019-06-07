@@ -50,7 +50,7 @@ public class UnlockWidget extends AppWidgetProvider {
             helper = new DataQueryHelper(context, context.getString(R.string.sqlDBName), null, 1);
         }
         RemoteViews views = updateViewMethod(helper, context);
-        views.setOnClickPendingIntent(R.id.appwidget, getPendingIntent(context, R.id.appwidget));
+        views.setOnClickPendingIntent(R.id.appwidget_text, getPendingIntent(context, R.id.appwidget_text));
 //        context.startService(new Intent(context, UnlockWidgetService.class));
         // Instruct the widget manager to update the widget
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
