@@ -11,7 +11,6 @@ import com.google.gson.Gson;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
-import com.kingtous.remotefingerunlock.WLANConnectTool.PingAndConfirmTool;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
 import org.json.JSONException;
@@ -24,50 +23,37 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void> implements DialogInterface.OnClickListener{
+public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> implements DialogInterface.OnClickListener{
 
     private Context context;
-    private Socket socket;
-
-    FileTransferConnectTask(Context context,RecordData data){
+    FileTransferQueryTask(Context context, String IP){
         this.context=context;
         dialog=new ProgressDialog(context);
-        this.data=data;
+        this.IP=IP;
     }
-    RecordData data;
+    String message="";
     ProgressDialog dialog;
-    String message= "";
     private int resultCode=-1;
-    String IP;
-
+    String path;
+    private String IP;
     private String recvStr;
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
         dialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", this);
-        dialog.setTitle("正在连接");
-        dialog.setMessage("正在初始化参数");
+        dialog.setMessage("正在请求");
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
+    protected void onPostExecute(FileModel aModel) {
         dialog.dismiss();
-        if (resultCode!=-1){
-            //跳转到文件Activity
-            ToastMessageTool.tts(context,"连接成功");
-            Intent intent=new Intent(context,FileTransferFolderActivity.class);
-            intent.putExtra("detail",recvStr);
-            intent.putExtra("ip",IP);
-            context.startActivity(intent);
-        }
-        else {
+        if (resultCode==-1) {
             new AlertDialog.Builder(context)
-                    .setTitle("连接失败")
-                    .setMessage(message)
-                    .setNegativeButton("确定",null)
+                    .setTitle("获取目标文件夹失败")
+                    .setNegativeButton("确定", null)
                     .show();
         }
     }
@@ -79,29 +65,25 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
     }
 
     @Override
-    protected Void doInBackground(RecordData... recordData) {
-        if (data!=null){
+    protected FileModel doInBackground(String... strings) {
             //检查可用性
-            IP=PingAndConfirmTool.findCorrectIP(context,data);
-            publishProgress(new String[]{"正在连接至："+data.getName()+"("+IP+")"});
-            if (IP!=null){
+            path =strings[0];
+            if (path !=null){
                 //尝试SSL连接目标IP
                 try {
-                    socket=SSLSecurityClient.CreateSocket(context,IP, WLANDeviceData.port);
-                    SocketHolder.setSocket(socket);
-                    if (socket != null) {
-                        OutputStream stream=socket.getOutputStream();
-                        //TODO 验证
-
-                        //发送根目录请求
+                    if (SocketHolder.getSocket().isClosed())
+                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.port));
+                    if (SocketHolder.getSocket() != null) {
+                        OutputStream stream=SocketHolder.getSocket().getOutputStream();
+                        //发送目录请求
                         JSONObject object=new JSONObject();
-                        object.put("Query","/.");
+                        object.put("Query",path);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
                         stream.close();
 
                         //读入数据
-                        BufferedInputStream buffered = new BufferedInputStream(socket.getInputStream());
+                        BufferedInputStream buffered = new BufferedInputStream(SocketHolder.getSocket().getInputStream());
                         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                         int r=-1;
                         byte buff[] =new byte[1024];
@@ -112,11 +94,11 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                             {
                                 break;
                             }
-
                         }
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         message=recvStr;
                         resultCode=0;
+                        return new Gson().fromJson(recvStr,FileModel.class);
                     }
                 } catch (IOException e) {
                     message=e.getMessage();
@@ -124,7 +106,6 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                     message=e.getMessage();
                 }
             }
-        }
         return null;
     }
 

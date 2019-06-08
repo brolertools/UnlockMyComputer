@@ -29,21 +29,27 @@ class Reader(threading.Thread):
                     # 文件
                     path = act['Query']
 
-                    json_tobe_send[path] = path
+                    json_tobe_send['current_folder'] = path
+                    json_tobe_send['detail']=[]
 
                     if os.path.exists(path):
                         file_list = os.listdir(path)
                         for f in file_list:
+                            detail = dict()
+                            detail.clear()
+                            detail['file_name'] = f
                             if os.path.isfile(os.path.join(path, f)):
-                                json_tobe_send[f] = FILE
+                                detail['attributes'] = FILE
                             else:
-                                json_tobe_send[f] = FOLDER
+                                detail['attributes'] = FOLDER
+                            detail['size'] = os.path.getsize(os.path.join(path, f))
+                            json_tobe_send['detail'].append(detail.copy())
 
                     send_str = json.JSONEncoder().encode(json_tobe_send)
                     # try:
                     if self.client.sendall(send_str.encode('utf-8')) is None:
                         print('发送成功')
-                        break
+                        print(send_str)
 
 
     def readline(self):
