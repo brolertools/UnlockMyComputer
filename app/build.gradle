@@ -35,4 +35,5 @@ dependencies {
     implementation 'com.github.stealthcopter:AndroidNetworkTools:0.4.0'
     implementation 'com.specyci:residemenu:1.6+'
     implementation 'jp.wasabeef:recyclerview-animators:2.2.5'
+    implementation 'com.koushikdutta.ion:ion:2.+'
 }

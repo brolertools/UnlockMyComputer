@@ -1,30 +1,23 @@
 package com.kingtous.remotefingerunlock.FileTransferTool;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.R;
-import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
-import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.Comparator;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,6 +37,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         setContentView(R.layout.file_transfer_folder_show);
         initModel();
         initView();
+//        tryIon();
     }
 
     void initModel(){
@@ -82,7 +76,6 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         folderRecyclerView=findViewById(R.id.file_transfer_folder_recyclerview);
         LinearLayoutManager manager=new LinearLayoutManager(this);
         folderRecyclerView.setLayoutManager(manager);
-
         if (model!=null){
             folderView.setText(model.getCurrent_folder());
             adapter=new FileTransferFolderAdapter(model);
@@ -96,6 +89,18 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
 
     }
 
+    public void tryIon() {
+        JsonObject object=new JsonObject();
+        object.addProperty("Query","/./etc");
+        Ion.with(this).load("123.206.34.50").setJsonObjectBody(object).asJsonObject().setCallback(new FutureCallback<JsonObject>() {
+            @Override
+            public void onCompleted(Exception e, JsonObject result) {
+                Log.d("D",result.toString());
+            }
+        });
+        return;
+    }
+
     @Override
     public void OnClick(View view, int Position) {
         Log.d("点击","短");
@@ -103,7 +108,9 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         switch (detailBean.getAttributes()){
             case FileTransferFolderAdapter.FILE:
                 //下载
-                Log.d("假装在下载","666");
+                FileTransferDownTask downTask=
+                        new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position));
+                downTask.execute(model.getCurrent_folder()+"/"+detailBean.getFile_name());
                 break;
             case FileTransferFolderAdapter.FOLDER:
                 //Query+更新
@@ -139,5 +146,24 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 }
             }
         }).start();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (folderStack.size()>0){
+            String folder=folderStack.pop();
+            try {
+                FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(folder).get();
+                updateModel(modelt);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+            super.onBackPressed();
+
     }
 }

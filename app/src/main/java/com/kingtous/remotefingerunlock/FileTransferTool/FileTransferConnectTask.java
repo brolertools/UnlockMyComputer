@@ -114,9 +114,11 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                             }
 
                         }
+                        socket.close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         message=recvStr;
                         resultCode=0;
+
                     }
                 } catch (IOException e) {
                     message=e.getMessage();

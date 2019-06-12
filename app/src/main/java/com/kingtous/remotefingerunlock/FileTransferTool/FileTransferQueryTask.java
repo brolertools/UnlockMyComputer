@@ -8,10 +8,13 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +40,7 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
     String path;
     private String IP;
     private String recvStr;
+
 
     @Override
     protected void onPreExecute() {
@@ -81,24 +85,26 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
                         stream.close();
-
                         //读入数据
+                        SocketHolder.getSocket().setSoTimeout(5000);
                         BufferedInputStream buffered = new BufferedInputStream(SocketHolder.getSocket().getInputStream());
                         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                         int r=-1;
-                        byte buff[] =new byte[1024];
-                        while((r =buffered .read(buff,0,1024))!=-1)
+                        byte buff[] =new byte[8192];
+                        while((r=buffered.read(buff,0,8192))!=-1)
                         {
                             byteArrayOutputStream.write(buff,0,r);
-                            if(buffered .available() <=0) //添加这里的判断
+                            if(buffered.available() <=0) //添加这里的判断
                             {
                                 break;
                             }
                         }
+                        SocketHolder.getSocket().close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         message=recvStr;
                         resultCode=0;
-                        return new Gson().fromJson(recvStr,FileModel.class);
+                        FileModel fmodel=new Gson().fromJson(recvStr,FileModel.class);
+                        return fmodel;
                     }
                 } catch (IOException e) {
                     message=e.getMessage();
@@ -114,4 +120,5 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
     public void onClick(DialogInterface dialog, int which) {
         this.cancel(true);
     }
+
 }
