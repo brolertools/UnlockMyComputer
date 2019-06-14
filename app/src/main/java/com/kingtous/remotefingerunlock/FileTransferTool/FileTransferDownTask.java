@@ -30,6 +30,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 public class FileTransferDownTask extends AsyncTask<String, String, Void> implements DialogInterface.OnClickListener{
 
@@ -116,7 +118,7 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
     @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
-        dialog.setMessage("共"+String.valueOf(((double)detailBean.getSize()/1024))+"KB"+"\n当前已下载"+values[0]+"%");
+        dialog.setMessage("共"+String.valueOf(((double)detailBean.getSize()/1024))+"KB"+"\n当前已下载"+values[0]);
 //        dialog.setMessage("正在下载，请稍后");
     }
 
@@ -148,10 +150,15 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                         long downSize=0;
                         long fileSize=detailBean.getSize();
 
+                        //百分数
+                        NumberFormat nf = NumberFormat.getPercentInstance();
+                        nf.setMaximumFractionDigits(2);
+
                         while((r=buffered.read(buff,0,1024))!=-1)
                         {
                             downSize=downSize+r;
-                            publishProgress(String.valueOf(((double) downSize/fileSize)*100));
+                            double num=((double) downSize/fileSize);
+                            publishProgress(nf.format(num));
                             file.write(buff,0,r);
 //                            if(buffered.available() <=0) //添加这里的判断
 //                            {
@@ -206,7 +213,20 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
+        // 关闭socket
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SocketHolder.getSocket().close();
+                } catch (IOException ignored) {
+
+                }
+            }
+        }).start();
         this.cancel(true);
+
     }
 
     private final String[][] MIME_MapTable={

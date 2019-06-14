@@ -166,7 +166,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                 View v=LayoutInflater.from(this).inflate(R.layout.file_transfer_file_item_info,null,false);
                 ((TextView)v.findViewById(R.id.file_name)).setText(propModel.getFile_name());
-                ((TextView)v.findViewById(R.id.file_size)).setText(String.valueOf(propModel.getFile_size()));
+                ((TextView)v.findViewById(R.id.file_size)).setText(String.valueOf(((double)propModel.getFile_size())/1024)+"KB");
                 new AlertDialog.Builder(this)
                         .setView(v)
                         .setPositiveButton("确定",null).show();
