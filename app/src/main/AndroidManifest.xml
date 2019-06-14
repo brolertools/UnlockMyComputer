@@ -20,6 +20,15 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver android:name=".Widget.UnlockWidget_icon">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/unlock_widget_icon_info" />
+        </receiver>
         <receiver android:name=".Widget.UnlockWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -65,6 +74,11 @@
             android:name=".WLANConnectTool.WLANConnectActivity"
             android:label="🔍无线局域网选择"
             android:screenOrientation="portrait" />
+        <activity android:name=".FileTransferTool.FileTransferActivity"
+            android:label="📃文件传输"
+            />
+        <activity android:name=".FileTransferTool.FileTransferFolderActivity"
+            android:label="📃文件传输"/>
 
         <service android:name=".service.UnlockWidgetService" />
     </application>

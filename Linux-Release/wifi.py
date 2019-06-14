@@ -1,6 +1,8 @@
 import threading
 import socket
+import ssl
 from common import *
+import os
 encoding = 'utf-8'
 BUFSIZE = 1024
 
@@ -14,19 +16,18 @@ class Reader(threading.Thread):
     def run(self):
         while True:
             data = self.client.recv(BUFSIZE)
-            if (data):
+            if data:
                 string = bytes.decode(data, encoding)
-                log(string)
-                try:
-                    # 尝试转化成json
-                    json.loads(data)
-                except:
-                    continue
-                username, passwd, session_id = getData(string)
-                if session_id != None and unlockStatus(session_id) == 'yes':
-                    certificate(passwd, session_id)
-            else:
-                break
+
+                act=json.loads(string)
+
+                jsonTobeSend=dict()
+
+                if act.get('Query',-1)!=-1:
+                    # 文件
+                    path=act['Query']
+                    os.lis
+
 
 
     def readline(self):
@@ -47,6 +48,9 @@ class Reader(threading.Thread):
 class Listener(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
+        # SSL
+        self.SSLContext=ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        self.SSLContext.load_cert_chain(certfile='cacert.pem',keyfile='privkey.pem')
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -57,7 +61,8 @@ class Listener(threading.Thread):
         print("listener started")
         while True:
             client, cltadd = self.sock.accept()
-            Reader(client).start()
+            ssl_conn=self.SSLContext.wrap_socket(client,server_side=True)
+            Reader(ssl_conn).start()
             cltadd = cltadd
             print("accept a connect")
 

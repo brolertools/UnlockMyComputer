@@ -104,7 +104,7 @@ public class WLANClient extends Thread {
                 }
             }
 
-            Socket socket = SSLSecurityClient.CreateSocket(context, host, port);//new Socket(host,port);//SSLSecurityClient.CreateSocket(context,host,port);
+            Socket socket = SSLSecurityClient.CreateSocket(context, host, port);//new Socket(host,unlock_port);//SSLSecurityClient.CreateSocket(context,host,unlock_port);
             if (socket == null) {
                 log("无法建立连接，请检查设备是否开启服务端");
                 return;

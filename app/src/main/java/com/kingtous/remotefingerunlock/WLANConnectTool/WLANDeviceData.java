@@ -2,7 +2,8 @@ package com.kingtous.remotefingerunlock.WLANConnectTool;
 
 public class WLANDeviceData {
 
-    static int port = 2084;
+    public static int unlock_port = 2084;
+    public static int transfer_port = 2090;
 
     String name;
     String mac;

@@ -39,7 +39,7 @@ def startBT():
                 client_sock.close()
                 server_sock.close()
         else:
-            time.sleep(3)	
+            time.sleep(10)
 
 
 if __name__ == "__main__":
