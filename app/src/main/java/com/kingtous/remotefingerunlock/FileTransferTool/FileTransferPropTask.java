@@ -70,7 +70,7 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                 //尝试SSL连接目标IP
                 try {
                     if (SocketHolder.getSocket().isClosed())
-                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.unlock_port));
+                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.transfer_port));
 //                    SocketHolder.setSocket(new Socket(IP,2090));
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
