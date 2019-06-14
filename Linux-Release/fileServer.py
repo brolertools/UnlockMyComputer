@@ -5,6 +5,7 @@ from common import *
 
 encoding = 'utf-8'
 BUFSIZE = 1024
+PORT=2090
 
 FILE = 0
 FOLDER = 1
@@ -120,7 +121,7 @@ class Listener(threading.Thread):
 
 
 def startWLAN():
-    lst = Listener(2084)  # create a listen thread
+    lst = Listener(PORT)  # create a listen thread
     lst.start()  # then start
 
 

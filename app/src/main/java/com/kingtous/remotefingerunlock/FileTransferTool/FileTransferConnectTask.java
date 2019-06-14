@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 
-import com.google.gson.Gson;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
@@ -87,8 +86,8 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
             if (IP!=null){
                 //尝试SSL连接目标IP
                 try {
-                    socket=SSLSecurityClient.CreateSocket(context,IP, WLANDeviceData.port);
-//                    socket=new Socket(IP,WLANDeviceData.port);
+                    socket=SSLSecurityClient.CreateSocket(context,IP, WLANDeviceData.transfer_port);
+//                    socket=new Socket(IP,WLANDeviceData.unlock_port);
                     SocketHolder.setSocket(socket);
                     if (socket != null) {
                         OutputStream stream=socket.getOutputStream();

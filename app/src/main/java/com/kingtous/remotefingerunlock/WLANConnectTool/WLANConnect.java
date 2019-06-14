@@ -1,11 +1,8 @@
 package com.kingtous.remotefingerunlock.WLANConnectTool;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.widget.Toast;
 
@@ -71,7 +68,7 @@ public class WLANConnect {
 
 
     private void startConnect(Context context, RecordData data) {
-        WLANClient client = new WLANClient(context, data.getIp(), WLANDeviceData.port, data);
+        WLANClient client = new WLANClient(context, data.getIp(), WLANDeviceData.unlock_port, data);
         Toast.makeText(context, "正在连接中", Toast.LENGTH_LONG).show();
         client.start();
     }
