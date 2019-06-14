@@ -48,7 +48,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     }
 
     void updateModel(FileModel modelt){
-        if (folderView!=null)
+        if (folderView!=null && modelt!=null)
             folderView.setText(modelt.getCurrent_folder());
         modelt.getDetail().sort(new Comparator<FileModel.DetailBean>() {
             @Override
@@ -82,6 +82,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             adapter.setOnItemClickListener(this);
             adapter.setOnItemLongClickListener(this);
             folderRecyclerView.setAdapter(adapter);
+
         }
         else {
             Log.e("model","不存在，无法显示");

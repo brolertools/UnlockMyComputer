@@ -45,7 +45,6 @@ public class WLANConnect {
         }
     }
 
-
     private void checkAndConnectWLAN(final Context context, final WifiManager manager) {
         if (!manager.isWifiEnabled()) {
             new AlertDialog.Builder(context)
@@ -56,7 +55,12 @@ public class WLANConnect {
                             manager.setWifiEnabled(true);
                         }
                     })
-                    .setNegativeButton("取消", null)
+                    .setNegativeButton("使用其他网络(数据)", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startConnect(context,data);
+                        }
+                    })
                     .show();
 
         } else {

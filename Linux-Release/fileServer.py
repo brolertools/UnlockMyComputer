@@ -23,34 +23,56 @@ class Reader(threading.Thread):
                 string = bytes.decode(data, encoding)
 
                 act = json.loads(string)
+                json_tobe_send = dict()
+                json_tobe_send.clear()
+                try:
+                    if act.get('action', -1) == 'Query':
+                        # 文件
+                        path = act['path']
 
-                if act.get('Query', -1) != -1:
-                    json_tobe_send = dict()
-                    # 文件
-                    path = act['Query']
+                        json_tobe_send['current_folder'] = path
+                        json_tobe_send['detail'] = []
 
-                    json_tobe_send['current_folder'] = path
-                    json_tobe_send['detail']=[]
-
-                    if os.path.exists(path):
-                        file_list = os.listdir(path)
-                        for f in file_list:
-                            detail = dict()
-                            detail.clear()
-                            detail['file_name'] = f
-                            if os.path.isfile(os.path.join(path, f)):
-                                detail['attributes'] = FILE
-                            else:
-                                detail['attributes'] = FOLDER
-                            detail['size'] = os.path.getsize(os.path.join(path, f))
-                            json_tobe_send['detail'].append(detail.copy())
-
+                        if os.path.exists(path):
+                            file_list = os.listdir(path)
+                            for f in file_list:
+                                try:
+                                    detail = dict()
+                                    detail.clear()
+                                    detail['file_name'] = f
+                                    if os.path.isfile(os.path.join(path, f)):
+                                        detail['attributes'] = FILE
+                                    else:
+                                        detail['attributes'] = FOLDER
+                                    detail['size'] = os.path.getsize(os.path.join(path, f))
+                                    json_tobe_send['detail'].append(detail.copy())
+                                except FileNotFoundError:
+                                    print(f,'未找到')
+                        json_tobe_send['status'] = '0'
+                        send_str = json.JSONEncoder().encode(json_tobe_send)
+                        # try:
+                        if self.client.sendall(send_str.encode('utf-8')) is None:
+                            print('发送成功')
+                            print(send_str)
+                        break
+                    elif act.get('action', -1) == 'Get' != -1:
+                        path = act['path']
+                        if os.path.exists(path):
+                            print('传输', path)
+                            with open(path, 'rb') as f:
+                                for data in f:
+                                    self.client.sendall(data)
+                        break
+                except PermissionError:
+                    print('权限错误')
+                    json_tobe_send['status'] = '-1'
                     send_str = json.JSONEncoder().encode(json_tobe_send)
-                    # try:
-                    if self.client.sendall(send_str.encode('utf-8')) is None:
-                        print('发送成功')
-                        print(send_str)
+                    self.client.sendall(send_str.encode('utf-8'))
+                    break
+                    # 3875
 
+        print('关闭会话')
+        self.client.close()
 
     def readline(self):
         rec = self.inputs.readline()

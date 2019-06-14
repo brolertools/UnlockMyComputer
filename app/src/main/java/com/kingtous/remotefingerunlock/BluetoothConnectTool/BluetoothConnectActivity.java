@@ -212,7 +212,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                         }
                         if (box_default.isChecked()) {
                             //设置为指纹默认
-                            RecordSQLTool.updateDefaultRecord(helper, deviceSelected.getAddress(), user);
+                            RecordSQLTool.updateDefaultRecord(helper, deviceSelected.getAddress(), user,null);
                             UnlockWidget.update(getApplicationContext());
                         }
                         helper = null;

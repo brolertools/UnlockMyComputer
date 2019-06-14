@@ -2,6 +2,7 @@ package com.kingtous.remotefingerunlock.FileTransferTool;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,8 +11,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.webkit.MimeTypeMap;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
@@ -19,13 +24,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.InflaterOutputStream;
 
 public class FileTransferDownTask extends AsyncTask<String, String, Void> implements DialogInterface.OnClickListener{
 
@@ -52,6 +60,7 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
     protected void onPreExecute() {
         super.onPreExecute();
         dialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", this);
+        dialog.setTitle("正在下载");
         dialog.setMessage("正在请求下载");
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
@@ -63,6 +72,7 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
         if (resultCode==-1) {
             new AlertDialog.Builder(context)
                     .setTitle("下载失败")
+                    .setMessage(message)
                     .setNegativeButton("确定", null)
                     .show();
         }
@@ -82,8 +92,24 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                             Intent intent=new Intent();
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             intent.setAction(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(new File(savePath)),"*/*");
-                            context.startActivity(intent);
+                            // 获得拓展名
+                            String type="*/*";
+                            String[] tmp=detailBean.getFile_name().split("\\.");
+                            if (tmp.length!=1){
+                                for (String [] pair:MIME_MapTable){
+                                    if (pair[0].equals(tmp[tmp.length-1])) {
+                                        type=pair[1];
+                                        break;
+                                    }
+                                }
+                            }
+                            intent.setDataAndType(Uri.fromFile(new File(savePath)),type);
+                            try {
+                                context.startActivity(intent);
+                            }
+                            catch (ActivityNotFoundException e){
+                                ToastMessageTool.tts(context,"没有能打开此类型的应用");
+                            }
                         }
                     })
                     .setNegativeButton("否",null)
@@ -94,8 +120,8 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
     @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
-//        dialog.setMessage("共"+String.valueOf(((double)detailBean.getSize()/1024)/1024)+"MB"+"\n当前已下载"+values[0]+"%");
-        dialog.setMessage("正在下载，请稍后");
+        dialog.setMessage("共"+String.valueOf(((double)detailBean.getSize()/1024))+"KB"+"\n当前已下载"+values[0]+"%");
+//        dialog.setMessage("正在下载，请稍后");
     }
 
     @Override
@@ -111,7 +137,8 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求
                         JSONObject object=new JSONObject();
-                        object.put("Down",path);
+                        object.put("action","Get");
+                        object.put("path",path);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
                         stream.close();
@@ -122,30 +149,60 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                         savePath = Environment.getExternalStorageDirectory().getPath() + "/" + detailBean.getFile_name();
                         FileOutputStream file = new FileOutputStream(savePath, false);
 
-                        int downSize=0;
+                        long downSize=0;
+                        long fileSize=detailBean.getSize();
 
                         while((r=buffered.read(buff,0,1024))!=-1)
                         {
-                            publishProgress();
-//                            downSize=downSize+r;
-//                            publishProgress(String.valueOf(((double) downSize /detailBean.getSize())*100));
+                            downSize=downSize+r;
+                            publishProgress(String.valueOf(((double) downSize/fileSize)*100));
                             file.write(buff,0,r);
-                            if (downSize==detailBean.getSize()){
-                                break;
-                            }
 //                            if(buffered.available() <=0) //添加这里的判断
 //                            {
 //                                break;
 //                            }
                         }
                         file.close();
-                        SocketHolder.getSocket().close();
+                        if (downSize!=fileSize){
+                            // 说明不是文件，看看是不是json数据
+                            File file1=new File(savePath);
+                            if (file1.exists()){
+                                FileReader reader=new FileReader(file1);
+                                BufferedReader br=new BufferedReader(reader);
+                                String cmd=br.readLine();
+                                try {
+                                    JsonObject object1=new Gson().fromJson(cmd,JsonObject.class);
+                                    switch (object1.get("status").getAsString()){
+                                        case "-1":
+                                            throw new IOException("权限错误，请检查运行权限");
+                                        default:
+                                            throw new IOException("未知错误");
+                                    }
+                                } catch (JsonSyntaxException e){
+                                    //不是
+                                    throw  new IOException("文件传输中断");
+                                }
+                                finally {
+                                    br.close();
+                                    reader.close();
+                                    file1.deleteOnExit();
+                                }
+                            }
+                        }
                         resultCode=0;
                     }
                 } catch (IOException e) {
                     message=e.getMessage();
                 } catch (JSONException e) {
                     message=e.getMessage();
+                }
+                finally {
+                    try {
+                        if (!SocketHolder.getSocket().isClosed())
+                            SocketHolder.getSocket().close();
+                    } catch (IOException e) {
+
+                    }
                 }
             }
         return null;
@@ -155,5 +212,75 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
     public void onClick(DialogInterface dialog, int which) {
         this.cancel(true);
     }
+
+    private final String[][] MIME_MapTable={
+            //{后缀名，MIME类型}
+            {"3gp",    "video/3gpp"},
+            {"apk",    "application/vnd.android.package-archive"},
+            {"asf",    "video/x-ms-asf"},
+            {"avi",    "video/x-msvideo"},
+            {"bin",    "application/octet-stream"},
+            {"bmp",    "image/bmp"},
+            {"c",  "text/plain"},
+            {"class",  "application/octet-stream"},
+            {"conf",   "text/plain"},
+            {"cpp",    "text/plain"},
+            {"doc",    "application/msword"},
+            {"docx",   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+            {"xls",    "application/vnd.ms-excel"},
+            {"xlsx",   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+            {"exe",    "application/octet-stream"},
+            {"gif",    "image/gif"},
+            {"gtar",   "application/x-gtar"},
+            {"gz", "application/x-gzip"},
+            {"h",  "text/plain"},
+            {"htm",    "text/html"},
+            {"html",   "text/html"},
+            {"jar",    "application/java-archive"},
+            {"java",   "text/plain"},
+            {"jpeg",   "image/jpeg"},
+            {"jpg",    "image/jpeg"},
+            {"js", "application/x-javascript"},
+            {"log",    "text/plain"},
+            {"m3u",    "audio/x-mpegurl"},
+            {"m4a",    "audio/mp4a-latm"},
+            {"m4b",    "audio/mp4a-latm"},
+            {"m4p",    "audio/mp4a-latm"},
+            {"m4u",    "video/vnd.mpegurl"},
+            {"m4v",    "video/x-m4v"},
+            {"mov",    "video/quicktime"},
+            {"mp2",    "audio/x-mpeg"},
+            {"mp3",    "audio/x-mpeg"},
+            {"mp4",    "video/mp4"},
+            {"mpc",    "application/vnd.mpohun.certificate"},
+            {"mpe",    "video/mpeg"},
+            {"mpeg",   "video/mpeg"},
+            {"mpg",    "video/mpeg"},
+            {"mpg4",   "video/mp4"},
+            {"mpga",   "audio/mpeg"},
+            {"msg",    "application/vnd.ms-outlook"},
+            {"ogg",    "audio/ogg"},
+            {"pdf",    "application/pdf"},
+            {"png",    "image/png"},
+            {"pps",    "application/vnd.ms-powerpoint"},
+            {"ppt",    "application/vnd.ms-powerpoint"},
+            {"pptx",   "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
+            {"prop",   "text/plain"},
+            {"rc", "text/plain"},
+            {"rmvb",   "audio/x-pn-realaudio"},
+            {"rtf",    "application/rtf"},
+            {"sh", "text/plain"},
+            {"tar",    "application/x-tar"},
+            {"tgz",    "application/x-compressed"},
+            {"txt",    "text/plain"},
+            {"wav",    "audio/x-wav"},
+            {"wma",    "audio/x-ms-wma"},
+            {"wmv",    "audio/x-ms-wmv"},
+            {"wps",    "application/vnd.ms-works"},
+            {"xml",    "text/plain"},
+            {"z",  "application/x-compress"},
+            {"zip",    "application/x-zip-compressed"},
+            {"",        "*/*"}
+    };
 
 }

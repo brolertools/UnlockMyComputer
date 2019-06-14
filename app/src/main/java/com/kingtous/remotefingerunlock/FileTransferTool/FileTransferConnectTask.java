@@ -88,6 +88,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                 //尝试SSL连接目标IP
                 try {
                     socket=SSLSecurityClient.CreateSocket(context,IP, WLANDeviceData.port);
+//                    socket=new Socket(IP,WLANDeviceData.port);
                     SocketHolder.setSocket(socket);
                     if (socket != null) {
                         OutputStream stream=socket.getOutputStream();
@@ -95,10 +96,11 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
 
                         //发送根目录请求
                         JSONObject object=new JSONObject();
-                        object.put("Query","/.");
+                        object.put("action","Query") ;
+                        object.put("path","/.");
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
-                        stream.close();
+
 
                         //读入数据
                         BufferedInputStream buffered = new BufferedInputStream(socket.getInputStream());
@@ -112,8 +114,8 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                             {
                                 break;
                             }
-
                         }
+                        stream.close();
                         socket.close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         message=recvStr;

@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.RadioButton;
@@ -44,6 +45,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import jp.wasabeef.recyclerview.animators.FlipInTopXAnimator;
+import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class DataManagementFragment extends Fragment implements EasyPermissions.PermissionCallbacks {
@@ -91,7 +94,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
         if (recordDataArrayList.size() == 0) {
             app_empty.setVisibility(View.VISIBLE);
         } else app_empty.setVisibility(View.GONE);
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemRangeChanged(0,recordDataArrayList.size()-1);
         UnlockWidget.update(getActivity().getApplicationContext());
     }
 
@@ -99,7 +102,9 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
         if (writeSQL != null) {
             try {
                 //删除SQL中的元素
-                writeSQL.execSQL("delete from data where Mac='" + recordData.getMac() + "' and User='" + recordData.getUser() + "'");
+                if (recordData.getMac()!=null)
+                    writeSQL.execSQL("delete from data where Mac='" + recordData.getMac() + "' and User='" + recordData.getUser() + "'" );
+                else writeSQL.execSQL("delete from data where User='" + recordData.getUser() + "'" + " and Ip='" + recordData.getIp() + "'");
                 //删除List中的
                 this.recordDataArrayList.remove(recordData);
             } catch (Exception e) {
@@ -115,7 +120,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
             try {
                 RecordSQLTool.updatetoSQL(helper.getWritableDatabase(), recordData, newlyRecordData);
                 if (newlyRecordData.getIsDefault() == RecordData.TRUE) {
-                    result = RecordSQLTool.updateDefaultRecord(helper, newlyRecordData.getMac(), newlyRecordData.getUser());
+                    result = RecordSQLTool.updateDefaultRecord(helper, newlyRecordData.getMac(), newlyRecordData.getUser(),newlyRecordData.getIp());
                 }
             } catch (Exception e) {
                 Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
@@ -170,6 +175,18 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
             @Override
             public void onClick(View v) {
                 final View diaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add, null, false);
+                RadioButton btn_bl=diaView.findViewById(R.id.manual_type_bluetooth);//ban IP
+                final EditText ip_edit=diaView.findViewById(R.id.manual_ip_edit);
+                btn_bl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked){
+                            ip_edit.setText("");
+                            ip_edit.setEnabled(false);
+                        }
+                        else ip_edit.setEnabled(true);
+                    }
+                });
                 final RadioGroup radioGroup = diaView.findViewById(R.id.manual_type_selected);
                 new AlertDialog.Builder(getContext())
                         .setView(diaView)
@@ -235,11 +252,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
         writeSQL = helper.getWritableDatabase();
 
         //动画
-        DefaultItemAnimator animator = new DefaultItemAnimator();
-        animator.setAddDuration(300);
-        animator.setRemoveDuration(300);
-        animator.setChangeDuration(300);
-        data_view.setItemAnimator(animator);
+        data_view.setItemAnimator(new FlipInTopXAnimator());
 
         //LayoutManager
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -255,14 +268,27 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                     //编辑
                     View view1 = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add, null, false);
 
-                    final RadioGroup group = ((RadioGroup) view1.findViewById(R.id.manual_type_selected));
-                    final EditText nameEdit = ((EditText) view1.findViewById(R.id.manual_name_edit));
-                    final EditText ipEdit = ((EditText) view1.findViewById(R.id.manual_ip_edit));
-                    final EditText macEdit = ((EditText) view1.findViewById(R.id.manual_mac_edit));
-                    final EditText userEdit = ((EditText) view1.findViewById(R.id.manual_user_edit));
-                    final EditText passwdEdit = ((EditText) view1.findViewById(R.id.manual_passwd_edit));
-                    final CheckBox checkBox = (CheckBox) view1.findViewById(R.id.manual_setDefault);
+                    final RadioGroup group = view1.findViewById(R.id.manual_type_selected);
+//                    final RadioButton btn_wl =view1.findViewById(R.id.manual_type_wlan);
+                    final RadioButton btn_bt =view1.findViewById(R.id.manual_type_bluetooth);
+                    final EditText nameEdit = view1.findViewById(R.id.manual_name_edit);
+                    final EditText ipEdit = view1.findViewById(R.id.manual_ip_edit);
+                    final EditText macEdit = view1.findViewById(R.id.manual_mac_edit);
+                    final EditText userEdit = view1.findViewById(R.id.manual_user_edit);
+                    final EditText passwdEdit = view1.findViewById(R.id.manual_passwd_edit);
+                    final CheckBox checkBox = view1.findViewById(R.id.manual_setDefault);
 
+                    btn_bt.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            if (isChecked){
+                                // 蓝牙没有IP
+                                ipEdit.setText("");
+                                ipEdit.setEnabled(false);
+                            }
+                            else ipEdit.setEnabled(true);
+                        }
+                    });
                     //填入数据
                     //Type
                     if (recordData.getType().equals("Bluetooth")) {

@@ -77,34 +77,47 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                 try {
                     if (SocketHolder.getSocket().isClosed())
                         SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.port));
+//                    SocketHolder.setSocket(new Socket(IP,2090));
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求
                         JSONObject object=new JSONObject();
-                        object.put("Query",path);
+                        object.put("action","Query");
+                        object.put("path",path);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
                         stream.close();
                         //读入数据
-                        SocketHolder.getSocket().setSoTimeout(5000);
+//                        SocketHolder.getSocket().setSoTimeout(5000);
                         BufferedInputStream buffered = new BufferedInputStream(SocketHolder.getSocket().getInputStream());
                         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                         int r=-1;
-                        byte buff[] =new byte[8192];
-                        while((r=buffered.read(buff,0,8192))!=-1)
+                        byte buff[] =new byte[1024];
+                        while((r=buffered.read(buff,0,1024))!=-1)
                         {
                             byteArrayOutputStream.write(buff,0,r);
-                            if(buffered.available() <=0) //添加这里的判断
-                            {
-                                break;
-                            }
+//                            if(buffered.available() <=0) //添加这里的判断
+//                            {
+//                                break;
+//                            }
                         }
                         SocketHolder.getSocket().close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
-                        message=recvStr;
-                        resultCode=0;
-                        FileModel fmodel=new Gson().fromJson(recvStr,FileModel.class);
-                        return fmodel;
+                        JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
+                        if (object1.get("status").getAsString().equals("0")){
+                            message=recvStr;
+                            resultCode=0;
+                            return new Gson().fromJson(object1,FileModel.class);
+                        }
+                        else {
+                            switch (object1.get("status").getAsString()){
+                                case "-1":
+                                    throw new IOException("权限错误");
+                                default:
+                                    throw new IOException("未知错误");
+                            }
+                        }
+
                     }
                 } catch (IOException e) {
                     message=e.getMessage();
