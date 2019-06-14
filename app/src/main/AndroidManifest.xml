@@ -77,7 +77,8 @@
         <activity android:name=".FileTransferTool.FileTransferActivity"
             android:label="📃文件传输"
             />
-        <activity android:name=".FileTransferTool.FileTransferFolderActivity" />
+        <activity android:name=".FileTransferTool.FileTransferFolderActivity"
+            android:label="📃文件传输"/>
 
         <service android:name=".service.UnlockWidgetService" />
     </application>

@@ -3,11 +3,15 @@ package com.kingtous.remotefingerunlock.FileTransferTool;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.R;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -18,6 +22,7 @@ import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +33,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     TextView folderView;
     RecyclerView folderRecyclerView;
     FileTransferFolderAdapter adapter;
+    FloatingActionButton fab_stop;
     Stack<String> folderStack=new Stack<>();
     FileModel model=new FileModel();
 
@@ -74,6 +80,21 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     void initView(){
         folderView=findViewById(R.id.file_transfer_folder_current_folder);
         folderRecyclerView=findViewById(R.id.file_transfer_folder_recyclerview);
+        fab_stop=findViewById(R.id.file_transfer_folder_fab_stop);
+        fab_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 关闭连接
+                if (SocketHolder.getSocket()!=null && !SocketHolder.getSocket().isClosed()){
+                    try {
+                        SocketHolder.getSocket().close();
+                    } catch (IOException e) {
+                        ToastMessageTool.tts(FileTransferFolderActivity.this,e.getMessage());
+                    }
+                }
+                finish();
+            }
+        });
         LinearLayoutManager manager=new LinearLayoutManager(this);
         folderRecyclerView.setLayoutManager(manager);
         if (model!=null){
@@ -108,7 +129,16 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         FileModel.DetailBean detailBean=model.getDetail().get(Position);
         switch (detailBean.getAttributes()){
             case FileTransferFolderAdapter.FILE:
-                //下载
+                // 请求文件大小
+                try {
+                    PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                    detailBean.setSize(propModel.getFile_size());
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                // 下载
                 FileTransferDownTask downTask=
                         new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position));
                 downTask.execute(model.getCurrent_folder()+"/"+detailBean.getFile_name());
@@ -130,6 +160,22 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
 
     @Override
     public void OnLongClick(View view, int Position) {
+        if (model.getDetail().get(Position).getAttributes()==FileTransferFolderAdapter.FILE){
+            FileModel.DetailBean detailBean=model.getDetail().get(Position);
+            try {
+                PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                View v=LayoutInflater.from(this).inflate(R.layout.file_transfer_file_item_info,null,false);
+                ((TextView)v.findViewById(R.id.file_name)).setText(propModel.getFile_name());
+                ((TextView)v.findViewById(R.id.file_size)).setText(String.valueOf(propModel.getFile_size()));
+                new AlertDialog.Builder(this)
+                        .setView(v)
+                        .setPositiveButton("确定",null).show();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         Log.d("点击","长");
     }
 

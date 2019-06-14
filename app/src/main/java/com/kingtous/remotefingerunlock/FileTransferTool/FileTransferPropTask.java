@@ -4,17 +4,12 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
-import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,13 +18,12 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> implements DialogInterface.OnClickListener{
+public class FileTransferPropTask extends AsyncTask<String, String, PropModel> implements DialogInterface.OnClickListener{
 
     private Context context;
-    FileTransferQueryTask(Context context, String IP){
+    FileTransferPropTask(Context context, String IP){
         this.context=context;
         dialog=new ProgressDialog(context);
         this.IP=IP;
@@ -52,11 +46,11 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
     }
 
     @Override
-    protected void onPostExecute(FileModel aModel) {
+    protected void onPostExecute(PropModel aModel) {
         dialog.dismiss();
         if (resultCode==-1) {
             new AlertDialog.Builder(context)
-                    .setTitle("获取目标文件夹失败")
+                    .setTitle("获取目标文件属性失败")
                     .setNegativeButton("确定", null)
                     .show();
         }
@@ -69,7 +63,7 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
     }
 
     @Override
-    protected FileModel doInBackground(String... strings) {
+    protected PropModel doInBackground(String... strings) {
             //检查可用性
             path =strings[0];
             if (path !=null){
@@ -82,14 +76,11 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求
                         JSONObject object=new JSONObject();
-                        object.put("action","Query");
+                        object.put("action","Prop");
                         object.put("path",path);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
-
-//                        stream.close();
-
-
+                        stream.close();
                         //读入数据
 //                        SocketHolder.getSocket().setSoTimeout(5000);
                         BufferedInputStream buffered = new BufferedInputStream(SocketHolder.getSocket().getInputStream());
@@ -110,7 +101,7 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         if (object1.get("status").getAsString().equals("0")){
                             message=recvStr;
                             resultCode=0;
-                            return new Gson().fromJson(object1,FileModel.class);
+                            return new Gson().fromJson(object1,PropModel.class);
                         }
                         else {
                             switch (object1.get("status").getAsString()){

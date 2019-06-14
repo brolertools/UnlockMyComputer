@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.webkit.MimeTypeMap;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -25,15 +24,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.zip.InflaterOutputStream;
 
 public class FileTransferDownTask extends AsyncTask<String, String, Void> implements DialogInterface.OnClickListener{
 
@@ -141,7 +137,7 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                         object.put("path",path);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
-                        stream.close();
+//                        stream.close();
                         //读入数据
                         BufferedInputStream buffered = new BufferedInputStream(SocketHolder.getSocket().getInputStream());
                         int r=-1;
