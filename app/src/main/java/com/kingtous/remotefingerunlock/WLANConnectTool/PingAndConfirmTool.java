@@ -2,16 +2,22 @@ package com.kingtous.remotefingerunlock.WLANConnectTool;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Patterns;
 
+import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
 import com.kingtous.remotefingerunlock.R;
 import com.stealthcopter.networktools.ARPInfo;
+import com.stealthcopter.networktools.Ping;
 import com.stealthcopter.networktools.SubnetDevices;
 import com.stealthcopter.networktools.subnet.Device;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PingAndConfirmTool {
 
@@ -20,20 +26,32 @@ public class PingAndConfirmTool {
         String IP = data.getIp();
         String MAC = data.getMac();
         String pingMAC;
-
         RecordData dataTmp=data;
 
-        if (IP==null && MAC==null){
+        //先Ping一次，刷新Arp表
+        Pattern pattern=Pattern.compile(RegexTool.ipRegex);
+        Matcher matcher=pattern.matcher(IP);
+        if (matcher.matches()){
+            Ping p=Ping.onAddress(IP);
+            p.setTimeOutMillis(1000);
+            try {
+                p.doPing();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if ((IP==null && MAC==null)){
             return null;
         }
-        if (MAC == null) {
+        if (MAC == null || MAC.equals("")) {
             dataTmp.setMac(ARPInfo.getMACFromIPAddress(IP));
         }
         if (MAC != null && IP == null) {
             dataTmp.setIp(ARPInfo.getIPAddressFromMAC(MAC));
         }
 
-        if (dataTmp.getIp() == null ) {
+        if (dataTmp.getIp() == null || dataTmp.getIp().equals("")) {
             return null;
         } else {
             if (dataTmp.getMac()==null){

@@ -51,6 +51,7 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
         if (resultCode==-1) {
             new AlertDialog.Builder(context)
                     .setTitle("获取目标文件夹失败")
+                    .setMessage(message)
                     .setNegativeButton("确定", null)
                     .show();
         }
