@@ -111,16 +111,20 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
 
     }
 
-    public void tryIon() {
-        JsonObject object=new JsonObject();
-        object.addProperty("Query","/./etc");
-        Ion.with(this).load("123.206.34.50").setJsonObjectBody(object).asJsonObject().setCallback(new FutureCallback<JsonObject>() {
-            @Override
-            public void onCompleted(Exception e, JsonObject result) {
-                Log.d("D",result.toString());
-            }
-        });
-        return;
+//    public void tryIon() {
+//        JsonObject object=new JsonObject();
+//        object.addProperty("Query","/./etc");
+//        Ion.with(this).load("123.206.34.50").setJsonObjectBody(object).asJsonObject().setCallback(new FutureCallback<JsonObject>() {
+//            @Override
+//            public void onCompleted(Exception e, JsonObject result) {
+//                Log.d("D",result.toString());
+//            }
+//        });
+//    }
+
+
+    private void showErr(String message){
+        new AlertDialog.Builder(this).setMessage(message).setPositiveButton("确定",null).show();
     }
 
     @Override
@@ -133,15 +137,13 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 try {
                     PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                     detailBean.setSize(propModel.getFile_size());
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 // 下载
                 FileTransferDownTask downTask=
                         new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position));
                 downTask.execute(model.getCurrent_folder()+"/"+detailBean.getFile_name());
+                } catch (Exception e){
+                    showErr(e.getMessage());
+                }
                 break;
             case FileTransferFolderAdapter.FOLDER:
                 //Query+更新
@@ -149,10 +151,8 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 try {
                     FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                     updateModel(modelt);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception e){
+                    showErr(e.getMessage());
                 }
                 break;
         }
@@ -170,10 +170,8 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 new AlertDialog.Builder(this)
                         .setView(v)
                         .setPositiveButton("确定",null).show();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (Exception e){
+                showErr(e.getMessage());
             }
         }
         Log.d("点击","长");
@@ -203,10 +201,9 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             try {
                 FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(folder).get();
                 updateModel(modelt);
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (Exception e){
+                showErr(e.getMessage());
+                finish();
             }
         }
         else

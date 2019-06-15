@@ -81,9 +81,7 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
 
-//                        stream.close();
-
-
+//                      stream.close();
                         //读入数据
 //                        SocketHolder.getSocket().setSoTimeout(5000);
                         BufferedInputStream buffered = new BufferedInputStream(SocketHolder.getSocket().getInputStream());
