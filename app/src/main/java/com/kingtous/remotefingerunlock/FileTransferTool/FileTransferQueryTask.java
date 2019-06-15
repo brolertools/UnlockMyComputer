@@ -99,6 +99,11 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         SocketHolder.getSocket().close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
+
+                        if (!object1.has("status")){
+                            throw new IOException("未返回状态码");
+                        }
+
                         if (object1.get("status").getAsString().equals("0")){
                             message=recvStr;
                             resultCode=0;

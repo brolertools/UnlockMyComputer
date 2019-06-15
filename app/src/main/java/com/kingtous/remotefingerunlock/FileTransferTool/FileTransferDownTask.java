@@ -175,6 +175,11 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                                 String cmd=br.readLine();
                                 try {
                                     JsonObject object1=new Gson().fromJson(cmd,JsonObject.class);
+
+                                    if (!object1.has("status")){
+                                        throw new IOException("未返回状态码，且数据异常");
+                                    }
+
                                     switch (object1.get("status").getAsString()){
                                         case "-1":
                                             throw new IOException("权限错误，请检查运行权限");

@@ -1,5 +1,6 @@
 package com.kingtous.remotefingerunlock.FileTransferTool;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,6 +55,8 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     }
 
     void updateModel(FileModel modelt){
+        if (modelt==null)
+            return;
         if (folderView!=null && modelt!=null)
             folderView.setText(modelt.getCurrent_folder());
         modelt.getDetail().sort(new Comparator<FileModel.DetailBean>() {
@@ -124,7 +127,12 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
 
 
     private void showErr(String message){
-        new AlertDialog.Builder(this).setMessage(message).setPositiveButton("确定",null).show();
+        new AlertDialog.Builder(this).setMessage(message).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        }).show();
     }
 
     @Override
@@ -203,11 +211,9 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 updateModel(modelt);
             } catch (Exception e){
                 showErr(e.getMessage());
-                finish();
             }
         }
         else
             super.onBackPressed();
-
     }
 }

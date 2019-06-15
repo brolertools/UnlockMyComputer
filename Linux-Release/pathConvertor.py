@@ -15,7 +15,7 @@ def pathAdjtor(path):
         if path == '/.':
             return win_lst_disk_path()
         else:
-            return path[2:]
+            return path[3:]
     return path
 
 
