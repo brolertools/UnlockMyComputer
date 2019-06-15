@@ -101,29 +101,39 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
 
-                        if (!object1.has("status")){
-                            throw new IOException("未返回状态码");
-                        }
+                        message=recvStr;
+                        resultCode=0;
 
-                        if (object1.get("status").getAsString().equals("0")){
-                            message=recvStr;
-                            resultCode=0;
-                            return new Gson().fromJson(object1,FileModel.class);
-                        }
-                        else {
-                            switch (object1.get("status").getAsString()){
-                                case "-1":
-                                    throw new IOException("权限错误");
-                                default:
-                                    throw new IOException("未知错误");
-                            }
-                        }
+                        return new Gson().fromJson(object1,FileModel.class);
+//                        if (!object1.has("status")){
+//                            throw new IOException("未返回状态码");
+//                        }
+//
+//                        if (object1.get("status").getAsString().equals("0")){
+//                            message=recvStr;
+//                            resultCode=0;
+//
+//                            return new Gson().fromJson(object1,FileModel.class);
+//                        }
+//                        else {
+//                            switch (object1.get("status").getAsString()){
+//                                case "-1":
+//                                    throw new IOException("权限错误");
+//                                default:
+//                                    throw new IOException("未知错误");
+//                            }
+//                        }
 
                     }
                 } catch (IOException e) {
                     message=e.getMessage();
                 } catch (JSONException e) {
                     message=e.getMessage();
+                }
+                finally {
+                    if (recvStr!=null && !recvStr.equals("")){
+                        message=message+"\n收到以下内容：\n"+recvStr;
+                    }
                 }
             }
         return null;

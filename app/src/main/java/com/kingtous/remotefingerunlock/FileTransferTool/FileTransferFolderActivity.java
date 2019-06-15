@@ -61,6 +61,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             folderView.setText(modelt.getCurrent_folder());
         if (modelt.getDetail()==null){
             ToastMessageTool.tts(this,"未返回文件列表，请检查远程端是否正常");
+            return;
         }
         modelt.getDetail().sort(new Comparator<FileModel.DetailBean>() {
             @Override
