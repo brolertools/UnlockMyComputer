@@ -17,6 +17,9 @@ class Reader(threading.Thread):
             data = self.client.recv(BUFSIZE)
             if data:
                 string = bytes.decode(data, encoding)
+                if string == '':
+                    print('收到包')
+                    break
 
                 act = json.loads(string)
                 json_tobe_send = dict()
