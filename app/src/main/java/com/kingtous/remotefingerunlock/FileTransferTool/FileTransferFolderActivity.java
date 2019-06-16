@@ -1,5 +1,6 @@
 package com.kingtous.remotefingerunlock.FileTransferTool;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,8 +55,14 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     }
 
     void updateModel(FileModel modelt){
-        if (folderView!=null && modelt!=null)
+        if (modelt==null)
+            return;
+        if (folderView != null)
             folderView.setText(modelt.getCurrent_folder());
+        if (modelt.getDetail()==null){
+            ToastMessageTool.tts(this,"未返回文件列表，请检查远程端是否正常");
+            return;
+        }
         modelt.getDetail().sort(new Comparator<FileModel.DetailBean>() {
             @Override
             public int compare(FileModel.DetailBean o1, FileModel.DetailBean o2) {
@@ -111,16 +118,25 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
 
     }
 
-    public void tryIon() {
-        JsonObject object=new JsonObject();
-        object.addProperty("Query","/./etc");
-        Ion.with(this).load("123.206.34.50").setJsonObjectBody(object).asJsonObject().setCallback(new FutureCallback<JsonObject>() {
+//    public void tryIon() {
+//        JsonObject object=new JsonObject();
+//        object.addProperty("Query","/./etc");
+//        Ion.with(this).load("123.206.34.50").setJsonObjectBody(object).asJsonObject().setCallback(new FutureCallback<JsonObject>() {
+//            @Override
+//            public void onCompleted(Exception e, JsonObject result) {
+//                Log.d("D",result.toString());
+//            }
+//        });
+//    }
+
+
+    private void showErr(String message){
+        new AlertDialog.Builder(this).setMessage(message).setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
-            public void onCompleted(Exception e, JsonObject result) {
-                Log.d("D",result.toString());
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
             }
-        });
-        return;
+        }).show();
     }
 
     @Override
@@ -133,26 +149,34 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 try {
                     PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                     detailBean.setSize(propModel.getFile_size());
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 // 下载
                 FileTransferDownTask downTask=
                         new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position));
                 downTask.execute(model.getCurrent_folder()+"/"+detailBean.getFile_name());
+                } catch (Exception e){
+                    showErr(e.getMessage());
+                }
                 break;
             case FileTransferFolderAdapter.FOLDER:
                 //Query+更新
+
+                // Win下会有.和..两个
+                if (detailBean.getFile_name().equals(".")){
+                    return;
+                }
+
                 folderStack.push(model.getCurrent_folder());
+                String default_act_folder=model.getCurrent_folder()+"/"+detailBean.getFile_name();
+
+                if (detailBean.getFile_name().equals("..")){
+                    default_act_folder=model.getCurrent_folder().substring(0,model.getCurrent_folder().lastIndexOf("/"));
+                }
+
                 try {
-                    FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                    FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(default_act_folder).get();
                     updateModel(modelt);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (Exception e){
+                    showErr(e.getMessage());
                 }
                 break;
         }
@@ -166,14 +190,12 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                 View v=LayoutInflater.from(this).inflate(R.layout.file_transfer_file_item_info,null,false);
                 ((TextView)v.findViewById(R.id.file_name)).setText(propModel.getFile_name());
-                ((TextView)v.findViewById(R.id.file_size)).setText(String.valueOf(propModel.getFile_size()));
+                ((TextView)v.findViewById(R.id.file_size)).setText(String.valueOf(((double)propModel.getFile_size())/1024)+"KB");
                 new AlertDialog.Builder(this)
                         .setView(v)
                         .setPositiveButton("确定",null).show();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (Exception e){
+                showErr(e.getMessage());
             }
         }
         Log.d("点击","长");
@@ -203,14 +225,18 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             try {
                 FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(folder).get();
                 updateModel(modelt);
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (Exception e){
+                showErr(e.getMessage());
             }
         }
         else
             super.onBackPressed();
+    }
 
+
+    public static void main(String [] args){
+        String s="/./E:\\/Downloads";
+        String path=s.substring(0,s.lastIndexOf("/"));
+        return;
     }
 }

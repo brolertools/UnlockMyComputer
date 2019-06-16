@@ -70,7 +70,7 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                 //尝试SSL连接目标IP
                 try {
                     if (SocketHolder.getSocket().isClosed())
-                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.unlock_port));
+                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.transfer_port));
 //                    SocketHolder.setSocket(new Socket(IP,2090));
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
@@ -98,6 +98,11 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                         SocketHolder.getSocket().close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
+
+                        if (!object1.has("status")){
+                            throw new IOException("未返回状态码，且数据异常");
+                        }
+
                         if (object1.get("status").getAsString().equals("0")){
                             message=recvStr;
                             resultCode=0;
