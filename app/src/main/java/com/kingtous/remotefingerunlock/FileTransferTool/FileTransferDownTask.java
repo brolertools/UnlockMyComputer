@@ -188,7 +188,10 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                                     }
                                 } catch (JsonSyntaxException e){
                                     //不是
-                                    throw  new IOException("文件传输中断");
+                                    throw  new IOException("文件传输中断或发送的不是有用的数据");
+                                }catch (NullPointerException e){
+                                    // 没有发数据
+                                    throw new IOException("远程设备未发送任何数据");
                                 }
                                 finally {
                                     br.close();

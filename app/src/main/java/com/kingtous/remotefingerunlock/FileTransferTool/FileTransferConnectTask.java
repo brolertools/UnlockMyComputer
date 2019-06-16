@@ -100,7 +100,6 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
 
-
                         //读入数据
                         BufferedInputStream buffered = new BufferedInputStream(socket.getInputStream());
                         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -109,10 +108,10 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         while((r =buffered .read(buff,0,1024))!=-1)
                         {
                             byteArrayOutputStream.write(buff,0,r);
-                            if(buffered .available() <=0) //添加这里的判断
-                            {
-                                break;
-                            }
+//                            if(buffered.available() <=0) //添加这里的判断
+//                            {
+//                                break;
+//                            }
                         }
                         stream.close();
                         socket.close();

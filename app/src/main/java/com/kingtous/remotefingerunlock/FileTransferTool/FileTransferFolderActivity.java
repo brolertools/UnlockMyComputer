@@ -159,9 +159,21 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 break;
             case FileTransferFolderAdapter.FOLDER:
                 //Query+更新
+
+                // Win下会有.和..两个
+                if (detailBean.getFile_name().equals(".")){
+                    return;
+                }
+
                 folderStack.push(model.getCurrent_folder());
+                String default_act_folder=model.getCurrent_folder()+"/"+detailBean.getFile_name();
+
+                if (detailBean.getFile_name().equals("..")){
+                    default_act_folder=model.getCurrent_folder().substring(0,model.getCurrent_folder().lastIndexOf("/"));
+                }
+
                 try {
-                    FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                    FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(default_act_folder).get();
                     updateModel(modelt);
                 } catch (Exception e){
                     showErr(e.getMessage());
@@ -219,5 +231,12 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         }
         else
             super.onBackPressed();
+    }
+
+
+    public static void main(String [] args){
+        String s="/./E:\\/Downloads";
+        String path=s.substring(0,s.lastIndexOf("/"));
+        return;
     }
 }
