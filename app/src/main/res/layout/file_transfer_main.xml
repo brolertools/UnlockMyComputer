@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
         <LinearLayout
             android:layout_margin="8dp"
             android:layout_gravity="center"
@@ -33,6 +32,28 @@
                     android:id="@+id/file_transfer_spinner_devices"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_margin="@dimen/linear_margin"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="连接模式"
+                android:textSize="20dp"
+                />
+
+            <androidx.cardview.widget.CardView
+                android:layout_margin="@dimen/linear_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:id="@+id/file_transfer_spinner_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_margin="@dimen/linear_margin" />
 
             </androidx.cardview.widget.CardView>
 

@@ -122,9 +122,11 @@ class Connector(threading.Thread):
         print("Connector started")
         while True:
             if not self.ssl_sock._connected:
-                self.ssl_sock.connect(('192.168.1.105', 2090))
+                self.ssl_sock.connect((NAT_SERVER, 2090))
+                print('连接成功')
                 Reader(self.ssl_sock).start()
             if self.ssl_sock._closed:
+                print('重新连接')
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
 

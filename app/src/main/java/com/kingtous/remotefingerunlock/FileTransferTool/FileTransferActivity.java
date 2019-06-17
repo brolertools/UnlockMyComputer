@@ -20,8 +20,10 @@ import androidx.appcompat.app.AppCompatActivity;
 public class FileTransferActivity extends AppCompatActivity implements View.OnClickListener {
 
     Spinner spinner_devices;
+    Spinner spinner_mode;
     Button btn_ok;
     int device_selected_index=-1;
+    int mode_selected_index=0; // 默认为正常模式
 
     ArrayList<RecordData> list;
     ArrayList<String> list_show=new ArrayList<>();
@@ -31,10 +33,12 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_transfer_main);
         spinner_devices=findViewById(R.id.file_transfer_spinner_devices);
+        spinner_mode=findViewById(R.id.file_transfer_spinner_mode);
         btn_ok=findViewById(R.id.file_transfer_btn_ok);
         btn_ok.setOnClickListener(this);
         // 读取当前存储的WiFi设备
         initWiFiDevices();
+        initModes();
     }
 
     void initWiFiDevices(){
@@ -55,11 +59,22 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.file_transfer_spinner_item, R.id.file_transfer_item_textView, list_show);
             spinner_devices.setAdapter(arrayAdapter);
             spinner_devices.setOnItemSelectedListener(new DeviceSpinnerListener());
+
+            String[] modeStrArr=getResources().getStringArray(R.array.conn_modes);
+            ArrayAdapter<String> modeAdapter=new ArrayAdapter<>(this,R.layout.file_transfer_spinner_item,R.id.file_transfer_item_textView,modeStrArr);
+            spinner_mode.setAdapter(modeAdapter);
+            spinner_mode.setOnItemSelectedListener(new ModeSpinnerListener());
+
         }
         else {
             Log.e("数据库","异常");
         }
         helper.close();
+    }
+
+    void initModes(){
+
+
     }
 
 
@@ -68,13 +83,13 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
         switch (v.getId()){
             case R.id.file_transfer_btn_ok:
                 Log.d("DEBUG","ok clicked");
-
                 if (device_selected_index!=-1 && device_selected_index<list.size()){
-                    FileTransferConnectTask task=new FileTransferConnectTask(this,list.get(device_selected_index));
+                    int flags=mode_selected_index;
+                    FileTransferConnectTask task=new FileTransferConnectTask(this,list.get(device_selected_index),flags);
                     task.execute();
                 }
                 else {
-                    Log.e("ERROR","index错误了");
+                    Log.e("ERROR","index错误");
                 }
                 break;
         }
@@ -90,6 +105,19 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
         @Override
         public void onNothingSelected(AdapterView<?> parent) {
             device_selected_index=-1;
+        }
+    }
+
+    class ModeSpinnerListener implements AdapterView.OnItemSelectedListener {
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            mode_selected_index=position;
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+            mode_selected_index=0;
         }
     }
 

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
+import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.PingAndConfirmTool;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
@@ -28,16 +29,19 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
     private Context context;
     private Socket socket;
 
-    FileTransferConnectTask(Context context,RecordData data){
+    FileTransferConnectTask(Context context,RecordData data,int flags){
+        // flags=0 正常模式，flags=1 内网模式
         this.context=context;
         dialog=new ProgressDialog(context);
         this.data=data;
+        this.flags=flags;
     }
     RecordData data;
     ProgressDialog dialog;
     String message= "";
     private int resultCode=-1;
     String IP;
+    int flags;
 
     private String recvStr;
 
@@ -81,8 +85,15 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
     protected Void doInBackground(RecordData... recordData) {
         if (data!=null){
             //检查可用性
-            IP=PingAndConfirmTool.findCorrectIP(context,data);
-            publishProgress(new String[]{"正在连接至："+data.getName()+"("+IP+")"});
+            if (flags==0){
+                // 判断是否是内网模式
+                IP=PingAndConfirmTool.findCorrectIP(context,data);
+                publishProgress(new String[]{"正在连接至："+data.getName()+"("+IP+")"});
+            }
+            else {
+                IP=context.getString(R.string.nat_server);
+                publishProgress(new String[]{"正在连接至内网服务器，等待回应"});
+            }
             if (IP!=null){
                 //尝试SSL连接目标IP
                 try {
@@ -95,6 +106,9 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
 
                         //发送根目录请求
                         JSONObject object=new JSONObject();
+                        if (flags==1){
+                            object.put("oriMac",data.getMac());
+                        }
                         object.put("action","Query") ;
                         object.put("path","/.");
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));

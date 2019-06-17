@@ -15,4 +15,5 @@
     <string name="defaultUnlockMethod">无默认解锁方式</string>
     <string name="defaultUser">无默认用户名</string>
     <string name="appwidget_text">EXAMPLE</string>
+    <string name="nat_server">123.206.34.50</string>
 </resources>

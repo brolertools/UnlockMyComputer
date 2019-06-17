@@ -34,6 +34,7 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
     String path;
     private String IP;
     private String recvStr;
+    private static long high_base=4294967296L;
 
 
     @Override
@@ -106,6 +107,9 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                         if (object1.get("status").getAsString().equals("0")){
                             message=recvStr;
                             resultCode=0;
+                            PropModel pModel=new Gson().fromJson(object1,PropModel.class);
+                            long t_file_size=pModel.getFile_size_high()*high_base+pModel.getFile_size();
+                            pModel.setFile_size(t_file_size);
                             return new Gson().fromJson(object1,PropModel.class);
                         }
                         else {
