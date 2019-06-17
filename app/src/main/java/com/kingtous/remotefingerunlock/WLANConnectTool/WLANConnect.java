@@ -76,7 +76,7 @@ public class WLANConnect {
             client = new WLANClient(context, data.getIp(), WLANDeviceData.unlock_port, data,0);
         }
         else{
-            client = new WLANClient(context, context.getString(R.string.nat_server), WLANDeviceData.nat_transfer_port, data,1);
+            client = new WLANClient(context, context.getString(R.string.nat_server), WLANDeviceData.nat_unlock_port, data,1);
         }
         Toast.makeText(context, "正在连接中", Toast.LENGTH_LONG).show();
         client.start();
