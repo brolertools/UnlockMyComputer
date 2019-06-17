@@ -63,6 +63,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
             ToastMessageTool.tts(context,"连接成功");
             Intent intent=new Intent(context,FileTransferFolderActivity.class);
             intent.putExtra("detail",recvStr);
+            intent.putExtra("flags",flags);
             intent.putExtra("ip",IP);
             context.startActivity(intent);
         }
@@ -97,7 +98,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
             if (IP!=null){
                 //尝试SSL连接目标IP
                 try {
-                    socket=SSLSecurityClient.CreateSocket(context,IP, WLANDeviceData.transfer_port);
+                    socket=FileTransferActivity.CreateSocket(context,IP);
 //                    socket=new Socket(IP,WLANDeviceData.unlock_port);
                     SocketHolder.setSocket(socket);
                     if (socket != null) {

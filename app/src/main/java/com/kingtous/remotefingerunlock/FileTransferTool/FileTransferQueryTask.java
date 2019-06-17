@@ -71,8 +71,7 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                 //尝试SSL连接目标IP
                 try {
                     if (SocketHolder.getSocket().isClosed())
-                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.transfer_port));
-//                    SocketHolder.setSocket(new Socket(IP,2090));
+                        SocketHolder.setSocket(FileTransferActivity.CreateSocket(context,IP));
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求
@@ -80,8 +79,6 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         object.put("action","Query");
                         object.put("path",path);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
-                        //
-
 //                      stream.close();
                         //读入数据
 //                        SocketHolder.getSocket().setSoTimeout(5000);
@@ -104,25 +101,24 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         message=recvStr;
                         resultCode=0;
 
-                        return new Gson().fromJson(object1,FileModel.class);
-//                        if (!object1.has("status")){
-//                            throw new IOException("未返回状态码");
-//                        }
-//
-//                        if (object1.get("status").getAsString().equals("0")){
-//                            message=recvStr;
-//                            resultCode=0;
-//
-//                            return new Gson().fromJson(object1,FileModel.class);
-//                        }
-//                        else {
-//                            switch (object1.get("status").getAsString()){
-//                                case "-1":
-//                                    throw new IOException("权限错误");
-//                                default:
-//                                    throw new IOException("未知错误");
-//                            }
-//                        }
+//                        return new Gson().fromJson(object1,FileModel.class);
+                        if (!object1.has("status")){
+                            throw new IOException("未返回状态码");
+                        }
+
+                        if (object1.get("status").getAsString().equals("0")){
+                            message=recvStr;
+                            resultCode=0;
+                            return new Gson().fromJson(object1,FileModel.class);
+                        }
+                        else {
+                            switch (object1.get("status").getAsString()){
+                                case "-1":
+                                    throw new IOException("权限错误");
+                                default:
+                                    throw new IOException("未知错误");
+                            }
+                        }
 
                     }
                 } catch (IOException e) {

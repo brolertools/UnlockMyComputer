@@ -82,7 +82,8 @@
         <activity android:name=".FileTransferTool.FileTransferFolderActivity"
             android:label="📃文件传输"/>
         <activity android:name=".MenuTool.SettingActivity"
-            android:label="设置"/>
+            android:label="设置"
+            android:theme="@style/Theme.Settings"/>
 
         <service android:name=".service.UnlockWidgetService" />
     </application>

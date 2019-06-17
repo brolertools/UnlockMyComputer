@@ -5,6 +5,8 @@ import threading
 from pathConvertor import *
 
 
+# 测试
+
 # a read thread, read data from remote
 class UnlockSocketExchanger(threading.Thread):
     def __init__(self, client, master):
@@ -22,7 +24,7 @@ class UnlockSocketExchanger(threading.Thread):
 
 # a listen thread, listen remote connect
 # when a remote machine request to connect, it will create a read thread to handle
-class FILE_Listener(threading.Thread):
+class WAKE_ON_LAN_Listener(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
         # SSL
@@ -39,11 +41,11 @@ class FILE_Listener(threading.Thread):
         while True:
             client_1, cltadd_1 = self.sock.accept()
             s1 = self.SSLContext.wrap_socket(client_1, server_side=True)
-            print(self.port,'s1 conned')
+            print(self.port, 's1 conned')
 
             client_2, cltadd_2 = self.sock.accept()
             s2 = self.SSLContext.wrap_socket(client_2, server_side=True)
-            print(self.port,'s2 conned')
+            print(self.port, 's2 conned')
 
             UnlockSocketExchanger(s2, s1).start()
 
@@ -51,7 +53,7 @@ class FILE_Listener(threading.Thread):
 
 
 def startUnlockEx():
-    lst = FILE_Listener(WAKE_ON_LAN_PORT)  # create a listen thread
+    lst = WAKE_ON_LAN_Listener(WAKE_ON_LAN_PORT)  # create a listen thread
     lst.start()  # then start
 
 

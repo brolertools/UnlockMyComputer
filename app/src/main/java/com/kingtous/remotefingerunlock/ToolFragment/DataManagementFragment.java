@@ -2,9 +2,12 @@ package com.kingtous.remotefingerunlock.ToolFragment;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -38,6 +41,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -220,14 +224,16 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                     return;
                                 }
                                 if (type.equals("WLAN")) {
-                                    Ping p=Ping.onAddress(ip.getText().toString());
+                                    String s= null;
+                                    Ping p = Ping.onAddress(ip.getText().toString());
                                     p.setTimeOutMillis(500);
                                     try {
                                         p.doPing();
                                     } catch (UnknownHostException e) {
-                                        ToastMessageTool.tts(getContext(),e.getMessage());
+                                        ToastMessageTool.tts(getContext(), e.getMessage());
                                     }
-                                    String s = ARPInfo.getMACFromIPAddress(ip.getText().toString());
+                                    s = ARPInfo.getMACFromIPAddress(ip.getText().toString());
+
                                     if (s == null) {
                                             Toast.makeText(getContext(),"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
                                     } else {
@@ -243,7 +249,6 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                             passwd.getText().toString(),
                                             ip.getText().toString(),
                                             mac.getText().toString().toUpperCase(), RecordData.TRUE);
-
                                 } else addRecord(type,
                                         name.getText().toString(),
                                         user.getText().toString(),

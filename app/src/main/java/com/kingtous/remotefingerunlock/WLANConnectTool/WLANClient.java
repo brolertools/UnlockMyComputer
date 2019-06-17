@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
+import com.kingtous.remotefingerunlock.FileTransferTool.FileTransferActivity;
 import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityDoubleClient;
@@ -42,14 +43,16 @@ public class WLANClient extends Thread {
 
     String host;
     int port;
+    int flags;
     RecordData data;
     private Context context;
 
-    WLANClient(Context context, String host, int port, RecordData data) {
+    WLANClient(Context context, String host, int port, RecordData data,int flags) {
         this.context = context;
         this.host = host;
         this.port = port;
         this.data = data;
+        this.flags=flags;
     }
 
     @Override
@@ -59,51 +62,50 @@ public class WLANClient extends Thread {
             Ping p = Ping.onAddress(host);
             p.setTimeOutMillis(1000);
             PingResult result = p.doPing();
-            String macinfo=ARPInfo.getMACFromIPAddress(host);
 //弃用            if (!result.isReachable() || (macinfo!=null && !ARPInfo.getMACFromIPAddress(host).equals(data.getMac()))) {
-            if (!result.isReachable()) {
-                if (data.getMac().equals("") || data.getMac() == null) {
-
-                } else {
-                    log("IP已更改，正在重新查找");
-                    // 尝试用Mac搜索新的host
-                    RecordData dataTmp = data;
-                    String ip = ARPInfo.getIPAddressFromMAC(dataTmp.getMac());
-                    if (ip == null) {
-                        final String[] ipTmp = new String[1];
-                        //搜索子网
-                        SubnetDevices devices = SubnetDevices.fromLocalAddress();
-                        devices.findDevices(new SubnetDevices.OnSubnetDeviceFound() {
-                            @Override
-                            public void onDeviceFound(Device device) {
-                                if (device.mac != null && device.mac.toUpperCase().equals(data.getMac())) {
-                                    ipTmp[0] = device.ip;
+            if (flags==0){
+                if (!result.isReachable()) {
+                    if (data.getMac().equals("") || data.getMac() == null) {
+                    } else {
+                        log("IP已更改，正在重新查找");
+                        // 尝试用Mac搜索新的host
+                        RecordData dataTmp = data;
+                        String ip = ARPInfo.getIPAddressFromMAC(dataTmp.getMac());
+                        if (ip == null) {
+                            final String[] ipTmp = new String[1];
+                            //搜索子网
+                            SubnetDevices devices = SubnetDevices.fromLocalAddress();
+                            devices.findDevices(new SubnetDevices.OnSubnetDeviceFound() {
+                                @Override
+                                public void onDeviceFound(Device device) {
+                                    if (device.mac != null && device.mac.toUpperCase().equals(data.getMac())) {
+                                        ipTmp[0] = device.ip;
+                                    }
                                 }
-                            }
 
-                            @Override
-                            public void onFinished(ArrayList<Device> arrayList) {
+                                @Override
+                                public void onFinished(ArrayList<Device> arrayList) {
+                                }
+                            });
+                            if (ipTmp[0] == null) {
+                                //TODO 后期更新，当WiFi无法ping通时调用蓝牙
+                                log("无法建立连接，请检查设备是否开启服务端");
+                                return;
+                            } else {
+                                ip = ipTmp[0];
+                                host = ip;
                             }
-                        });
-                        if (ipTmp[0] == null) {
-                            //TODO 后期更新，当WiFi无法ping通时调用蓝牙
-                            log("无法建立连接，请检查设备是否开启服务端");
-                            return;
-                        } else {
-                            ip = ipTmp[0];
-                            host = ip;
                         }
-
-                    }
-                    dataTmp.setIp(ip.toUpperCase());
-                    // 更新数据库
-                    DataQueryHelper helper = new DataQueryHelper(context, context.getString(R.string.sqlDBName), null, 1);
-                    if (RecordSQLTool.updatetoSQL(helper.getWritableDatabase(), data, dataTmp)) {
-                        log("IP变化，已更新数据");
+                        dataTmp.setIp(ip.toUpperCase());
+                        // 更新数据库
+                        DataQueryHelper helper = new DataQueryHelper(context, context.getString(R.string.sqlDBName), null, 1);
+                        if (RecordSQLTool.updatetoSQL(helper.getWritableDatabase(), data, dataTmp)) {
+                            log("IP变化，已更新数据");
+                        }
                     }
                 }
             }
-
+            FileTransferActivity.CreateSocket(context,host);
             Socket socket = SSLSecurityClient.CreateSocket(context, host, port);//new Socket(host,unlock_port);//SSLSecurityClient.CreateSocket(context,host,unlock_port);
             if (socket == null) {
                 log("无法建立连接，请检查设备是否开启服务端");

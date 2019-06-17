@@ -22,7 +22,7 @@ class UnlockSocketExchanger(threading.Thread):
 
 # a listen thread, listen remote connect
 # when a remote machine request to connect, it will create a read thread to handle
-class FILE_Listener(threading.Thread):
+class UNLOCK_Listener(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
         # SSL
@@ -51,7 +51,7 @@ class FILE_Listener(threading.Thread):
 
 
 def startUnlockEx():
-    lst = FILE_Listener(UNLOCK_PORT)  # create a listen thread
+    lst = UNLOCK_Listener(UNLOCK_PORT)  # create a listen thread
     lst.start()  # then start
 
 

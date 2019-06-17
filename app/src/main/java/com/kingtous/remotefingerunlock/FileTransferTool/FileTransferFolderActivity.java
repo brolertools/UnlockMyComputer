@@ -7,20 +7,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.R;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Stack;
-import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -37,6 +32,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     FloatingActionButton fab_stop;
     Stack<String> folderStack=new Stack<>();
     FileModel model=new FileModel();
+    int flags;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,6 +46,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     void initModel(){
         Intent intent=getIntent();
         String data=intent.getStringExtra("detail");
+        flags=intent.getIntExtra("flags",0);
         model=new Gson().fromJson(data,FileModel.class);
         updateModel(model);
     }

@@ -9,6 +9,7 @@ import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
 import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.kingtous.remotefingerunlock.FileTransferTool.FileTransferActivity;
+import com.kingtous.remotefingerunlock.MenuTool.SettingActivity;
 import com.kingtous.remotefingerunlock.ToolFragment.AboutFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.ScanFragment;
@@ -33,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -54,10 +56,12 @@ public class MainActivity extends AppCompatActivity
     Fragment currentFragment;
     //request code
     int FINGER_REQUEST_CODE = 1;
+    // 双击退出计时
+    long firstTime=0;
 
     void initSideMenu() {
-        String titles[] = {"解锁", "搜索设备", "数据管理", "文件传输","关于", "退出"};
-        int icon[] = {R.drawable.back2, R.drawable.back2, R.drawable.back2, R.drawable.back2,R.drawable.back2, R.drawable.back2};
+        String titles[] = {"解锁", "搜索设备", "数据管理", "文件传输","设置","关于", "退出"};
+        int icon[] = {R.drawable.back2, R.drawable.back2, R.drawable.back2, R.drawable.back2,R.drawable.back2,R.drawable.back2, R.drawable.back2};
         final ResideMenu menu = new ResideMenu(this);
         menu.setBackground(R.drawable.background);
         menu.attachToActivity(this);
@@ -88,18 +92,23 @@ public class MainActivity extends AppCompatActivity
                             break;
                         case 3:
                             // 文件传输
-                            menu.closeMenu();
                             startActivity(new Intent(MainActivity.this, FileTransferActivity.class));
                             switchFragment(dataManagement)
                                     .commit();
                             break;
                         case 4:
+                            // 设置
+                            startActivity(new Intent(MainActivity.this, SettingActivity.class));
+                            switchFragment(dataManagement)
+                                    .commit();
+                            break;
+                        case 5:
                             // 关于
                             switchFragment(about)
                                     .commit();
                             menu.closeMenu();
                             break;
-                        case 5:
+                        case 6:
                             //退出
                             menu.closeMenu();
                             finish();
@@ -186,7 +195,13 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            long secondTime = System.currentTimeMillis();
+            if (secondTime - firstTime > 2000) {
+                Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                firstTime = secondTime;
+            } else {
+                finish();
+            }
         }
     }
 

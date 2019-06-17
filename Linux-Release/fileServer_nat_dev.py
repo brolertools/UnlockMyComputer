@@ -113,6 +113,7 @@ class Reader(threading.Thread):
 class Connector(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
+        self.port=port
         # SSL
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
@@ -122,7 +123,7 @@ class Connector(threading.Thread):
         print("Connector started")
         while True:
             if not self.ssl_sock._connected:
-                self.ssl_sock.connect((NAT_SERVER, 2090))
+                self.ssl_sock.connect((NAT_SERVER, self.port))
                 print('连接成功')
                 Reader(self.ssl_sock).start()
             if self.ssl_sock._closed:

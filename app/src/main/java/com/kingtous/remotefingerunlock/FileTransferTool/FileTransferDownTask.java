@@ -129,8 +129,9 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
             if (path !=null){
                 //尝试SSL连接目标IP
                 try {
-                    if (SocketHolder.getSocket().isClosed())
-                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.transfer_port));
+                    if (SocketHolder.getSocket().isClosed()) {
+                            SocketHolder.setSocket(FileTransferActivity.CreateSocket(context, IP));
+                    }
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求

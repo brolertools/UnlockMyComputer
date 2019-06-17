@@ -21,4 +21,7 @@
     <string name="store_failed_due_same_mac_user">存储失败，存在相同的 Mac地址和User账号的记录</string>
     <string name="warn_select_connect">请选择连接方式！</string>
     <string name="address_illegal">地址不合法</string>
+    <string name="work_mode">工作模式</string>
+    <string name="connect_mode">connect_mode</string>
+
 </resources>
