@@ -215,7 +215,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                             RecordSQLTool.updateDefaultRecord(helper, deviceSelected.getAddress(), user,null);
                             UnlockWidget.update(getApplicationContext());
                         }
-                        helper = null;
+                        helper.close();
                         startConnect();
                     }
                 })

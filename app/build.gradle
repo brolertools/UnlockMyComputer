@@ -36,4 +36,5 @@ dependencies {
     implementation 'com.specyci:residemenu:1.6+'
     implementation 'jp.wasabeef:recyclerview-animators:2.2.5'
     implementation 'com.koushikdutta.ion:ion:2.+'
+    implementation 'com.tencent.bugly:crashreport:latest.release'
 }

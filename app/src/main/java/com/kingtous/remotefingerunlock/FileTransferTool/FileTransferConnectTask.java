@@ -108,6 +108,8 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         JSONObject object=new JSONObject();
                         if (flags==1){
                             object.put("oriMac",data.getMac());
+                            // 内网表明客户端身份
+                            object.put("type","client");
                         }
                         object.put("action","Query") ;
                         object.put("path","/.");

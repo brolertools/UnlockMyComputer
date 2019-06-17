@@ -103,13 +103,11 @@ public class WLANConnect {
                                 ipTmp[0] = device.ip;
                             }
                         }
-
                         @Override
                         public void onFinished(ArrayList<Device> arrayList) {
                         }
                     });
                     if (ipTmp[0] == null) {
-                        //TODO 后期更新，当WiFi无法ping通时调用蓝牙
                         ToastMessageTool.ttl(context, "无法建立连接，请检查设备是否开启服务端");
                         return null;
                     } else {

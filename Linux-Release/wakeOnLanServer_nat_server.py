@@ -1,40 +1,21 @@
 import socket
 import ssl
 import threading
-import select
-from Config import BUFSIZE
-import time
+
 from pathConvertor import *
-from socketSender import *
 
 
 # a read thread, read data from remote
-class FILESocketExchanger(threading.Thread):
+class UnlockSocketExchanger(threading.Thread):
     def __init__(self, client, master):
         threading.Thread.__init__(self)
         self.client = client
         self.master = master
 
     def run(self):
-        pass
         req = self.client.recv(BUFSIZE)
         if req:
-            self.master.sendall(req)
-
-            while True:
-                try:
-                    pre_read, pre_write, err = select.select([self.master, ], [self.master, ], [], 5)
-                except select.error:
-                    self.master.shutdown(2)
-                    self.master.close()
-                    break
-                if len(pre_read) > 0:
-                    recv = self.master.recv(BUFSIZE)
-                    if recv == b'':
-                        break
-                    elif recv:
-                        self.client.sendall(recv)
-
+            self.master.sendall(BUFSIZE)
         self.client.close()
         self.master.close()
 
@@ -54,27 +35,25 @@ class FILE_Listener(threading.Thread):
         self.sock.listen(0)
 
     def run(self):
-        print("listener started on",self.port)
+        print("listener started on", self.port)
         while True:
             client_1, cltadd_1 = self.sock.accept()
             s1 = self.SSLContext.wrap_socket(client_1, server_side=True)
-            print('s1 conned')
+            print(self.port,'s1 conned')
 
             client_2, cltadd_2 = self.sock.accept()
             s2 = self.SSLContext.wrap_socket(client_2, server_side=True)
-            print('s2 conned')
+            print(self.port,'s2 conned')
 
-            FILESocketExchanger(s2, s1).start()
+            UnlockSocketExchanger(s2, s1).start()
 
             print("accept a pair")
 
 
-def startWLAN():
-    lst = FILE_Listener(FILE_PORT)  # create a listen thread
+def startUnlockEx():
+    lst = FILE_Listener(WAKE_ON_LAN_PORT)  # create a listen thread
     lst.start()  # then start
 
 
-
-
 if __name__ == '__main__':
-    startWLAN()
+    startUnlockEx()

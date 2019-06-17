@@ -32,7 +32,9 @@ import com.kingtous.remotefingerunlock.MenuTool.RecordPopupMenuTool;
 import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Widget.UnlockWidget;
 import com.stealthcopter.networktools.ARPInfo;
+import com.stealthcopter.networktools.Ping;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -94,7 +96,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
         if (recordDataArrayList.size() == 0) {
             app_empty.setVisibility(View.VISIBLE);
         } else app_empty.setVisibility(View.GONE);
-        adapter.notifyItemRangeChanged(0,recordDataArrayList.size()-1);
+        adapter.notifyDataSetChanged();
         UnlockWidget.update(getActivity().getApplicationContext());
     }
 
@@ -146,17 +148,17 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
     private boolean addRecord(String Type, String name, String user, String passwd, String ip, String mac, int setDefault) {
         boolean result = false;
         if (user.equals("") || passwd.equals("") || (mac.equals("") && ip.equals(""))) {
-            Toast.makeText(getContext(), "输入数据不合法", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.input_illegal), Toast.LENGTH_SHORT).show();
         } else {
             RecordData data = new RecordData(Type, name, user, passwd, ip, mac, setDefault);
 
             if (RecordSQLTool.addtoSQL(helper, data)) {
                 recordDataArrayList.add(data);
                 update();
-                Toast.makeText(getContext(), "存储成功", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getString(R.string.store_success), Toast.LENGTH_LONG).show();
                 result = true;
             } else
-                Toast.makeText(getContext(), "存储失败，存在相同的 Mac地址和User账号 的记录", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getString(R.string.store_failed_due_same_mac_user), Toast.LENGTH_LONG).show();
         }
         return result;
     }
@@ -200,7 +202,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                 else if (id == R.id.manual_type_bluetooth)
                                     type = "Bluetooth";
                                 else {
-                                    Toast.makeText(getContext(), "请选择连接方式！", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getContext(), getString(R.string.warn_select_connect), Toast.LENGTH_LONG).show();
                                     return;
                                 }
                                 final EditText name = diaView.findViewById(R.id.manual_name_edit);
@@ -214,13 +216,20 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                                 //先测试
 
                                 if (!matcher1.matches() && !matcher2.matches()) {
-                                    Toast.makeText(getContext(), "地址不合法", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getContext(), getString(R.string.address_illegal), Toast.LENGTH_LONG).show();
                                     return;
                                 }
                                 if (type.equals("WLAN")) {
+                                    Ping p=Ping.onAddress(ip.getText().toString());
+                                    p.setTimeOutMillis(500);
+                                    try {
+                                        p.doPing();
+                                    } catch (UnknownHostException e) {
+                                        ToastMessageTool.tts(getContext(),e.getMessage());
+                                    }
                                     String s = ARPInfo.getMACFromIPAddress(ip.getText().toString());
                                     if (s == null) {
-//                                            Toast.makeText(getContext(),"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
+                                            Toast.makeText(getContext(),"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
                                     } else {
                                         Toast.makeText(getContext(), "自动获取到ip对应的mac地址\n" + s.toUpperCase(), Toast.LENGTH_LONG).show();
                                         mac.setText(s.toUpperCase());
@@ -401,6 +410,10 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.record_wakeonlan:
+                                    if (recordData.getMac().equals("")) {
+                                        new AlertDialog.Builder(getContext()).setMessage("记录无MAC地址").setPositiveButton("确定", null).show();
+                                        return false;
+                                    }
                                     ToastMessageTool.tts(getContext(), "正在发送");
                                     new Thread(new Runnable() {
                                         @Override
