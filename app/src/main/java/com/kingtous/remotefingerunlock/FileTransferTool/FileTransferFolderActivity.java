@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class FileTransferFolderActivity extends AppCompatActivity implements FileTransferFolderAdapter.OnItemClickListener, FileTransferFolderAdapter.OnItemLongClickListener {
+public class FileTransferFolderActivity extends AppCompatActivity implements FileTransferFolderAdapter.OnItemClickListener, FileTransferFolderAdapter.OnItemLongClickListener, FileTransferQueryTask.ReturnListener {
 
 
     TextView folderView;
@@ -170,8 +170,9 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 }
 
                 try {
-                    FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(default_act_folder).get();
-                    updateModel(modelt);
+                    FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"));
+                    task.setmReturnListener(this);
+                    task.execute(default_act_folder);
                 } catch (Exception e){
                     showErr(e.getMessage());
                 }
@@ -220,8 +221,9 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         if (folderStack.size()>0){
             String folder=folderStack.pop();
             try {
-                FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(folder).get();
-                updateModel(modelt);
+                FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"));
+                task.setmReturnListener(this);
+                task.execute(folder);
             } catch (Exception e){
                 showErr(e.getMessage());
             }
@@ -235,5 +237,10 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         String s="/./E:\\/Downloads";
         String path=s.substring(0,s.lastIndexOf("/"));
         return;
+    }
+
+    @Override
+    public void onReturnListener(FileModel model) {
+        updateModel(model);
     }
 }

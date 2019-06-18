@@ -7,6 +7,7 @@ public class WLANDeviceData {
     public static int nat_transfer_port=2071;
     public static int nat_wake_on_lan=2072;
     public static int nat_unlock_port = 2073;
+    public static int unlock_port_tmp=8970;
 
     String name;
     String mac;

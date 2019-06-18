@@ -90,7 +90,10 @@ public class WLANConnect {
         PingResult result = null;
         try {
             result = p.doPing();
-            String macinfo = ARPInfo.getMACFromIPAddress(data.getIp());
+            String macinfo = ARPInfo.getMACFromIPAddress(data.getIp()).toUpperCase();
+            if (macinfo.equals("00:00:00:00:00:00")){
+                return data;
+            }
             if (!result.isReachable() || (macinfo != null && !macinfo.equals(data.getIp()))) {
 
                 if (data.getMac().equals("") || data.getMac() == null) {

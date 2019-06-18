@@ -35,9 +35,9 @@ public class RecordPopupMenuTool {
             if (data.getMac()!=null && data.getIp()!=null) {
                 if (WLANConnectActivity.isWifiConnected(context)) {
                     // 此时肯定是有MAC地址的，无MAC地址已经在UI界面就停止了
-                    final RecordData data1 = WLANConnect.checkIpEqualMac(context, data);
-                    if (data1 != null && data1.getIp() != null && data1.getMac() != null) {
-                        new Thread(new wake_on_lan(context,data1)).start();
+//                    final RecordData data1 = WLANConnect.checkIpEqualMac(context, data);
+                    if (data != null && data.getIp() != null && data.getMac() != null) {
+                        new Thread(new wake_on_lan(context,data)).start();
                     }
                     else {
                         ToastMessageTool.ttl(context,"数据不符且无法自动调整，放弃发送");

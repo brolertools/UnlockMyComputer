@@ -36,6 +36,7 @@ import com.stealthcopter.networktools.subnet.Device;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,6 +69,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
     WLANRecyclerAdapter adapter;
     TextView title;//扫描时实时更新
     SwipeRefreshLayout refreshLayout;
+    UDPReceiever udpReceiever;
 
     //Button
     Button btn_back;
@@ -145,6 +147,24 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
         deviceDatalist.clear();
         task = new SearchTask();
         task.execute();
+        udpReceiever=new UDPReceiever();
+
+            udpReceiever.setmReturnListener(new UDPReceiever.ReturnListener() {
+                @Override
+                public void onReturnListener(WLANDeviceData data) {
+                    if (data != null) {
+                        for (WLANDeviceData listData : deviceDatalist) {
+                            if (data.getMac() == null || listData.getMac() == null || listData.getMac().equals(data.getMac())) {
+                                return;
+                            }
+                        }
+                        deviceDatalist.add(0,data);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
+            udpReceiever.execute();
+
     }
 
     void stopSearch() {
@@ -441,6 +461,9 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        if (udpReceiever!=null && !udpReceiever.isCancelled()){
+            udpReceiever.cancel(true);
+        }
     }
 
     private void log(String text) {

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
+import com.kingtous.remotefingerunlock.WLANConnectTool.UDPReceiever;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
 import org.json.JSONException;
@@ -34,7 +35,17 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
     String path;
     private String IP;
     private String recvStr;
+    private FileModel model;
 
+    public interface ReturnListener{
+        void onReturnListener(FileModel model);
+    }
+
+    private FileTransferQueryTask.ReturnListener mReturnListener;
+
+    public void setmReturnListener(FileTransferQueryTask.ReturnListener listener){
+        this.mReturnListener=listener;
+    }
 
     @Override
     protected void onPreExecute() {
@@ -54,6 +65,9 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                     .setMessage(message)
                     .setNegativeButton("确定", null)
                     .show();
+        }
+        if (mReturnListener!=null){
+            mReturnListener.onReturnListener(model);
         }
     }
 
@@ -109,7 +123,7 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         if (object1.get("status").getAsString().equals("0")){
                             message=recvStr;
                             resultCode=0;
-                            return new Gson().fromJson(object1,FileModel.class);
+                            model=new Gson().fromJson(object1,FileModel.class);
                         }
                         else {
                             switch (object1.get("status").getAsString()){
