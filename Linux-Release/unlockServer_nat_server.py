@@ -15,7 +15,7 @@ class UnlockSocketExchanger(threading.Thread):
     def run(self):
         req = self.client.recv(BUFSIZE)
         if req:
-            self.master.sendall(BUFSIZE)
+            self.master.sendall(req)
         self.client.close()
         self.master.close()
 

@@ -11,8 +11,6 @@ import re
 import time
 from Config import *
 
-PORT = 8970
-
 MAC_ADDR = None
 IP = None
 PC_NAME = None
@@ -134,4 +132,4 @@ if __name__ == '__main__':
     if not loadConfig():
         startBind()
     else:
-        Connector(NAT_WAKE_ON_LAN_PORT).start()
+        Connector(WAKE_ON_LAN_DEV_PORT).start()

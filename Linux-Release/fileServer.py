@@ -130,7 +130,7 @@ class Listener(threading.Thread):
 
 
 def startWLAN():
-    lst = Listener(FILE_PORT)  # create a listen thread
+    lst = Listener(FILE_LOCAL_PORT)  # create a listen thread
     lst.start()  # then start
 
 
