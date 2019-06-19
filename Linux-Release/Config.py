@@ -37,18 +37,18 @@ NAT_SERVER = '123.206.34.50'
 # 等待连接线程设置
 class WaitConn(threading.Thread):
 
-    def __init__(self, m_socket, string):
+    def __init__(self, m_socket, port):
         super().__init__()
         self.socket = m_socket
         self.result_code = -1
         self.conn = None
         self.addr = None
-        self.string = string
+        self.port = port
 
     def run(self):
         try:
             self.conn, self.addr = self.socket.accept()
-            print('设备', self.string, '已连接')
+            print('设备端口：', self.port, '已连接')
             self.result_code = 0
         except:
             self.socket.close()
@@ -75,8 +75,8 @@ class Listener(threading.Thread):
 
     def waitConnect(self):
         print('等待连接')
-        w1 = WaitConn(self.createSocket(self.client_port), '1')
-        w2 = WaitConn(self.createSocket(self.master_port), '2')
+        w1 = WaitConn(self.createSocket(self.client_port), self.client_port)
+        w2 = WaitConn(self.createSocket(self.master_port), self.master_port)
 
         w1.start()
         w2.start()
@@ -86,7 +86,7 @@ class Listener(threading.Thread):
 
         if w1.result_code == 0 and w2.result_code == 0:
             # 同时连接且都在线
-            self.SocketExchanger(w1, w2).start()
+            self.SocketExchanger(w1.conn, w2.conn).start()
             return True
         else:
             return False
