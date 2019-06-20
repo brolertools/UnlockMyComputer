@@ -108,16 +108,13 @@ class Reader(threading.Thread):
         return string
 
 
-# a listen thread, listen remote connect
-# when a remote machine request to connect, it will create a read thread to handle
 class Connector(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
-        self.port=port
+        self.port = port
         # SSL
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
-        Reader(self.ssl_sock).start()
 
     def run(self):
         print("Connector started")
@@ -133,7 +130,7 @@ class Connector(threading.Thread):
 
 
 def startWLAN():
-    lst = Connector(FILE_PORT)  # create a listen thread
+    lst = Connector(FILE_MASTER_PORT)  # create a listen thread
     lst.start()  # then start
 
 

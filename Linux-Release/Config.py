@@ -11,8 +11,8 @@ BUFSIZE = 8192
 
 # 文件传输
 FILE_LOCAL_PORT = 2090
-FILE_CLIENT_PORT = 2071
-FILE_MASTER_PORT = 2072
+FILE_MASTER_PORT = 2071
+FILE_CLIENT_PORT = 2072
 
 # 解锁
 UNLOCK_CLIENT_PORT = 2075
@@ -31,23 +31,26 @@ HEART_BEAT_CLIENT_PORT = 2076
 HEART_BEAT_MASTER_PORT = 2078
 
 # 代理服务器定义
-NAT_SERVER = '123.206.34.50'
+NAT_SERVER = '127.0.0.1'
 
 
 # 等待连接线程设置
 class WaitConn(threading.Thread):
 
-    def __init__(self, m_socket, port):
+    def __init__(self, SSL_Context, m_socket, port):
         super().__init__()
         self.socket = m_socket
         self.result_code = -1
         self.conn = None
         self.addr = None
+        self.client = None
         self.port = port
+        self.SSL_Context = SSL_Context
 
     def run(self):
         try:
             self.conn, self.addr = self.socket.accept()
+            self.client = self.SSL_Context.wrap_socket(self.conn, server_side=True)
             print('设备端口：', self.port, '已连接')
             self.result_code = 0
         except:
@@ -75,8 +78,8 @@ class Listener(threading.Thread):
 
     def waitConnect(self):
         print('等待连接')
-        w1 = WaitConn(self.createSocket(self.client_port), self.client_port)
-        w2 = WaitConn(self.createSocket(self.master_port), self.master_port)
+        w1 = WaitConn(self.SSLContext, self.createSocket(self.client_port), self.client_port)
+        w2 = WaitConn(self.SSLContext, self.createSocket(self.master_port), self.master_port)
 
         w1.start()
         w2.start()
