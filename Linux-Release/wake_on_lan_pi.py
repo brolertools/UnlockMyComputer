@@ -11,6 +11,7 @@ from Config import *
 MAC_ADDR = None
 IP = None
 PC_NAME = None
+PORT = 8970
 
 
 def loadConfig():
@@ -22,7 +23,7 @@ def loadConfig():
     MAC_ADDR = f.readline().strip()
     IP = f.readline().strip()
 
-    if MAC_ADDR=="":
+    if MAC_ADDR == "":
         return False
     print('载入配置文件成功')
     return True
@@ -102,7 +103,6 @@ class Connector(threading.Thread):
         # SSL
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
-
 
     def run(self):
         print("Connector started")
