@@ -4,16 +4,13 @@ from wakeOnLanServer_nat_server import wake_tr
 
 
 if __name__ == '__main__':
-    tr_1 = unlock_tr()
-    tr_2 = file_tr()
-    tr_3 = wake_tr()
 
-    tr_1.start()
-    tr_2.start()
-    tr_3.start()
+    tr=[unlock_tr(),file_tr(),wake_tr()]
 
-    tr_1.join()
-    tr_2.join()
-    tr_3.join()
+    for func_tr in tr:
+        func_tr.start()
+
+    for func_tr in tr:
+        func_tr.join()
 
     exit(0)
