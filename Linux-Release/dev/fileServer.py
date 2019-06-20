@@ -113,7 +113,7 @@ class Listener(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
         # SSL
-        self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.SSLContext.load_cert_chain(certfile='cacert.pem', keyfile='privkey.pem')
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
