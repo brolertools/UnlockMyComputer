@@ -31,7 +31,7 @@ HEART_BEAT_CLIENT_PORT = 2076
 HEART_BEAT_MASTER_PORT = 2078
 
 # 代理服务器定义
-NAT_SERVER = '127.0.0.1'
+NAT_SERVER = '123.206.34.50'
 
 
 # 等待连接线程设置
@@ -74,12 +74,15 @@ class Listener(threading.Thread):
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(("0.0.0.0", port))
         self.sock.listen(0)
-        return self.sock
+        return self.SSLContext, self.sock, port
 
     def waitConnect(self):
         print('等待连接')
-        w1 = WaitConn(self.SSLContext, self.createSocket(self.client_port), self.client_port)
-        w2 = WaitConn(self.SSLContext, self.createSocket(self.master_port), self.master_port)
+
+        c, s, p = self.createSocket(self.client_port)
+        w1 = WaitConn(c, s, p)
+        c, s, p = self.createSocket(self.master_port)
+        w2 = WaitConn(c, s, p)
 
         w1.start()
         w2.start()
