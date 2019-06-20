@@ -1,11 +1,11 @@
 import socket
 import ssl
 import threading
-
-from pathConvertor import *
-from socketSender import *
 import sys
 sys.path.append('..')
+from pathConvertor import *
+from socketSender import *
+
 
 
 # a read thread, read data from remote

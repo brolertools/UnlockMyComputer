@@ -4,7 +4,9 @@ import threading
 
 from pathConvertor import *
 import sys
+
 sys.path.append('..')
+
 
 # a read thread, read data from remote
 class UnlockSocketExchanger(threading.Thread):
@@ -24,6 +26,14 @@ class UnlockSocketExchanger(threading.Thread):
 def startUnlockEx():
     lst = Listener(UNLOCK_CLIENT_PORT, UNLOCK_DEV_PORT, UnlockSocketExchanger)  # create a listen thread
     lst.start()  # then start
+
+
+class unlock_tr(threading.Thread):
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        startUnlockEx()
 
 
 if __name__ == '__main__':

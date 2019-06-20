@@ -4,7 +4,6 @@ import ssl
 import time
 import sys
 
-sys.path.append('..')
 
 # 编码
 encoding = 'utf-8'
@@ -132,6 +131,7 @@ class Connector(threading.Thread):
                     tr.start()
                     tr.join()
                     print('完成对话')
+                    break
                 except ConnectionRefusedError or TimeoutError:
                     # 重新初始化
                     self.__init__(self.port, self.reader)
@@ -139,9 +139,6 @@ class Connector(threading.Thread):
                     print('3s后尝试连接NAT公网代理服务器')
                     continue
 
-                tr = self.reader(self.ssl_sock)
-                tr.start()
-                tr.join()
             if self.ssl_sock._closed:
                 print('重新连接')
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

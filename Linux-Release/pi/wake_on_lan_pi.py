@@ -66,11 +66,14 @@ class Reader(threading.Thread):
 
 
 def main():
+    global PC_NAME, MAC_ADDR, IP
+    t = loadConfig()
     while True:
-        if not loadConfig():
+        if t is None:
             startBind()
         else:
-            conn=Connector(WAKE_ON_LAN_DEV_PORT, Reader)
+            (PC_NAME, MAC_ADDR, IP) = loadConfig()
+            conn = Connector(WAKE_ON_LAN_DEV_PORT, Reader)
             conn.start()
             conn.join()
 

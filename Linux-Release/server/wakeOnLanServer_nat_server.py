@@ -1,6 +1,8 @@
-from pathConvertor import *
 import sys
+
 sys.path.append('..')
+from pathConvertor import *
+
 
 # a read thread, read data from remote
 class WakeSocketExchanger(threading.Thread):
@@ -18,10 +20,18 @@ class WakeSocketExchanger(threading.Thread):
         self.master.close()
 
 
-def startUnlockEx():
+def startWake():
     lst = Listener(WAKE_ON_LAN_CLIENT_PORT, WAKE_ON_LAN_DEV_PORT, WakeSocketExchanger)  # create a listen thread
     lst.start()  # then start
 
 
+class wake_tr(threading.Thread):
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        startWake()
+
+
 if __name__ == '__main__':
-    startUnlockEx()
+    startWake()

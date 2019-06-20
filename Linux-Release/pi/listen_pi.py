@@ -1,8 +1,11 @@
 import os
 import socket
 import sys
+import json
+
 sys.path.append('..')
 from Config import *
+
 
 def loadConfig():
     global MAC_ADDR, IP, PC_NAME
@@ -16,7 +19,7 @@ def loadConfig():
     if MAC_ADDR == "":
         return False
     print('载入配置文件成功')
-    return True
+    return (PC_NAME, MAC_ADDR, IP)
 
 
 def startBind():

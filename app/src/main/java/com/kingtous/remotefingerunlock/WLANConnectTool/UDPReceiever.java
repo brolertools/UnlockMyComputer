@@ -5,15 +5,11 @@ import android.os.AsyncTask;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
-
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.ArrayList;
 
 public class UDPReceiever extends AsyncTask<Void,Void, Void >{
 
@@ -38,7 +34,7 @@ public class UDPReceiever extends AsyncTask<Void,Void, Void >{
     protected Void doInBackground(Void... voids) {
         try {
             while (true){
-                DatagramSocket socket=new DatagramSocket(WLANDeviceData.unlock_port_tmp);
+                DatagramSocket socket=new DatagramSocket(WLANDeviceData.unlock_udp_port);
                 socket.setSoTimeout(3000);
                 //创建字节数组以做数据缓冲区
                 byte[] words=new byte[1024];

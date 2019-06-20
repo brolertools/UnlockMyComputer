@@ -43,5 +43,13 @@ def startWLAN():
     lst.start()  # then start
 
 
+class file_tr(threading.Thread):
+    def __init__(self):
+        super().__init__()
+
+    def run(self):
+        startWLAN()
+
+
 if __name__ == '__main__':
     startWLAN()
