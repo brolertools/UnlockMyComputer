@@ -1,7 +1,6 @@
 from pathConvertor import *
-
-
-# 测试
+import sys
+sys.path.append('..')
 
 # a read thread, read data from remote
 class WakeSocketExchanger(threading.Thread):
@@ -13,8 +12,8 @@ class WakeSocketExchanger(threading.Thread):
     def run(self):
         req = self.client.recv(BUFSIZE)
         if req:
-            print('发送', req)
-            self.master.sendall(BUFSIZE)
+            print('发送成功')
+            self.master.sendall(req)
         self.client.close()
         self.master.close()
 

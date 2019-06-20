@@ -2,6 +2,9 @@ import select
 import socket
 import ssl
 from pathConvertor import *
+import sys
+
+sys.path.append('..')
 
 
 # a read thread, read data from remote

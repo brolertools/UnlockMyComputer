@@ -4,6 +4,8 @@ import threading
 
 from pathConvertor import *
 from socketSender import *
+import sys
+sys.path.append('..')
 
 
 # a read thread, read data from remote

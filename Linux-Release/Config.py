@@ -2,9 +2,15 @@ import threading
 import socket
 import ssl
 import time
+import sys
+
+sys.path.append('..')
 
 # 编码
 encoding = 'utf-8'
+
+# UDP广播端口
+UDP_PORT = 8970
 
 # 数据包BUF大小
 BUFSIZE = 8192
@@ -15,6 +21,7 @@ FILE_MASTER_PORT = 2071
 FILE_CLIENT_PORT = 2072
 
 # 解锁
+UNLOCK_PORT = 2084
 UNLOCK_CLIENT_PORT = 2075
 UNLOCK_DEV_PORT = 2077
 
@@ -102,3 +109,40 @@ class Listener(threading.Thread):
             print('等待连接')
             self.waitConnect()
             print("进行数据交换")
+
+
+class Connector(threading.Thread):
+    def __init__(self, port, reader):
+        threading.Thread.__init__(self)
+        self.port = port
+        # SSL
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+        self.reader = reader
+
+    def run(self):
+        print("Connector started")
+        while True:
+            if not self.ssl_sock._connected:
+                try:
+                    print('尝试连接')
+                    self.ssl_sock.connect((NAT_SERVER, self.port))
+                    print('连接成功')
+                    tr = self.reader(self.ssl_sock)
+                    tr.start()
+                    tr.join()
+                    print('完成对话')
+                except ConnectionRefusedError or TimeoutError:
+                    # 重新初始化
+                    self.__init__(self.port, self.reader)
+                    time.sleep(3)
+                    print('3s后尝试连接NAT公网代理服务器')
+                    continue
+
+                tr = self.reader(self.ssl_sock)
+                tr.start()
+                tr.join()
+            if self.ssl_sock._closed:
+                print('重新连接')
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)

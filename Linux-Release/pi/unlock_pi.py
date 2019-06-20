@@ -3,15 +3,17 @@
 
 import binascii
 import json
-import os
 import re
+import sys
 
+from listen_pi import *
+
+sys.path.append('..')
 from Config import *
 
 MAC_ADDR = None
 IP = None
 PC_NAME = None
-PORT = 8970
 
 
 def loadConfig():
@@ -33,11 +35,12 @@ def startBind():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-    s.bind(('', PORT))
+    s.bind(('', UDP_PORT))
     print('Listening for broadcast at ', s.getsockname())
 
     while True:
         data, address = s.recvfrom(65535)
+        data = bytes.decode(data, encoding)
         data = json.loads(data)
         if data.get('macaddr', -1) != -1 and data.get('pcname', -1) != -1:
             f = open('config.ini', 'w')
@@ -78,17 +81,10 @@ class Reader(threading.Thread):
         while True:
             data = self.client.recv(BUFSIZE)
             if data:
-                broadcast_address = '255.255.255.255'
-                port = 9
-                # ======================================
-                send_data = create_magic_packet(MAC_ADDR)
-
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-                for i in range(5):
-                    s.sendto(send_data, (broadcast_address, port))
-                    s.sendto(send_data, (IP, port))
-                s.close()
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                ssl_sock = ssl.wrap_socket(s, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+                ssl_sock.connect((IP, UNLOCK_PORT))
+                ssl_sock.sendall(data)
                 print('发送成功')
             else:
                 break
@@ -96,37 +92,27 @@ class Reader(threading.Thread):
 
 # a listen thread, listen remote connect
 # when a remote machine request to connect, it will create a read thread to handle
-class Connector(threading.Thread):
-    def __init__(self, port):
-        threading.Thread.__init__(self)
-        self.port = port
-        # SSL
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+
+
+class main_t(threading.Thread):
+    def __init__(self):
+        super().__init__()
 
     def run(self):
-        print("Connector started")
-        while True:
-            if not self.ssl_sock._connected:
-                try:
-                    self.ssl_sock.connect((NAT_SERVER, self.port))
-                    print('连接成功')
-                    Reader(self.ssl_sock).start()
-                except ConnectionRefusedError:
-                    # 重新初始化
-                    self.__init__(self.port)
-                    time.sleep(3)
-                    print('3s后尝试连接NAT公网代理服务器')
-                    continue
-                Reader(self.ssl_sock).start()
-            if self.ssl_sock._closed:
-                print('重新连接')
-                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+        main()
+
+
+def main():
+    while True:
+        if not loadConfig():
+            startBind()
+        else:
+            tr = Connector(UNLOCK_DEV_PORT, Reader)
+            tr.start()
+            tr.join()
 
 
 if __name__ == '__main__':
-    if not loadConfig():
-        startBind()
-    else:
-        Connector(WAKE_ON_LAN_DEV_PORT).start()
+    s = main_t()
+    s.start()
+    s.join()
