@@ -101,5 +101,4 @@ class Listener(threading.Thread):
         while True:
             print('等待连接')
             self.waitConnect()
-            print("accept a pair")
-            time.sleep(3)
+            print("进行数据交换")

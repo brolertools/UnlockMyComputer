@@ -1,14 +1,11 @@
 # udp_gb_client.py
 '''树莓派设置py'''
 
-import socket
+import binascii
 import json
 import os
-import threading
-import ssl
-import binascii
 import re
-import time
+
 from Config import *
 
 MAC_ADDR = None
