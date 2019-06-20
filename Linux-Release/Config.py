@@ -92,7 +92,7 @@ class Listener(threading.Thread):
 
         if w1.result_code == 0 and w2.result_code == 0:
             # 同时连接且都在线
-            self.SocketExchanger(w1.conn, w2.conn).start()
+            self.SocketExchanger(w1.client, w2.client).start()
             return True
         else:
             return False
