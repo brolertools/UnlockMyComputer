@@ -14,11 +14,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
 import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
@@ -42,8 +45,11 @@ import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -184,6 +190,17 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
                 refreshLayout.setRefreshing(false);
             }
         });
+        Toolbar toolbar= findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.back2);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        Window w = getWindow();
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        w.setStatusBarColor(getResources().getColor(R.color.deepskyblue));
         //按钮监听
         btn_back = findViewById(R.id.btn_WLAN_back);
         btn_auto = findViewById(R.id.btn_WLAN_search);
@@ -411,7 +428,6 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
         if (manager != null && !manager.isWifiEnabled()) {
 
             final NiftyDialogBuilder builder = NiftyDialogBuilder.getInstance(WLANConnectActivity.this);
-
 
             builder.withEffect(Effectstype.Fall)
                     .withDialogColor(R.color.deepskyblue)

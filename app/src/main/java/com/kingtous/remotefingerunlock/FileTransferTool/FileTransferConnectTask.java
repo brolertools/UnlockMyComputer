@@ -63,6 +63,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
             ToastMessageTool.tts(context,"连接成功");
             Intent intent=new Intent(context,FileTransferFolderActivity.class);
             intent.putExtra("detail",recvStr);
+            intent.putExtra("mac",data.getMac());
             intent.putExtra("flags",flags);
             intent.putExtra("ip",IP);
             context.startActivity(intent);

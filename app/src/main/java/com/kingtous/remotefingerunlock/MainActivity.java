@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity
 
 
     FragmentManager fragmentManager;
-
+    ResideMenu menu;
     Fragment unlock, scan, dataManagement, about;
     Fragment currentFragment;
     //request code
@@ -60,9 +60,9 @@ public class MainActivity extends AppCompatActivity
     long firstTime=0;
 
     void initSideMenu() {
-        String titles[] = {"解锁", "搜索设备", "数据管理", "文件传输","设置","关于", "退出"};
+        String titles[] = {"解锁设备", "添加设备", "管理设备", "查看文件","连接模式","关于", "退出"};
         int icon[] = {R.drawable.back2, R.drawable.back2, R.drawable.back2, R.drawable.back2,R.drawable.back2,R.drawable.back2, R.drawable.back2};
-        final ResideMenu menu = new ResideMenu(this);
+        menu = new ResideMenu(this);
         menu.setBackground(R.drawable.background);
         menu.attachToActivity(this);
         for (int i = 0; i < titles.length; i++) {
@@ -126,9 +126,17 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        toolbar.setNavigationIcon(R.drawable.back2);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.openMenu(ResideMenu.DIRECTION_LEFT);
+            }
+        });
         initSideMenu();
 
 //        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -255,9 +263,6 @@ public class MainActivity extends AppCompatActivity
             switchFragment(about)
                     .commit();
         }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 

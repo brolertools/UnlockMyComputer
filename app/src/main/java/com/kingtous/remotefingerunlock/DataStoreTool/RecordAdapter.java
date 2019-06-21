@@ -16,9 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 public class RecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
-    public static int EDIT_BUTTON = 0;
-    public static int DELETE_BUTTON = 1;
-    public static int CONNECT_BUTTON = 2;
+    public static int BOOT_BUTTON = 0;
+    public static int UNLOCK_BUTTON = 1;
+    public static int SHUTDOWN_BUTTON = 2;
     public static int MORE_BUTTON = 3;
 
     ArrayList<RecordData> recordDataArrayList;
@@ -52,23 +52,23 @@ public class RecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         ((recordHolder) holder).name.setText(recordDataArrayList.get(position).getName());
         ((recordHolder) holder).user.setText(recordDataArrayList.get(position).getUser());
         ((recordHolder) holder).mac.setText(recordDataArrayList.get(position).getMac());
-        ((recordHolder) holder).toEdit.setOnClickListener(new View.OnClickListener() {
+        ((recordHolder) holder).toBoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.OnClick(v, EDIT_BUTTON, recordDataArrayList.get(position));
+                mOnItemClickListener.OnClick(v, BOOT_BUTTON, recordDataArrayList.get(position));
             }
         });
 
-        ((recordHolder) holder).toDelete.setOnClickListener(new View.OnClickListener() {
+        ((recordHolder) holder).toUnlock.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.OnClick(v, DELETE_BUTTON, recordDataArrayList.get(position));
+                mOnItemClickListener.OnClick(v, UNLOCK_BUTTON, recordDataArrayList.get(position));
             }
         });
-        ((recordHolder) holder).toConnect.setOnClickListener(new View.OnClickListener() {
+        ((recordHolder) holder).toPoweroff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnItemClickListener.OnClick(v, CONNECT_BUTTON, recordDataArrayList.get(position));
+                mOnItemClickListener.OnClick(v, SHUTDOWN_BUTTON, recordDataArrayList.get(position));
             }
         });
         ((recordHolder) holder).toMore.setOnClickListener(new View.OnClickListener() {
@@ -98,9 +98,9 @@ public class RecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public TextView type;
         public TextView user;
         public TextView mac;
-        public Button toEdit;
-        public Button toDelete;
-        public Button toConnect;
+        public Button toBoot;
+        public Button toUnlock;
+        public Button toPoweroff;
         public TextView showDefault;
         public Button toMore;
 
@@ -110,9 +110,9 @@ public class RecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             user = itemView.findViewById(R.id.record_user);
             mac = itemView.findViewById(R.id.record_mac);
             type = itemView.findViewById(R.id.record_type);
-            toEdit = itemView.findViewById(R.id.record_edit);
-            toDelete = itemView.findViewById(R.id.record_delete);
-            toConnect = itemView.findViewById(R.id.record_connect);
+            toBoot = itemView.findViewById(R.id.record_boot);
+            toUnlock = itemView.findViewById(R.id.record_unlock);
+            toPoweroff = itemView.findViewById(R.id.record_poweroff);
             showDefault = itemView.findViewById(R.id.record_sign_default);
             toMore = itemView.findViewById(R.id.record_more);
         }

@@ -1,18 +1,23 @@
 package com.kingtous.remotefingerunlock.FileTransferTool;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.R;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Stack;
@@ -20,6 +25,7 @@ import java.util.Stack;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +36,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     RecyclerView folderRecyclerView;
     FileTransferFolderAdapter adapter;
     FloatingActionButton fab_stop;
+    FloatingActionButton fab_poweroff;
     Stack<String> folderStack=new Stack<>();
     FileModel model=new FileModel();
     int flags;
@@ -38,6 +45,17 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_transfer_folder_show);
+        Toolbar toolbar= (Toolbar)findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.back2);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        Window w = getWindow();
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        w.setStatusBarColor(getResources().getColor(R.color.deepskyblue));
         initModel();
         initView();
 //        tryIon();
@@ -85,6 +103,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         folderView=findViewById(R.id.file_transfer_folder_current_folder);
         folderRecyclerView=findViewById(R.id.file_transfer_folder_recyclerview);
         fab_stop=findViewById(R.id.file_transfer_folder_fab_stop);
+        fab_poweroff=findViewById(R.id.file_transfer_folder_fab_poweroff);
         fab_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,6 +116,12 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                     }
                 }
                 finish();
+            }
+        });
+        fab_poweroff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FunctionTool.shutdown(FileTransferFolderActivity.this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac"),flags);
             }
         });
         LinearLayoutManager manager=new LinearLayoutManager(this);
@@ -114,6 +139,8 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         }
 
     }
+
+
 
 //    public void tryIon() {
 //        JsonObject object=new JsonObject();
@@ -230,13 +257,6 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         }
         else
             super.onBackPressed();
-    }
-
-
-    public static void main(String [] args){
-        String s="/./E:\\/Downloads";
-        String path=s.substring(0,s.lastIndexOf("/"));
-        return;
     }
 
     @Override

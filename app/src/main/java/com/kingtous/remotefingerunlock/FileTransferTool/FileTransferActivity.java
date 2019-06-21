@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -23,6 +25,8 @@ import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 
 public class FileTransferActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -46,9 +50,23 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
         btn_ok.setOnClickListener(this);
         preferences= PreferenceManager.getDefaultSharedPreferences(this);
         mode_selected_index=Integer.valueOf(preferences.getString(getString(R.string.connect_mode),"0"));
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.back2);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         // 读取当前存储的WiFi设备
         initWiFiDevices();
         initModes();
+        Window w = getWindow();
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        w.setStatusBarColor(getResources().getColor(R.color.deepskyblue));
     }
 
     void initWiFiDevices(){
