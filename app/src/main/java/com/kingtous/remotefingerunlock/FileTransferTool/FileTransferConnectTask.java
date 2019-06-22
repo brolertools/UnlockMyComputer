@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.R;
@@ -110,8 +112,6 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         JSONObject object=new JSONObject();
                         if (flags==1){
                             object.put("oriMac",data.getMac());
-                            // 内网表明客户端身份
-                            object.put("type","client");
                         }
                         object.put("action","Query") ;
                         object.put("path","/.");
@@ -134,9 +134,27 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         stream.close();
                         socket.close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
-                        message=recvStr;
-                        resultCode=0;
 
+                        JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
+
+                        if (!object1.has("status")){
+                            throw new IOException("未返回状态码");
+                        }
+
+                        if (object1.get("status").getAsString().equals("0")){
+                            message=recvStr;
+                            resultCode=0;
+                        }
+                        else {
+                            switch (object1.get("status").getAsString()){
+                                case "-1":
+                                    throw new IOException("权限错误");
+                                case "-2":
+                                    throw new IOException("设备已离线");
+                                default:
+                                    throw new IOException("未知错误");
+                            }
+                        }
                     }
                 } catch (IOException e) {
                     message=e.getMessage();

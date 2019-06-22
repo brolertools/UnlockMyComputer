@@ -16,7 +16,15 @@ class Reader(threading.Thread):
 
     def run(self):
         while True:
-            data = self.client.recv(BUFSIZE)
+            send_str={}
+            send_str['mac']='887AJSKJIO'
+            send_str=json.JSONEncoder().encode(send_str)
+            self.client.sendall(send_str.encode('utf-8'))
+            print('发送',send_str)
+            try:
+                data = self.client.recv(BUFSIZE)
+            except ConnectionResetError:
+                break
             if data:
                 string = bytes.decode(data, encoding)
                 if string == '':
@@ -97,17 +105,6 @@ class Reader(threading.Thread):
         print('关闭会话')
         self.client.close()
 
-    def readline(self):
-        rec = self.inputs.readline()
-        if rec:
-            string = bytes.decode(rec, encoding)
-            if len(string) > 2:
-                string = string[0:-2]
-            else:
-                string = ' '
-        else:
-            string = False
-        return string
 
 
 class Connector(threading.Thread):
