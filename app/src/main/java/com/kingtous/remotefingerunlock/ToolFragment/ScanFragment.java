@@ -1,10 +1,12 @@
 package com.kingtous.remotefingerunlock.ToolFragment;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +18,10 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.BluetoothConnectTool.BluetoothConnectActivity;
+import com.kingtous.remotefingerunlock.Common.QRCodeScannerActivity;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
@@ -27,16 +32,19 @@ import com.stealthcopter.networktools.ARPInfo;
 import com.stealthcopter.networktools.Ping;
 
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import pub.devrel.easypermissions.EasyPermissions;
 
 import static com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment.iPpattern;
 import static com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment.maCpattern;
 
-public class ScanFragment extends Fragment {
+public class ScanFragment extends Fragment implements EasyPermissions.PermissionCallbacks {
 
     public ScanFragment() {
 
@@ -45,9 +53,15 @@ public class ScanFragment extends Fragment {
     private Button btn_WL;
     private Button btn_ML;
     private Button btn_BT;
+    private Button btn_QR;
 
-    int BT_RequestCode = 1;
-    int WL_RequestCode = 2;
+
+    public static int BT_RequestCode = 1;
+    public static int WL_RequestCode = 2;
+    public static int QR_RequestCode = 3;
+
+    String[] permissions=new String[]{Manifest.permission.CAMERA};
+    int CAMERA_GRANT=1;
 
 
     @Nullable
@@ -58,6 +72,7 @@ public class ScanFragment extends Fragment {
         btn_WL = view.findViewById(R.id.btn_WLAN);
         btn_BT = view.findViewById(R.id.btn_BLUETOOTH);
         btn_ML = view.findViewById(R.id.btn_MANUAL);
+        btn_QR = view.findViewById(R.id.btn_qrcode);
 
         btn_WL.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,9 +94,25 @@ public class ScanFragment extends Fragment {
         btn_ML.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                add(getContext());
+                View diaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add, null, false);
+                add(getContext(),diaView);
             }
         });
+
+        btn_QR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //权限申请
+                if (EasyPermissions.hasPermissions(Objects.requireNonNull(getContext()),permissions)){
+                    Intent intent = new Intent(getContext(), QRCodeScannerActivity.class);
+                    startActivityForResult(intent, QR_RequestCode);
+                }
+                else {
+                    EasyPermissions.requestPermissions(Objects.requireNonNull(getActivity()),"申请使用相机",CAMERA_GRANT,permissions);
+                }
+            }
+        });
+
         return view;
     }
 
@@ -92,7 +123,23 @@ public class ScanFragment extends Fragment {
         if (requestCode == BT_RequestCode) {
 
         } else if (requestCode == WL_RequestCode) {
-            add(getContext());
+            View diaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add, null, false);
+            add(getContext(),diaView);
+        }
+        else if (requestCode==QR_RequestCode){
+            if (resultCode==QRCodeScannerActivity.OK){
+                View diaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add, null, false);
+                RadioButton wific=diaView.findViewById(R.id.manual_type_wlan);
+                EditText name=diaView.findViewById(R.id.manual_name_edit);
+                EditText ip=diaView.findViewById(R.id.manual_ip_edit);
+                EditText mac=diaView.findViewById(R.id.manual_mac_edit);
+                JsonObject object=new Gson().fromJson(data.getStringExtra("result"),JsonObject.class);
+                wific.setChecked(true);
+                name.setText(object.get("hostname").getAsString());
+                ip.setText(object.get("ip").getAsString());
+                mac.setText(object.get("mac").getAsString());
+                add(getContext(),diaView);
+            }
         }
     }
 
@@ -120,8 +167,7 @@ public class ScanFragment extends Fragment {
     }
 
 
-    public void add(final Context context){
-        final View diaView = LayoutInflater.from(context).inflate(R.layout.dialog_manual_add, null, false);
+    public void add(final Context context, final View diaView){
         RadioButton btn_bl=diaView.findViewById(R.id.manual_type_bluetooth);//ban IP
         final EditText ip_edit=diaView.findViewById(R.id.manual_ip_edit);
         btn_bl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -202,4 +248,23 @@ public class ScanFragment extends Fragment {
     }
 
 
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+        if (requestCode==CAMERA_GRANT){
+            Intent intent = new Intent(getContext(), QRCodeScannerActivity.class);
+            startActivityForResult(intent, QR_RequestCode);
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if (requestCode==CAMERA_GRANT){
+            Intent intent = new Intent(getContext(), QRCodeScannerActivity.class);
+            startActivityForResult(intent, QR_RequestCode);
+        }
+        else
+        {
+            EasyPermissions.requestPermissions(Objects.requireNonNull(getActivity()),"申请使用相机",CAMERA_GRANT,permissions);
+        }
+    }
 }
