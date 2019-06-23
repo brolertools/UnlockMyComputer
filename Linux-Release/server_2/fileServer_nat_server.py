@@ -13,8 +13,10 @@ class FILESocketExchanger(threading.Thread):
         self.string = None
 
     def run(self):
-        pass
-        req = self.client.recv(BUFSIZE)
+        if self.string is None:
+            req = self.client.recv(BUFSIZE)
+        else:
+            req = self.string
         if req:
             self.master.sendall(req)
             while True:
@@ -41,7 +43,7 @@ def startWLAN():
     lst.start()  # then start
 
     # 接收客户端连接请求并与服务端对接
-    rcv = daemon.ClientHolderd(FILE_MASTER_PORT,FILE_CLIENT_PORT, FILESocketExchanger)
+    rcv = daemon.ClientHolderd(FILE_MASTER_PORT, FILE_CLIENT_PORT, FILESocketExchanger)
     rcv.start()
 
     d = daemon.reportd(FILE_MASTER_PORT)

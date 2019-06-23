@@ -95,12 +95,12 @@ class ClientHolderd(threading.Thread):
             ssl_conn = self.SSLContext.wrap_socket(socket_client, server_side=True)
             print('D:接受来自', addr, '的连接')
 
-            mac, info = self.getDestFromClient(ssl_conn)
+            mac, data = self.getDestFromClient(ssl_conn)
 
             query_result = socket_pool.master_dict[self.master_port].get(mac, -1)
 
             if query_result != -1 and query_result._connected:
-                self.exchanger(ssl_conn, query_result, info)
+                self.exchanger(ssl_conn, query_result, data).start()
             else:
                 self.sendError(ssl_conn)
 
@@ -122,7 +122,7 @@ class ClientHolderd(threading.Thread):
                 string = bytes.decode(data, encoding)
                 info = json.loads(string)
                 if info.get('oriMac', -1) != -1:
-                    return info.get('oriMac'), info
+                    return info.get('oriMac'), data
                 else:
                     return '', ''
             except json.decoder.JSONDecodeError:
