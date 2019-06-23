@@ -64,13 +64,14 @@ class MasterHolderd(threading.Thread):
 
 
 class ClientHolderd(threading.Thread):
-    def __init__(self, port, exchanger):
+    def __init__(self,master_port, client_port, exchanger):
         threading.Thread.__init__(self)
         self.SSLContext = None
         self.sock = None
-        self.master_port = port
+        self.master_port = master_port
+        self.client_port = client_port
         self.exchanger = exchanger
-        socket_pool.master_dict[port] = {}
+        socket_pool.master_dict[client_port] = {}
 
     def createSocket(self, port):
         self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -88,7 +89,7 @@ class ClientHolderd(threading.Thread):
 
     def waitConnect(self):
         print('D:等待连接')
-        c, s, p = self.createSocket(self.master_port)
+        c, s, p = self.createSocket(self.client_port)
         while True:
             socket_client, addr = s.accept()
             ssl_conn = self.SSLContext.wrap_socket(socket_client, server_side=True)

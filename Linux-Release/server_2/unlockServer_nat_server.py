@@ -28,7 +28,7 @@ def startUnlockEx():
     lst.start()  # then start
 
     # 接收客户端连接请求并与服务端对接
-    rcv = daemon.ClientHolderd(UNLOCK_CLIENT_PORT, UnlockSocketExchanger)
+    rcv = daemon.ClientHolderd(UNLOCK_DEV_PORT,UNLOCK_CLIENT_PORT, UnlockSocketExchanger)
     rcv.start()
 
     # 实时Client连接

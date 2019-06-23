@@ -29,7 +29,7 @@ def startWake():
     lst.start()  # then start
 
     # 接收客户端连接请求并与服务端对接
-    rcv = daemon.ClientHolderd(WAKE_ON_LAN_CLIENT_PORT, WakeSocketExchanger)
+    rcv = daemon.ClientHolderd(WAKE_ON_LAN_DEV_PORT,WAKE_ON_LAN_CLIENT_PORT, WakeSocketExchanger)
     rcv.start()
 
     # 实时Client连接
