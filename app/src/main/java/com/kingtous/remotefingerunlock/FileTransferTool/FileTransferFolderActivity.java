@@ -171,11 +171,11 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             case FileTransferFolderAdapter.FILE:
                 // 请求文件大小
                 try {
-                    PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                    PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                     detailBean.setSize(propModel.getFile_size());
                 // 下载
                 FileTransferDownTask downTask=
-                        new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position));
+                        new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position),getIntent().getStringExtra("mac"));
                 downTask.execute(model.getCurrent_folder()+"/"+detailBean.getFile_name());
                 } catch (Exception e){
                     showErr(e.getMessage());
@@ -197,7 +197,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 }
 
                 try {
-                    FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"));
+                    FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac"));
                     task.setmReturnListener(this);
                     task.execute(default_act_folder);
                 } catch (Exception e){
@@ -212,7 +212,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         if (model.getDetail().get(Position).getAttributes()==FileTransferFolderAdapter.FILE){
             FileModel.DetailBean detailBean=model.getDetail().get(Position);
             try {
-                PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                 View v=LayoutInflater.from(this).inflate(R.layout.file_transfer_file_item_info,null,false);
                 ((TextView)v.findViewById(R.id.file_name)).setText(propModel.getFile_name());
                 ((TextView)v.findViewById(R.id.file_size)).setText(String.valueOf(((double)propModel.getFile_size())/1024)+"KB");
@@ -248,7 +248,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         if (folderStack.size()>0){
             String folder=folderStack.pop();
             try {
-                FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"));
+                FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac"));
                 task.setmReturnListener(this);
                 task.execute(folder);
             } catch (Exception e){

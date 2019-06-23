@@ -10,7 +10,7 @@ class FILESocketExchanger(threading.Thread):
         threading.Thread.__init__(self)
         self.client = client
         self.master = master
-        self.string = None
+        self.string = string
 
     def run(self):
         if self.string is None:

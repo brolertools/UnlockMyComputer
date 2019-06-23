@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,6 +82,9 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                     JSONObject object=new JSONObject();
                     object.put("action","shutdown");
                     object.put("mac",MAC);
+                    if (FunctionTool.detectModes(context)==1){
+                        object.put("oriMac",MAC);
+                    }
                     stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
 //                      stream.close();
                     //读入数据

@@ -21,6 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:name=".Application.myApplication"
+        android:networkSecurityConfig="@xml/network_enable_http"
         >
         <receiver android:name=".Widget.UnlockWidget_icon">
             <intent-filter>

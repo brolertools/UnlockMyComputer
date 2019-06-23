@@ -15,6 +15,7 @@ import android.os.StrictMode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
@@ -38,10 +39,11 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
 
 
     private Context context;
-    FileTransferDownTask(Context context, String IP, FileModel.DetailBean detailBean){
+    FileTransferDownTask(Context context, String IP, FileModel.DetailBean detailBean,String MAC){
         this.context=context;
         dialog=new ProgressDialog(context);
         this.IP=IP;
+        this.MAC=MAC;
         this.detailBean= detailBean;
     }
 
@@ -50,6 +52,7 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
     private int resultCode=-1;
     String path;
     private String IP;
+    private String MAC;
     String savePath;
     FileModel.DetailBean detailBean;
 
@@ -138,6 +141,9 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                         JSONObject object=new JSONObject();
                         object.put("action","Get");
                         object.put("path",path);
+                        if (FunctionTool.detectModes(context)==1){
+                            object.put("oriMac",MAC);
+                        }
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
 //                        stream.close();

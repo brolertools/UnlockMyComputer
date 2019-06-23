@@ -8,14 +8,17 @@ from pathConvertor import *
 
 # a read thread, read data from remote
 class WakeSocketExchanger(threading.Thread):
-    def __init__(self, client, master, info=None):
+    def __init__(self, client, master, string=None):
         threading.Thread.__init__(self)
         self.client = client
         self.master = master
-        self.info = info
+        self.string = string
 
     def run(self):
-        req = self.client.recv(BUFSIZE)
+        if self.string is None:
+            req = self.client.recv(BUFSIZE)
+        else:
+            req = self.string
         if req:
             print('发送成功')
             self.master.sendall(req)

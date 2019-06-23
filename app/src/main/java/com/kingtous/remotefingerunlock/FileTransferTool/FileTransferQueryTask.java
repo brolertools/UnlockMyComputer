@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.UDPReceiever;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
@@ -24,16 +25,18 @@ import java.nio.charset.StandardCharsets;
 public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> implements DialogInterface.OnClickListener{
 
     private Context context;
-    FileTransferQueryTask(Context context, String IP){
+    FileTransferQueryTask(Context context, String IP,String MAC){
         this.context=context;
         dialog=new ProgressDialog(context);
         this.IP=IP;
+        this.MAC=MAC;
     }
     String message="";
     ProgressDialog dialog;
     private int resultCode=-1;
     String path;
     private String IP;
+    private String MAC;
     private String recvStr;
     private FileModel model;
 
@@ -92,6 +95,9 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         JSONObject object=new JSONObject();
                         object.put("action","Query");
                         object.put("path",path);
+                        if (FunctionTool.detectModes(context)==1){
+                            object.put("oriMac",MAC);
+                        }
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
 //                      stream.close();
                         //读入数据
