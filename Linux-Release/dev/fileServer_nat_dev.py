@@ -2,10 +2,10 @@ import socket
 import ssl
 import threading
 import sys
+
 sys.path.append('..')
 from pathConvertor import *
 from socketSender import *
-
 
 
 # a read thread, read data from remote
@@ -16,11 +16,11 @@ class Reader(threading.Thread):
 
     def run(self):
         while True:
-            send_str={}
-            send_str['mac']='887AJSKJIO'
-            send_str=json.JSONEncoder().encode(send_str)
+            send_str = {}
+            send_str['mac'] = getMacAddress()
+            send_str = json.JSONEncoder().encode(send_str)
             self.client.sendall(send_str.encode('utf-8'))
-            print('发送',send_str)
+            print('发送', send_str)
             try:
                 data = self.client.recv(BUFSIZE)
             except ConnectionResetError:
@@ -104,7 +104,6 @@ class Reader(threading.Thread):
 
         print('关闭会话')
         self.client.close()
-
 
 
 class Connector(threading.Thread):

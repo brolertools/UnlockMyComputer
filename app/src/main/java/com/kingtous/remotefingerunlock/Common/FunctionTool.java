@@ -67,4 +67,9 @@ public class FunctionTool {
     }
 
 
+    public static String macAddressAdjust(String macAddress){
+        return macAddress.replace(":","").toUpperCase();
+    }
+
+
 }

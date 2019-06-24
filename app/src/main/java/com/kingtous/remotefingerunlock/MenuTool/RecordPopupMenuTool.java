@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.PopupMenu;
 
 import com.google.gson.JsonObject;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.R;
@@ -112,7 +113,7 @@ public class RecordPopupMenuTool {
                             OutputStream stream=socket.getOutputStream();
                             if (stream!=null){
                                 JsonObject object=new JsonObject();
-                                object.addProperty("mac",data.getMac());
+                                object.addProperty("oriMac", FunctionTool.macAddressAdjust(data.getMac()));
                                 object.addProperty("ip",data.getIp());
                                 stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                                 stream.close();

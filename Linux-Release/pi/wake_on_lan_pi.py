@@ -47,6 +47,12 @@ class Reader(threading.Thread):
     def run(self):
         global MAC_ADDR, IP, PC_NAME
         while True:
+            # 发送目标机器的MAC ADDR
+            if MAC_ADDR is not None:
+                self.client.sendall(generateJsonBytesForMAC(MAC_ADDR))
+            else:
+                # 发送缺省值
+                self.client.sendall(DEFAULT_MAC_ADDR.encode(encoding))
             data = self.client.recv(BUFSIZE)
             if data:
                 broadcast_address = '255.255.255.255'

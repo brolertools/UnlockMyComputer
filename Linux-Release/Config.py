@@ -3,7 +3,8 @@ import socket
 import ssl
 import time
 import sys
-
+import uuid
+import json
 
 # 编码
 encoding = 'utf-8'
@@ -33,11 +34,22 @@ FILE = 0
 FOLDER = 1
 
 # 心跳接口
-HEART_BEAT_CLIENT_PORT = 2076
 HEART_BEAT_MASTER_PORT = 2078
 
+# 默认MAC地址
+DEFAULT_MAC_ADDR = ''
+
 # 代理服务器定义
-NAT_SERVER = '127.0.0.1'
+NAT_SERVER = '39.107.226.2'
+
+
+def generateJsonBytesForMAC(mac_address):
+    if type(mac_address) != str:
+        return None
+    else:
+        d = {}
+        d['mac'] = mac_address
+        return json.JSONEncoder().encode(d).encode(encoding)
 
 
 # 等待连接线程设置
@@ -143,3 +155,7 @@ class Connector(threading.Thread):
                 print('重新连接')
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+
+
+def getMacAddress():
+    return hex(uuid.getnode())[2:].upper()

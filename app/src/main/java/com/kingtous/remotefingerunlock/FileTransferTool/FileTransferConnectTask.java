@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -36,14 +37,18 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
         this.context=context;
         dialog=new ProgressDialog(context);
         this.data=data;
+
+        // 统一 mac 地址格式： 无：，大写
+        data.setMac(data.getMac().replace(":","").toUpperCase());
+
         this.flags=flags;
     }
-    RecordData data;
-    ProgressDialog dialog;
-    String message= "";
+    private RecordData data;
+    private ProgressDialog dialog;
+    private String message= "";
     private int resultCode=-1;
-    String IP;
-    int flags;
+    private String IP;
+    private int flags;
 
     private String recvStr;
 
@@ -52,6 +57,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
         super.onPreExecute();
         dialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", this);
         dialog.setTitle("正在连接");
+        Log.d("文件传输：","mac地址为："+data.getMac());
         dialog.setMessage("正在初始化参数");
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
