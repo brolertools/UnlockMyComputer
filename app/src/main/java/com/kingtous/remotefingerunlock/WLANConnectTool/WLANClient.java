@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.renderscript.ScriptGroup;
 import android.widget.Toast;
 
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;

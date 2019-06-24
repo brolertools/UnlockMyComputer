@@ -100,6 +100,7 @@ class ClientHolderd(threading.Thread):
             query_result = socket_pool.master_dict[self.master_port].get(mac, -1)
 
             if query_result != -1 and query_result._connected:
+                print('双方在线，进入数据传输阶段')
                 self.exchanger(ssl_conn, query_result, data).start()
             else:
                 self.sendError(ssl_conn)

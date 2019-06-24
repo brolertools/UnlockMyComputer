@@ -4,6 +4,7 @@
 import binascii
 import json
 import re
+import os
 import sys
 
 from listen_pi import *
@@ -11,10 +12,9 @@ from listen_pi import *
 sys.path.append('..')
 from Config import *
 
-MAC_ADDR = None
-IP = None
-PC_NAME = None
-
+MAC_ADDR=None
+IP=None
+PC_NAME=None
 
 def loadConfig():
     global MAC_ADDR, IP, PC_NAME
@@ -28,25 +28,9 @@ def loadConfig():
     if MAC_ADDR == "":
         return False
     print('载入配置文件成功')
-    return True
+    f.close()
 
-
-def startBind():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
-    s.bind(('', UDP_PORT))
-    print('Listening for broadcast at ', s.getsockname())
-
-    while True:
-        data, address = s.recvfrom(65535)
-        data = bytes.decode(data, encoding)
-        data = json.loads(data)
-        if data.get('macaddr', -1) != -1 and data.get('pcname', -1) != -1:
-            f = open('config.ini', 'w')
-            f.write(data['pcname'] + '\n' + data['macaddr'] + '\n' + address[0])
-            f.close()
-            return
+    return (PC_NAME, MAC_ADDR, IP)
 
 
 def create_magic_packet(mac):
@@ -78,6 +62,13 @@ class Reader(threading.Thread):
 
     def run(self):
         global MAC_ADDR, IP, PC_NAME
+
+        if MAC_ADDR is not None:
+            self.client.sendall(generateJsonBytesForMAC(MAC_ADDR))
+        else:
+            # 发送缺省值
+            self.client.sendall(generateJsonBytesForMAC(DEFAULT_MAC_ADDR))
+
         while True:
             data = self.client.recv(BUFSIZE)
             if data:
@@ -105,7 +96,8 @@ class main_t(threading.Thread):
 def main():
     while True:
         if not loadConfig():
-            startBind()
+            print('解锁模块：没有配置文件，正在等待侦测')
+            time.sleep(3)
         else:
             tr = Connector(UNLOCK_DEV_PORT, Reader)
             tr.start()

@@ -14,7 +14,23 @@ from Config import *
 MAC_ADDR = None
 IP = None
 PC_NAME = None
-PORT = 8970
+
+
+def loadConfig():
+    global MAC_ADDR, IP, PC_NAME
+    if not os.path.exists('config.ini'):
+        return False
+    f = open('config.ini', 'r')
+    PC_NAME = f.readline().strip()
+    MAC_ADDR = f.readline().strip()
+    IP = f.readline().strip()
+
+    if MAC_ADDR == "":
+        return False
+    print('载入配置文件成功')
+    f.close()
+
+    return (PC_NAME, MAC_ADDR, IP)
 
 
 def create_magic_packet(mac):
@@ -52,7 +68,7 @@ class Reader(threading.Thread):
                 self.client.sendall(generateJsonBytesForMAC(MAC_ADDR))
             else:
                 # 发送缺省值
-                self.client.sendall(DEFAULT_MAC_ADDR.encode(encoding))
+                self.client.sendall(generateJsonBytesForMAC(DEFAULT_MAC_ADDR))
             data = self.client.recv(BUFSIZE)
             if data:
                 broadcast_address = '255.255.255.255'
@@ -73,15 +89,14 @@ class Reader(threading.Thread):
 
 def main():
     global PC_NAME, MAC_ADDR, IP
-    t = loadConfig()
     while True:
-        if t is None:
-            startBind()
+        if not loadConfig():
+            print('远程唤醒模块：没有配置文件，正在等待侦测')
+            time.sleep(3)
         else:
-            (PC_NAME, MAC_ADDR, IP) = loadConfig()
-            conn = Connector(WAKE_ON_LAN_DEV_PORT, Reader)
-            conn.start()
-            conn.join()
+            tr = Connector(WAKE_ON_LAN_DEV_PORT, Reader)
+            tr.start()
+            tr.join()
 
 
 class main_t(threading.Thread):

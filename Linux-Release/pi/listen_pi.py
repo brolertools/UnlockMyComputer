@@ -6,6 +6,21 @@ import json
 sys.path.append('..')
 from Config import *
 
+MAC_ADDR = None
+IP = None
+PC_NAME = None
+
+
+class bindID(threading.Thread):
+    def __init__(self):
+        super().__init__()
+
+    def run(self) -> None:
+        while True:
+            time.sleep(3)
+            print('侦测模块：正在监听网络广播')
+            startBind()
+
 
 def loadConfig():
     global MAC_ADDR, IP, PC_NAME
@@ -19,15 +34,21 @@ def loadConfig():
     if MAC_ADDR == "":
         return False
     print('载入配置文件成功')
+    f.close()
+
     return (PC_NAME, MAC_ADDR, IP)
 
 
 def startBind():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
-    s.bind(('', UDP_PORT))
-    print('Listening for broadcast at ', s.getsockname())
+    try:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        s.bind(('', UDP_PORT))
+    except OSError:
+        print('侦测模块：', UDP_PORT, '端口被占用')
+        s.close()
+        return
+    print('侦测模块：正在监听', UDP_PORT, '端口')
 
     while True:
         data, address = s.recvfrom(65535)
