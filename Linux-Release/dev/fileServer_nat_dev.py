@@ -19,7 +19,10 @@ class Reader(threading.Thread):
             send_str = {}
             send_str['mac'] = getMacAddress()
             send_str = json.JSONEncoder().encode(send_str)
-            self.client.sendall(send_str.encode('utf-8'))
+            try:
+                self.client.sendall(send_str.encode('utf-8'))
+            except BrokenPipeError:
+                print('服务器断线')
             print('发送', send_str)
             try:
                 data = self.client.recv(BUFSIZE)
@@ -115,20 +118,30 @@ class Connector(threading.Thread):
         threading.Thread.__init__(self)
         self.port = port
         # SSL
+        self.socket = None
+        self.ssl_sock = None
+        self.init()
+
+    def init(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+
 
     def run(self):
         print("Connector started")
         while True:
             if not self.ssl_sock._connected:
-                self.ssl_sock.connect((NAT_SERVER, self.port))
-                print('连接成功')
-                Reader(self.ssl_sock).start()
+                try:
+                    self.ssl_sock.connect((NAT_SERVER, self.port))
+                    Reader(self.ssl_sock).start()
+                    print('连接成功')
+                except ConnectionRefusedError:
+                    print('连接失败，3s后重试')
+                    self.init()
+
             if self.ssl_sock._closed:
                 print('重新连接')
-                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+                self.init()
 
 
 def startWLAN():

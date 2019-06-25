@@ -172,8 +172,8 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                     //开机
                     boot(getContext(),recordData);
                 } else if (type == RecordAdapter.UNLOCK_BUTTON) {
-                    //连接
-                    Toast.makeText(getContext(), "正在连接", Toast.LENGTH_LONG).show();
+                    //解锁
+                    Toast.makeText(getContext(), "正在解锁", Toast.LENGTH_LONG).show();
                     Connect.start(getContext(), recordData);
                 }
                 else if (type==RecordAdapter.SHUTDOWN_BUTTON){
