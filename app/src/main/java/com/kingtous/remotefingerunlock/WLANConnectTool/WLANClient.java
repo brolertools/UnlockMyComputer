@@ -124,6 +124,7 @@ public class WLANClient extends Thread {
 //            }
             OutputStream stream = socket.getOutputStream();
             JSONObject object = new JSONObject();
+            object.put("oriMac",FunctionTool.macAddressAdjust(data.getMac()));
             object.put("username", data.getUser());
             object.put("passwd", data.getPasswd());
             stream.write(object.toString().getBytes(StandardCharsets.UTF_8));

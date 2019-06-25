@@ -31,8 +31,11 @@ class FILESocketExchanger(threading.Thread):
                     if recv == b'':
                         break
                     elif recv:
-                        self.client.sendall(recv)
-
+                        try:
+                            self.client.sendall(recv)
+                        except ConnectionResetError:
+                            print('客户端在传输过程中中断')
+                            break
         self.client.close()
         self.master.close()
 

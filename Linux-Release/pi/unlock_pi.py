@@ -72,11 +72,14 @@ class Reader(threading.Thread):
         while True:
             data = self.client.recv(BUFSIZE)
             if data:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                ssl_sock = ssl.wrap_socket(s, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
-                ssl_sock.connect((IP, UNLOCK_PORT))
-                ssl_sock.sendall(data)
-                print('发送成功')
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    ssl_sock = ssl.wrap_socket(s, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
+                    ssl_sock.connect((IP, UNLOCK_PORT))
+                    ssl_sock.sendall(data)
+                    print('发送成功')
+                except ConnectionRefusedError:
+                    print('所控制的设备还未上线')
             else:
                 break
 

@@ -81,7 +81,11 @@ class Reader(threading.Thread):
                             print('传输', path_t)
                             with open(path_t, 'rb') as f:
                                 for data in f:
-                                    self.client.sendall(data)
+                                    try:
+                                        self.client.sendall(data)
+                                    except BrokenPipeError:
+                                        print('服务器断线')
+                                        break
                     elif act.get('action', -1) == 'Prop':
                         path = act['path']
                         path_t = pathAdjtor(path)

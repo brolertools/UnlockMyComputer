@@ -24,6 +24,7 @@
         android:theme="@style/AppTheme"
         android:name=".Application.myApplication"
         android:networkSecurityConfig="@xml/network_enable_http"
+        android:screenOrientation="portrait"
         >
         <receiver android:name=".Widget.UnlockWidget_icon">
             <intent-filter>
@@ -58,7 +59,8 @@
         <activity
             android:name=".BluetoothConnectTool.BluetoothConnectActivity"
             android:label="🔍蓝牙选择"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".ToolFragment.AboutFragment"
             android:label="关于"
