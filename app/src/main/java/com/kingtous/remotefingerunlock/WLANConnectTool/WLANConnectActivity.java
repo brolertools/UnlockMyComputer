@@ -23,9 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
-import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
@@ -427,25 +424,20 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
         checkPermission(context);
         if (manager != null && !manager.isWifiEnabled()) {
 
-            final NiftyDialogBuilder builder = NiftyDialogBuilder.getInstance(WLANConnectActivity.this);
-
-            builder.withEffect(Effectstype.Fall)
-                    .withDialogColor(R.color.deepskyblue)
-                    .withTitle("WLAN检测")
-                    .withMessage("未打开WLAN，请问是否开启?")
-                    .isCancelableOnTouchOutside(false)
-                    .withButton1Text("打开")
-                    .withButton2Text("取消")
-                    .setButton1Click(new View.OnClickListener() {
+            new AlertDialog.Builder(this)
+                    .setTitle("无线检测")
+                    .setMessage("未打开Wi-Fi，请问是否开启？")
+                    .setPositiveButton("打开", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(DialogInterface dialog, int which) {
                             manager.setWifiEnabled(true);
-                            builder.dismiss();
+                            dialog.dismiss();
                         }
                     })
-                    .setButton2Click(new View.OnClickListener() {
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
                             finish();
                         }
                     })

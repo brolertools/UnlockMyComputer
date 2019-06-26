@@ -7,8 +7,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.R;
 
 import androidx.annotation.NonNull;
@@ -17,20 +20,15 @@ import androidx.fragment.app.Fragment;
 
 public class ModeFragment extends Fragment {
 
-
-
     private RadioGroup group;
-    private RadioButton btn_direct;
-    private RadioGroup btn_remote;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.mode_list,container,false);
         group=view.findViewById(R.id.manual_mode);
-        btn_direct=view.findViewById(R.id.manual_mode_direct);
-        btn_remote=view.findViewById(R.id.manual_mode_remote);
-        return super.onCreateView(inflater, container, savedInstanceState);
+        getSettings();
+        return view;
     }
 
     @Override
@@ -40,8 +38,31 @@ public class ModeFragment extends Fragment {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 Log.d("模式",String.valueOf(i));
+                switch (i){
+                    case R.id.manual_mode_direct:
+                        FunctionTool.editModes(getContext(),Integer.valueOf(FunctionTool.directMode));
+                        break;
+                    case R.id.manual_mode_remote:
+                        FunctionTool.editModes(getContext(),Integer.valueOf(FunctionTool.remoteMode));
+                        break;
+                }
             }
         });
-
     }
+
+    private void getSettings(){
+        int modes=FunctionTool.detectModes(getContext());
+        String mode=String.valueOf(modes);
+        switch (mode){
+            case FunctionTool.directMode:
+                group.check(R.id.manual_mode_direct);
+                break;
+            case FunctionTool.remoteMode:
+                group.check(R.id.manual_mode_remote);
+                break;
+        }
+    }
+
+
+
 }

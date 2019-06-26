@@ -122,10 +122,9 @@ public class ScanFragment extends Fragment implements EasyPermissions.Permission
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == BT_RequestCode) {
-
+            // 预留
         } else if (requestCode == WL_RequestCode) {
-            View diaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add, null, false);
-            add(getContext(),diaView);
+            // 预留
         }
         else if (requestCode==QR_RequestCode){
             if (resultCode==QRCodeScannerActivity.OK){

@@ -16,12 +16,25 @@ import androidx.appcompat.app.AlertDialog;
 
 public class FunctionTool {
 
+    public static final String directMode="0";
+    public static final String remoteMode="1";
+
     public static int detectModes(Context context){
         SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(context);
         if (preferences.getString(context.getString(R.string.connect_mode),"0").equals("0")) {
-            return 0;
+            return Integer.valueOf(directMode);
         }
-        else return 1;
+        else return Integer.valueOf(remoteMode);
+    }
+
+    public static void editModes(Context context,int mode){
+        String modeStr=String.valueOf(mode);
+        if (modeStr.equals(directMode) || modeStr.equals(remoteMode)){
+            SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor=preferences.edit();
+            editor.putString(preferences.getString(context.getString(R.string.connect_mode),"0"),String.valueOf(mode));
+            editor.apply();
+        }
     }
 
 

@@ -13,29 +13,28 @@ class FILESocketExchanger(threading.Thread):
         self.string = string
 
     def run(self):
-        if self.string is None:
-            req = self.client.recv(BUFSIZE)
-        else:
-            req = self.string
-        if req:
-            self.master.sendall(req)
-            while True:
-                try:
-                    pre_read, pre_write, err = select.select([self.master, ], [self.master, ], [], 5)
-                except select.error:
-                    self.master.shutdown(2)
-                    self.master.close()
-                    break
-                if len(pre_read) > 0:
-                    recv = self.master.recv(BUFSIZE)
-                    if recv == b'':
+        try:
+            if self.string is None:
+                req = self.client.recv(BUFSIZE)
+            else:
+                req = self.string
+            if req:
+                self.master.sendall(req)
+                while True:
+                    try:
+                        pre_read, pre_write, err = select.select([self.master, ], [self.master, ], [], 5)
+                    except select.error:
+                        self.master.shutdown(2)
+                        self.master.close()
                         break
-                    elif recv:
-                        try:
-                            self.client.sendall(recv)
-                        except ConnectionResetError or BrokenPipeError:
-                            print('客户端在传输过程中中断')
+                    if len(pre_read) > 0:
+                        recv = self.master.recv(BUFSIZE)
+                        if recv == b'':
                             break
+                        elif recv:
+                            self.client.sendall(recv)
+        except ConnectionResetError or BrokenPipeError:
+            print('客户端在传输过程中中断')
         self.client.close()
         self.master.close()
 

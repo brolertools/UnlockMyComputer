@@ -25,9 +25,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
-import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
@@ -244,23 +241,20 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
 
     private void checkBluetooth() {
         if (!bluetoothAdapter.isEnabled()) {
-            final NiftyDialogBuilder builder = NiftyDialogBuilder.getInstance(BluetoothConnectActivity.this);
-            builder.withEffect(Effectstype.Fall)
-                    .withDialogColor(R.color.deepskyblue)
-                    .withMessage("蓝牙未打开，是否打开蓝牙？")
-                    .withButton1Text("打开")
-                    .withButton2Text("取消")
-                    .isCancelableOnTouchOutside(false)
-                    .setButton1Click(new View.OnClickListener() {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("无线检测")
+                    .setMessage("未打开蓝牙，请问是否开启？")
+                    .setPositiveButton("打开", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(DialogInterface dialog, int which) {
                             bluetoothAdapter.enable();
-                            builder.dismiss();
+                            dialog.dismiss();
                         }
                     })
-                    .setButton2Click(new View.OnClickListener() {
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
                             finish();
                         }
                     })

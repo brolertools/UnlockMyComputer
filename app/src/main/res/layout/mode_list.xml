@@ -9,22 +9,25 @@
         android:id="@+id/manual_mode"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:gravity="center"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="@dimen/linear_margin"
         >
 
         <RadioButton
             android:id="@+id/manual_mode_direct"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:textSize="20dp"
             android:text="直接连接"
-            android:layout_weight="100"
             />
+
         <RadioButton
             android:id="@+id/manual_mode_remote"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="100"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:textSize="20dp"
             android:text="远程连接"
             />
 

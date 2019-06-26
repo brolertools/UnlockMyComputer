@@ -1,15 +1,17 @@
 package com.kingtous.remotefingerunlock;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
-import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
-import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.kingtous.remotefingerunlock.FileTransferTool.FileTransferActivity;
-import com.kingtous.remotefingerunlock.MenuTool.SettingActivity;
 import com.kingtous.remotefingerunlock.ToolFragment.AboutFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.ModeFragment;
@@ -18,29 +20,18 @@ import com.kingtous.remotefingerunlock.ToolFragment.UnlockFragment;
 import com.special.ResideMenu.ResideMenu;
 import com.special.ResideMenu.ResideMenuItem;
 
+import java.util.List;
+
 import androidx.annotation.RequiresApi;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import pub.devrel.easypermissions.EasyPermissions;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Toast;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, EasyPermissions.PermissionCallbacks {
@@ -183,16 +174,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPermissionsDenied(int requestCode, @androidx.annotation.NonNull List<String> perms) {
 
-        final NiftyDialogBuilder builder = NiftyDialogBuilder.getInstance(MainActivity.this);
-        builder.withTitle("权限获取")
-                .withEffect(Effectstype.Shake)
-                .withMessage("权限获取失败，请允许指纹权限")
-                .withButton1Text("好")
-                .setButton1Click(new View.OnClickListener() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("权限获取")
+                .setMessage("权限获取失败，请允许指纹权限")
+                .setPositiveButton("好", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
                         finish();
-                        builder.dismiss();
                     }
                 })
                 .show();

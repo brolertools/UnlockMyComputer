@@ -14,7 +14,9 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
-
+/*
+废弃
+ */
 public class SettingActivity extends PreferenceActivity {
 
     @Override
