@@ -23,5 +23,6 @@
     <string name="address_illegal">地址不合法</string>
     <string name="work_mode">工作模式</string>
     <string name="connect_mode">connect_mode</string>
+    <string name="notValidQRCode">不是有效的二维码</string>
 
 </resources>

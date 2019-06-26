@@ -12,6 +12,7 @@ import com.kingtous.remotefingerunlock.FileTransferTool.FileTransferActivity;
 import com.kingtous.remotefingerunlock.MenuTool.SettingActivity;
 import com.kingtous.remotefingerunlock.ToolFragment.AboutFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment;
+import com.kingtous.remotefingerunlock.ToolFragment.ModeFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.ScanFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.UnlockFragment;
 import com.special.ResideMenu.ResideMenu;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity
 
     FragmentManager fragmentManager;
     ResideMenu menu;
-    Fragment unlock, scan, dataManagement, about;
+    Fragment unlock, scan, dataManagement, about,mode;
     Fragment currentFragment;
     //request code
     int FINGER_REQUEST_CODE = 1;
@@ -98,9 +99,10 @@ public class MainActivity extends AppCompatActivity
                             break;
                         case 4:
                             // 设置
-                            startActivity(new Intent(MainActivity.this, SettingActivity.class));
-                            switchFragment(dataManagement)
+//                            startActivity(new Intent(MainActivity.this, SettingActivity.class));
+                            switchFragment(mode)
                                     .commit();
+                            menu.closeMenu();
                             break;
                         case 5:
                             // 关于
@@ -154,6 +156,7 @@ public class MainActivity extends AppCompatActivity
         fragmentManager = getSupportFragmentManager();
         unlock = new UnlockFragment();
         scan = new ScanFragment();
+        mode = new ModeFragment();
 //        settings=new SettingsFragment();
         dataManagement = new DataManagementFragment();
         about = new AboutFragment();

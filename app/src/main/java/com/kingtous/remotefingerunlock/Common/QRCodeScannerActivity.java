@@ -1,6 +1,5 @@
 package com.kingtous.remotefingerunlock.Common;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,21 +13,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.google.zxing.qrcode.encoder.QRCode;
 import com.kingtous.remotefingerunlock.R;
-import com.kingtous.remotefingerunlock.ToolFragment.ScanFragment;
 
-import java.security.Permission;
-import java.util.List;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class QRCodeScannerActivity extends AppCompatActivity implements QRCodeView.Delegate {
 
@@ -115,13 +107,27 @@ public class QRCodeScannerActivity extends AppCompatActivity implements QRCodeVi
             JsonObject object=new Gson().fromJson(result,JsonObject.class);
             if (object.has("mac") && object.has("ip") && object.has("hostname")){
                 vibrate();
+
+                // 判断MAC地址是以什么格式返回的
+                String macTemp=object.get("mac").getAsString();
+                if (!RegexTool.isStdMac(macTemp)){
+                    if (macTemp.length()!=12){
+                        throw new JsonSyntaxException(getString(R.string.notValidQRCode));
+                    }
+                    String macT=macTemp.substring(0,2);
+                    for (int index=2;index<macTemp.length();index=index+2){
+                            macT=macT+":"+macTemp.substring(index,index+2);
+                    }
+                    object.addProperty("mac",macT);
+                }
+
                 Intent intent=new Intent();
-                intent.putExtra("result",result);
+                intent.putExtra("result",object.toString());
                 setResult(OK,intent);
                 finish();
             }
             else {
-                throw new JsonSyntaxException("不是有效的二维码");
+                throw new JsonSyntaxException(getString(R.string.notValidQRCode));
             }
         }catch (JsonSyntaxException e){
             new AlertDialog.Builder(this)
@@ -157,5 +163,6 @@ public class QRCodeScannerActivity extends AppCompatActivity implements QRCodeVi
     @Override
     public void onScanQRCodeOpenCameraError() {
         Log.e("QRCODE:", "打开相机出错");
+
     }
 }

@@ -213,9 +213,8 @@ public class WLANClient extends AsyncTask<Void,String,Void> {
                 String recvStr = new String(byteArrayOutputStream.toByteArray());
                 JsonObject object1 = new Gson().fromJson(recvStr, JsonObject.class);
 
-
 //                        return new Gson().fromJson(object1,FileModel.class);
-                if (!object1.has("status")) {
+                if (object1==null || !object1.has("status")) {
                     throw new IOException("未返回状态码");
                 }
 
@@ -237,7 +236,7 @@ public class WLANClient extends AsyncTask<Void,String,Void> {
             stream.close();
             log("远程设备端已接收到请求");
         } catch (IOException e) {
-            log("设备未准备好\n" + e.getMessage());
+            log("未获取到设备的返回情况\n" + e.getMessage());
         } catch (JSONException e) {
             log("数据异常\n" + e.getMessage());
         }

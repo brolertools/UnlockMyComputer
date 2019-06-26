@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.BluetoothConnectTool.BluetoothConnectActivity;
 import com.kingtous.remotefingerunlock.Common.QRCodeScannerActivity;
+import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
@@ -219,13 +220,15 @@ public class ScanFragment extends Fragment implements EasyPermissions.Permission
                             } catch (UnknownHostException e) {
                                 ToastMessageTool.tts(context, e.getMessage());
                             }
-                            s = ARPInfo.getMACFromIPAddress(ip.getText().toString());
+                            if (! RegexTool.isStdMac(mac.getText().toString())){
+                                s = ARPInfo.getMACFromIPAddress(ip.getText().toString());
 
-                            if (s == null) {
-                                Toast.makeText(context,"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(context, "自动获取到ip对应的mac地址\n" + s.toUpperCase(), Toast.LENGTH_LONG).show();
-                                mac.setText(s.toUpperCase());
+                                if (s == null) {
+                                    Toast.makeText(context,"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(context, "自动获取到ip对应的mac地址\n" + s.toUpperCase(), Toast.LENGTH_LONG).show();
+                                    mac.setText(s.toUpperCase());
+                                }
                             }
                         }
 
