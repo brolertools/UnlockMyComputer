@@ -95,8 +95,9 @@ class ClientHolderd(threading.Thread):
             try:
                 ssl_conn = self.SSLContext.wrap_socket(socket_client, server_side=True)
                 print('D:接受来自', addr, '的连接')
-            except ssl.SSL_ERROR_EOF:
+            except ssl.SSLEOFError:
                 # 可能中途断开了
+                print(addr,'中途断开')
                 continue
             mac, data = self.getDestFromClient(ssl_conn)
 
