@@ -92,9 +92,12 @@ class ClientHolderd(threading.Thread):
         c, s, p = self.createSocket(self.client_port)
         while True:
             socket_client, addr = s.accept()
-            ssl_conn = self.SSLContext.wrap_socket(socket_client, server_side=True)
-            print('D:接受来自', addr, '的连接')
-
+            try:
+                ssl_conn = self.SSLContext.wrap_socket(socket_client, server_side=True)
+                print('D:接受来自', addr, '的连接')
+            except ssl.SSL_ERROR_EOF:
+                # 可能中途断开了
+                continue
             mac, data = self.getDestFromClient(ssl_conn)
 
             query_result = socket_pool.master_dict[self.master_port].get(mac, -1)
