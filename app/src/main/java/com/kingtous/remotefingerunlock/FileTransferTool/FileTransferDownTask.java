@@ -17,8 +17,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
-import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
-import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +29,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class FileTransferDownTask extends AsyncTask<String, String, Void> implements DialogInterface.OnClickListener{

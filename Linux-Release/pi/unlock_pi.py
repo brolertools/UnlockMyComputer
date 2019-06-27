@@ -12,9 +12,10 @@ from listen_pi import *
 sys.path.append('..')
 from Config import *
 
-MAC_ADDR=None
-IP=None
-PC_NAME=None
+MAC_ADDR = None
+IP = None
+PC_NAME = None
+
 
 def loadConfig():
     global MAC_ADDR, IP, PC_NAME

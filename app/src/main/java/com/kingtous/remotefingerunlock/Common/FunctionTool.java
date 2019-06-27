@@ -32,7 +32,7 @@ public class FunctionTool {
         if (modeStr.equals(directMode) || modeStr.equals(remoteMode)){
             SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(context);
             SharedPreferences.Editor editor=preferences.edit();
-            editor.putString(preferences.getString(context.getString(R.string.connect_mode),"0"),String.valueOf(mode));
+            editor.putString(context.getString(R.string.connect_mode),String.valueOf(mode));
             editor.apply();
         }
     }

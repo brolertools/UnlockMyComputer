@@ -103,7 +103,8 @@ class ClientHolderd(threading.Thread):
 
             query_result = socket_pool.master_dict[self.master_port].get(mac, -1)
 
-            if query_result != -1 and query_result._connected:
+            if query_result != -1 and query_result._connected and not query_result._closed:
+                # 判断 master 是否在线
                 print('双方在线，进入数据传输阶段')
                 self.exchanger(ssl_conn, query_result, data).start()
             else:

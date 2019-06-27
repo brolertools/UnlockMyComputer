@@ -106,8 +106,8 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
 
-                        if (!object1.has("status")){
-                            throw new IOException("未返回状态码，且数据异常");
+                        if (object1==null || !object1.has("status")){
+                            throw new IOException("未返回状态");
                         }
 
                         if (object1.get("status").getAsString().equals("0")){

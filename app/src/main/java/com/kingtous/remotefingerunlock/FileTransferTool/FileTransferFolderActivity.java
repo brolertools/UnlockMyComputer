@@ -109,11 +109,16 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             public void onClick(View view) {
                 // 关闭连接
                 if (SocketHolder.getSocket()!=null && !SocketHolder.getSocket().isClosed()){
-                    try {
-                        SocketHolder.getSocket().close();
-                    } catch (IOException e) {
-                        ToastMessageTool.tts(FileTransferFolderActivity.this,e.getMessage());
-                    }
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    SocketHolder.getSocket().close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
                 }
                 finish();
             }

@@ -107,10 +107,11 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
             if (IP!=null){
                 //尝试SSL连接目标IP
                 try {
-                    socket=FileTransferActivity.CreateSocket(context,IP);
 //                    socket=new Socket(IP,WLANDeviceData.unlock_port);
-                    SocketHolder.setSocket(socket);
+                    SocketHolder.setSocket(FileTransferActivity.CreateSocket(context,IP));
+                    socket=SocketHolder.getSocket();
                     if (socket != null) {
+                        socket.setSoTimeout(3000);
                         OutputStream stream=socket.getOutputStream();
                         //TODO 验证
 
@@ -172,9 +173,38 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
         return null;
     }
 
+    private Runnable stop_r=new Runnable() {
+        @Override
+        public void run() {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (SocketHolder.getSocket() != null && !SocketHolder.getSocket().isClosed()) {
+                try {
+                    SocketHolder.getSocket().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        this.cancel(true);
+        Thread stopt=new Thread(stop_r);
+        try {
+            stopt.start();
+            stopt.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        boolean result=this.cancel(true);
+        if (result){
+                ToastMessageTool.tts(context,"取消成功");
+        }
     }
 }

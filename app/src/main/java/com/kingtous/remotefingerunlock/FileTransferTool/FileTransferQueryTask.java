@@ -120,8 +120,8 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
 
 
 //                        return new Gson().fromJson(object1,FileModel.class);
-                        if (!object1.has("status")){
-                            throw new IOException("未返回状态码");
+                        if (object1==null || !object1.has("status")){
+                            throw new IOException("未返回状态");
                         }
 
                         if (object1.get("status").getAsString().equals("0")){
