@@ -85,13 +85,13 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                             processFile();
                         }
                     })
-                    .setNegativeButton("发送", new DialogInterface.OnClickListener() {
+                    .setNeutralButton("发送", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             processFile(Intent.ACTION_SEND);
                         }
                     })
-                    .setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
