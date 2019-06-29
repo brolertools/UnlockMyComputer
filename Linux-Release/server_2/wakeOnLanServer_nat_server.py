@@ -21,12 +21,10 @@ class WakeSocketExchanger(threading.Thread):
             req = self.string
         if req:
             try:
-                if self.master.sendall(req) is None:
-                    print('发送成功')
-                else:
-                    daemon.sendError(self.client)
+                self.master.sendall(req)
+                print('发送成功')
             except BrokenPipeError or TimeoutError or ConnectionResetError:
-                print('对方不在线')
+                print('对方不在线或者异常')
                 daemon.sendError(self.client)
         self.client.close()
         self.master.close()
