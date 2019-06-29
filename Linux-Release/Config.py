@@ -85,11 +85,15 @@ class Listener(threading.Thread):
         self.master_port = master_port
         self.SocketExchanger = SocketExchanger
 
-    def createSocket(self, port):
+    def createSocket(self, port, after_idle_sec=1, interval_sec=3, max_fails=5):
         self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.SSLContext.load_cert_chain(certfile='cacert.pem', keyfile='privkey.pem')
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
         self.sock.bind(("0.0.0.0", port))
         self.sock.listen(0)
         return self.SSLContext, self.sock, port
@@ -123,11 +127,15 @@ class Listener(threading.Thread):
 
 
 class Connector(threading.Thread):
-    def __init__(self, port, reader):
+    def __init__(self, port, reader, after_idle_sec=1, interval_sec=3, max_fails=5):
         threading.Thread.__init__(self)
         self.port = port
         # SSL
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
+        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
+        self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
         self.ssl_sock = ssl.wrap_socket(self.socket, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
         self.reader = reader
 

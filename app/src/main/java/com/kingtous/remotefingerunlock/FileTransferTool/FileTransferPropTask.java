@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.FunctionTool;
+import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
@@ -106,8 +107,11 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
 
-                        if (object1==null || !object1.has("status")){
-                            throw new IOException("未返回状态");
+                        if (object1==null){
+                            throw new IOException(context.getString(R.string.msg_device_offline));
+                        }
+                        if (!object1.has("status")){
+                            throw new IOException(context.getString(R.string.msg_no_responce_data));
                         }
 
                         if (object1.get("status").getAsString().equals("0")){
@@ -121,9 +125,9 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                         else {
                             switch (object1.get("status").getAsString()){
                                 case "-1":
-                                    throw new IOException("权限错误");
+                                    throw new IOException(context.getString(R.string.msg_permission_error));
                                 default:
-                                    throw new IOException("未知错误");
+                                    throw new IOException(context.getString(R.string.msg_unknown_error));
                             }
                         }
 

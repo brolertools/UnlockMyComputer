@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.kingtous.remotefingerunlock.Common.FunctionTool;
+import com.kingtous.remotefingerunlock.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -107,16 +108,16 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                     try {
                         object1=new Gson().fromJson(recvStr,JsonObject.class);
                         if (object1==null){
-                            throw new IOException("关机成功！");
+                            throw new IOException(context.getString(R.string.msg_shutdown_success));
                         }
                     }catch (JsonSyntaxException e){
-                        throw new IOException("数据接收异常");
+                        throw new IOException(context.getString(R.string.msg_invalid_data));
                     }
                     message=recvStr;
                     resultCode=0;
 //                        return new Gson().fromJson(object1,FileModel.class);
                     if (!object1.has("status")){
-                        throw new IOException("未返回状态码");
+                        throw new IOException(context.getString(R.string.msg_no_responce_state));
                     }
 
                     if (object1.get("status").getAsString().equals("0")){
@@ -126,9 +127,9 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                     else {
                         switch (object1.get("status").getAsString()){
                             case "-5":
-                                throw new IOException("关机失败");
+                                throw new IOException(context.getString(R.string.msg_shutdown_error));
                             default:
-                                throw new IOException("未知错误");
+                                throw new IOException(context.getString(R.string.msg_unknown_error));
                         }
                     }
 

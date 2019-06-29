@@ -13,9 +13,7 @@ import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.R;
-import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.PingAndConfirmTool;
-import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -102,7 +100,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
             }
             else {
                 IP=context.getString(R.string.nat_server);
-                publishProgress(new String[]{"正在连接至内网服务器，等待回应"});
+                publishProgress(new String[]{context.getString(R.string.msg_connecting_nat)});
             }
             if (IP!=null){
                 //尝试SSL连接目标IP
@@ -113,8 +111,6 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                     if (socket != null) {
                         socket.setSoTimeout(3000);
                         OutputStream stream=socket.getOutputStream();
-                        //TODO 验证
-
                         //发送根目录请求
                         JSONObject object=new JSONObject();
                         if (flags==1){
@@ -143,9 +139,14 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         recvStr =new String(byteArrayOutputStream.toByteArray());
 
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
-
+                        
+                        if (object1==null){
+                            // 空值也是离线
+                            throw new IOException(context.getString(R.string.msg_device_offline));
+                        }
+                        
                         if (!object1.has("status")){
-                            throw new IOException("未返回状态码");
+                            throw new IOException(context.getString(R.string.msg_no_responce_state));
                         }
 
                         if (object1.get("status").getAsString().equals("0")){
@@ -155,11 +156,11 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         else {
                             switch (object1.get("status").getAsString()){
                                 case "-1":
-                                    throw new IOException("权限错误");
+                                    throw new IOException(context.getString(R.string.msg_permission_error));
                                 case "-2":
-                                    throw new IOException("设备已离线");
+                                    throw new IOException(context.getString(R.string.msg_device_offline));
                                 default:
-                                    throw new IOException("未知错误");
+                                    throw new IOException(context.getString(R.string.msg_unknown_error));
                             }
                         }
                     }

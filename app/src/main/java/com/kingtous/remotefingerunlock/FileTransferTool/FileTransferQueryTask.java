@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.FunctionTool;
+import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.UDPReceiever;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
@@ -120,8 +121,13 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
 
 
 //                        return new Gson().fromJson(object1,FileModel.class);
-                        if (object1==null || !object1.has("status")){
-                            throw new IOException("未返回状态");
+                        if (object1==null){
+                            // 空值也是离线
+                            throw new IOException(context.getString(R.string.msg_device_offline));
+                        }
+
+                        if (!object1.has("status")){
+                            throw new IOException(context.getString(R.string.msg_no_responce_state));
                         }
 
                         if (object1.get("status").getAsString().equals("0")){
@@ -132,11 +138,11 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         else {
                             switch (object1.get("status").getAsString()){
                                 case "-1":
-                                    throw new IOException("权限错误");
+                                    throw new IOException(context.getString(R.string.msg_permission_error));
                                 case "-2":
-                                    throw new IOException("设备已离线");
+                                    throw new IOException(context.getString(R.string.msg_device_offline));
                                 default:
-                                    throw new IOException("未知错误");
+                                    throw new IOException(context.getString(R.string.msg_unknown_error));
                             }
                         }
 

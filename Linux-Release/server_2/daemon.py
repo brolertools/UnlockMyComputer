@@ -24,11 +24,15 @@ class MasterHolderd(threading.Thread):
         # 初始化字典
         socket_pool.master_dict[port] = {}
 
-    def createSocket(self, port):
+    def createSocket(self, port, after_idle_sec=1, interval_sec=3, max_fails=5):
         self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.SSLContext.load_cert_chain(certfile='cacert.pem', keyfile='privkey.pem')
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
         self.sock.bind(("0.0.0.0", port))
         self.sock.listen(0)
         return self.SSLContext, self.sock, port
@@ -73,11 +77,15 @@ class ClientHolderd(threading.Thread):
         self.exchanger = exchanger
         socket_pool.master_dict[client_port] = {}
 
-    def createSocket(self, port):
+    def createSocket(self, port, after_idle_sec=1, interval_sec=3, max_fails=5):
         self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
         self.SSLContext.load_cert_chain(certfile='cacert.pem', keyfile='privkey.pem')
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
         self.sock.bind(("0.0.0.0", port))
         self.sock.listen(0)
 
