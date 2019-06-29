@@ -62,7 +62,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
     // handler更新列表的标识码
     int updateList = 0;
     int updateProgress = 1;
-    //    int searchEnd=1;
+    //    int searchEnd=1;j
     SearchTask task;
 
 

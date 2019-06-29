@@ -15,6 +15,18 @@ class reportd(threading.Thread):
             time.sleep(3)
 
 
+def sendError(socket_client):
+    try:
+        err = {}
+        err['status'] = '-2'
+        send_data = json.JSONEncoder().encode(err)
+        socket_client.sendall(send_data.encode(encoding))
+    except:
+        return
+    finally:
+        socket_client.close()
+
+
 class MasterHolderd(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
@@ -68,7 +80,7 @@ class MasterHolderd(threading.Thread):
 
 
 class ClientHolderd(threading.Thread):
-    def __init__(self,master_port, client_port, exchanger):
+    def __init__(self, master_port, client_port, exchanger):
         threading.Thread.__init__(self)
         self.SSLContext = None
         self.sock = None
@@ -105,7 +117,7 @@ class ClientHolderd(threading.Thread):
                 print('D:接受来自', addr, '的连接')
             except ssl.SSLEOFError:
                 # 可能中途断开了
-                print(addr,'中途断开')
+                print(addr, '中途断开')
                 continue
             mac, data = self.getDestFromClient(ssl_conn)
 
@@ -116,18 +128,7 @@ class ClientHolderd(threading.Thread):
                 print('双方在线，进入数据传输阶段')
                 self.exchanger(ssl_conn, query_result, data).start()
             else:
-                self.sendError(ssl_conn)
-
-    def sendError(self, socket_client):
-        try:
-            err = {}
-            err['status'] = '-2'
-            send_data = json.JSONEncoder().encode(err)
-            socket_client.sendall(send_data.encode(encoding))
-        except:
-            return
-        finally:
-            socket_client.close()
+                sendError(ssl_conn)
 
     def getDestFromClient(self, s):
         data = s.recv(BUFSIZE)

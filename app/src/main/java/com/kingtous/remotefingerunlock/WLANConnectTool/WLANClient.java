@@ -213,22 +213,29 @@ public class WLANClient extends AsyncTask<Void,String,Void> {
                 String recvStr = new String(byteArrayOutputStream.toByteArray());
                 JsonObject object1 = new Gson().fromJson(recvStr, JsonObject.class);
 
-//                        return new Gson().fromJson(object1,FileModel.class);
-                if (object1==null || !object1.has("status")) {
-                    throw new IOException("未返回状态码");
+                if (object1==null){
+                    // 已解锁
+                    message=recvStr;
+                    resultCode=0;
                 }
+                else {
+//                    return new Gson().fromJson(object1,FileModel.class);
+                    if (!object1.has("status")) {
+                        throw new IOException("未返回状态码");
+                    }
 
-                if (object1.get("status").getAsString().equals("0")) {
-                    message = recvStr;
-                    resultCode = 0;
-                } else {
-                    switch (object1.get("status").getAsString()) {
-                        case "-1":
-                            throw new IOException("权限错误");
-                        case "-2":
-                            throw new IOException("设备已离线");
-                        default:
-                            throw new IOException("未知错误");
+                    if (object1.get("status").getAsString().equals("0")) {
+                        message = recvStr;
+                        resultCode = 0;
+                    } else {
+                        switch (object1.get("status").getAsString()) {
+                            case "-1":
+                                throw new IOException("权限错误");
+                            case "-2":
+                                throw new IOException("设备已离线");
+                            default:
+                                throw new IOException("未知错误");
+                        }
                     }
                 }
 

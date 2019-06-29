@@ -33,7 +33,7 @@ class FILESocketExchanger(threading.Thread):
                             break
                         elif recv:
                             self.client.sendall(recv)
-        except ConnectionResetError or BrokenPipeError:
+        except ConnectionResetError or BrokenPipeError or TimeoutError:
             print('客户端在传输过程中中断')
         self.client.close()
         self.master.close()

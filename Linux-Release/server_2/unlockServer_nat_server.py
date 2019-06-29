@@ -20,7 +20,12 @@ class UnlockSocketExchanger(threading.Thread):
         else:
             req = self.string
         if req:
-            self.master.sendall(req)
+            try:
+                self.master.sendall(req)
+                print('发送成功')
+            except BrokenPipeError or TimeoutError or ConnectionResetError:
+                print('对方不在线')
+                daemon.sendError(self.client)
         self.client.close()
         self.master.close()
 
