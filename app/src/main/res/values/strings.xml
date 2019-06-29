@@ -15,4 +15,24 @@
     <string name="defaultUnlockMethod">无默认解锁方式</string>
     <string name="defaultUser">无默认用户名</string>
     <string name="appwidget_text">EXAMPLE</string>
+    <string name="nat_server">39.107.226.2</string>
+    <string name="store_success">存储成功</string>
+    <string name="input_illegal">输入数据不合法</string>
+    <string name="store_failed_due_same_mac_user">存储失败，存在相同的 Mac地址和User账号的记录</string>
+    <string name="warn_select_connect">请选择连接方式！</string>
+    <string name="address_illegal">地址不合法</string>
+    <string name="work_mode">工作模式</string>
+    <string name="connect_mode">connect_mode</string>
+    <string name="notValidQRCode">不是有效的二维码</string>
+    <string name="msg_no_responce_state">未返回状态码</string>
+    <string name="msg_permission_error">权限错误</string>
+    <string name="msg_device_offline">设备已离线</string>
+    <string name="msg_unknown_error">未知错误</string>
+    <string name="msg_invalid_data">文件传输中断或发送的不是有用的数据</string>
+    <string name="msg_no_responce_data">远程设备未发送任何数据</string>
+    <string name="msg_connecting_nat">正在连接至内网服务器，等待回应</string>
+    <string name="msg_shutdown_success">关机成功！</string>
+    <string name="msg_shutdown_error">关机失败</string>
+    <string name="msg_send_wakeonlan_success">已发送Wake On LAN数据包，请自行检查远程端是否接收到</string>
+
 </resources>

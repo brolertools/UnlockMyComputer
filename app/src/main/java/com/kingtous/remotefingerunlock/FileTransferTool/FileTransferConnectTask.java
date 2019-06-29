@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
-import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
+import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.WLANConnectTool.PingAndConfirmTool;
-import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,16 +30,23 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
     private Context context;
     private Socket socket;
 
-    FileTransferConnectTask(Context context,RecordData data){
+    FileTransferConnectTask(Context context,RecordData data,int flags){
+        // flags=0 正常模式，flags=1 内网模式
         this.context=context;
         dialog=new ProgressDialog(context);
         this.data=data;
+
+        // 统一 mac 地址格式： 无：，大写
+        data.setMac(data.getMac().replace(":","").toUpperCase());
+
+        this.flags=flags;
     }
-    RecordData data;
-    ProgressDialog dialog;
-    String message= "";
+    private RecordData data;
+    private ProgressDialog dialog;
+    private String message= "";
     private int resultCode=-1;
-    String IP;
+    private String IP;
+    private int flags;
 
     private String recvStr;
 
@@ -46,6 +55,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
         super.onPreExecute();
         dialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", this);
         dialog.setTitle("正在连接");
+        Log.d("文件传输：","mac地址为："+data.getMac());
         dialog.setMessage("正在初始化参数");
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
@@ -59,6 +69,8 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
             ToastMessageTool.tts(context,"连接成功");
             Intent intent=new Intent(context,FileTransferFolderActivity.class);
             intent.putExtra("detail",recvStr);
+            intent.putExtra("mac",data.getMac());
+            intent.putExtra("flags",flags);
             intent.putExtra("ip",IP);
             context.startActivity(intent);
         }
@@ -81,20 +93,29 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
     protected Void doInBackground(RecordData... recordData) {
         if (data!=null){
             //检查可用性
-            IP=PingAndConfirmTool.findCorrectIP(context,data);
-            publishProgress(new String[]{"正在连接至："+data.getName()+"("+IP+")"});
+            if (flags==0){
+                // 判断是否是内网模式
+                IP=PingAndConfirmTool.findCorrectIP(context,data);
+                publishProgress(new String[]{"正在连接至："+data.getName()+"("+IP+")"});
+            }
+            else {
+                IP=context.getString(R.string.nat_server);
+                publishProgress(new String[]{context.getString(R.string.msg_connecting_nat)});
+            }
             if (IP!=null){
                 //尝试SSL连接目标IP
                 try {
-                    socket=SSLSecurityClient.CreateSocket(context,IP, WLANDeviceData.transfer_port);
 //                    socket=new Socket(IP,WLANDeviceData.unlock_port);
-                    SocketHolder.setSocket(socket);
+                    SocketHolder.setSocket(FileTransferActivity.CreateSocket(context,IP));
+                    socket=SocketHolder.getSocket();
                     if (socket != null) {
+                        socket.setSoTimeout(3000);
                         OutputStream stream=socket.getOutputStream();
-                        //TODO 验证
-
                         //发送根目录请求
                         JSONObject object=new JSONObject();
+                        if (flags==1){
+                            object.put("oriMac",data.getMac());
+                        }
                         object.put("action","Query") ;
                         object.put("path","/.");
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
@@ -116,9 +137,32 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         stream.close();
                         socket.close();
                         recvStr =new String(byteArrayOutputStream.toByteArray());
-                        message=recvStr;
-                        resultCode=0;
 
+                        JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
+                        
+                        if (object1==null){
+                            // 空值也是离线
+                            throw new IOException(context.getString(R.string.msg_device_offline));
+                        }
+                        
+                        if (!object1.has("status")){
+                            throw new IOException(context.getString(R.string.msg_no_responce_state));
+                        }
+
+                        if (object1.get("status").getAsString().equals("0")){
+                            message=recvStr;
+                            resultCode=0;
+                        }
+                        else {
+                            switch (object1.get("status").getAsString()){
+                                case "-1":
+                                    throw new IOException(context.getString(R.string.msg_permission_error));
+                                case "-2":
+                                    throw new IOException(context.getString(R.string.msg_device_offline));
+                                default:
+                                    throw new IOException(context.getString(R.string.msg_unknown_error));
+                            }
+                        }
                     }
                 } catch (IOException e) {
                     message=e.getMessage();
@@ -130,9 +174,38 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
         return null;
     }
 
+    private Runnable stop_r=new Runnable() {
+        @Override
+        public void run() {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (SocketHolder.getSocket() != null && !SocketHolder.getSocket().isClosed()) {
+                try {
+                    SocketHolder.getSocket().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
 
     @Override
     public void onClick(DialogInterface dialog, int which) {
-        this.cancel(true);
+        Thread stopt=new Thread(stop_r);
+        try {
+            stopt.start();
+            stopt.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        boolean result=this.cancel(true);
+        if (result){
+                ToastMessageTool.tts(context,"取消成功");
+        }
     }
 }

@@ -1,43 +1,37 @@
 package com.kingtous.remotefingerunlock;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-
-import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
-import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Toast;
 import com.google.android.material.navigation.NavigationView;
 import com.kingtous.remotefingerunlock.FileTransferTool.FileTransferActivity;
 import com.kingtous.remotefingerunlock.ToolFragment.AboutFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment;
+import com.kingtous.remotefingerunlock.ToolFragment.ModeFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.ScanFragment;
 import com.kingtous.remotefingerunlock.ToolFragment.UnlockFragment;
 import com.special.ResideMenu.ResideMenu;
 import com.special.ResideMenu.ResideMenuItem;
 
+import java.util.List;
+
 import androidx.annotation.RequiresApi;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import pub.devrel.easypermissions.EasyPermissions;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, EasyPermissions.PermissionCallbacks {
@@ -49,16 +43,18 @@ public class MainActivity extends AppCompatActivity
 
 
     FragmentManager fragmentManager;
-
-    Fragment unlock, scan, dataManagement, about;
+    ResideMenu menu;
+    Fragment unlock, scan, dataManagement, about,mode;
     Fragment currentFragment;
     //request code
     int FINGER_REQUEST_CODE = 1;
+    // 双击退出计时
+    long firstTime=0;
 
     void initSideMenu() {
-        String titles[] = {"解锁", "搜索设备", "数据管理", "文件传输","关于", "退出"};
-        int icon[] = {R.drawable.back2, R.drawable.back2, R.drawable.back2, R.drawable.back2,R.drawable.back2, R.drawable.back2};
-        final ResideMenu menu = new ResideMenu(this);
+        String titles[] = {"解锁设备", "添加设备", "管理设备", "查看文件","连接模式","关于", "退出"};
+        int icon[] = {R.drawable.back2, R.drawable.back2, R.drawable.back2, R.drawable.back2,R.drawable.back2,R.drawable.back2, R.drawable.back2};
+        menu = new ResideMenu(this);
         menu.setBackground(R.drawable.background);
         menu.attachToActivity(this);
         for (int i = 0; i < titles.length; i++) {
@@ -88,18 +84,24 @@ public class MainActivity extends AppCompatActivity
                             break;
                         case 3:
                             // 文件传输
-                            menu.closeMenu();
                             startActivity(new Intent(MainActivity.this, FileTransferActivity.class));
                             switchFragment(dataManagement)
                                     .commit();
                             break;
                         case 4:
+                            // 设置
+//                            startActivity(new Intent(MainActivity.this, SettingActivity.class));
+                            switchFragment(mode)
+                                    .commit();
+                            menu.closeMenu();
+                            break;
+                        case 5:
                             // 关于
                             switchFragment(about)
                                     .commit();
                             menu.closeMenu();
                             break;
-                        case 5:
+                        case 6:
                             //退出
                             menu.closeMenu();
                             finish();
@@ -117,9 +119,17 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        toolbar.setNavigationIcon(R.drawable.back2);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.openMenu(ResideMenu.DIRECTION_LEFT);
+            }
+        });
         initSideMenu();
 
 //        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -137,6 +147,7 @@ public class MainActivity extends AppCompatActivity
         fragmentManager = getSupportFragmentManager();
         unlock = new UnlockFragment();
         scan = new ScanFragment();
+        mode = new ModeFragment();
 //        settings=new SettingsFragment();
         dataManagement = new DataManagementFragment();
         about = new AboutFragment();
@@ -163,16 +174,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onPermissionsDenied(int requestCode, @androidx.annotation.NonNull List<String> perms) {
 
-        final NiftyDialogBuilder builder = NiftyDialogBuilder.getInstance(MainActivity.this);
-        builder.withTitle("权限获取")
-                .withEffect(Effectstype.Shake)
-                .withMessage("权限获取失败，请允许指纹权限")
-                .withButton1Text("好")
-                .setButton1Click(new View.OnClickListener() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("权限获取")
+                .setMessage("权限获取失败，请允许指纹权限")
+                .setPositiveButton("好", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
                         finish();
-                        builder.dismiss();
                     }
                 })
                 .show();
@@ -186,7 +195,13 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            long secondTime = System.currentTimeMillis();
+            if (secondTime - firstTime > 2000) {
+                Toast.makeText(MainActivity.this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                firstTime = secondTime;
+            } else {
+                finish();
+            }
         }
     }
 
@@ -240,9 +255,6 @@ public class MainActivity extends AppCompatActivity
             switchFragment(about)
                     .commit();
         }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 

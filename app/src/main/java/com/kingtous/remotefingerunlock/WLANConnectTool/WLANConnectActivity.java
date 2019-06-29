@@ -14,15 +14,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
-import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
@@ -36,13 +36,17 @@ import com.stealthcopter.networktools.subnet.Device;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -58,7 +62,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
     // handler更新列表的标识码
     int updateList = 0;
     int updateProgress = 1;
-    //    int searchEnd=1;
+    //    int searchEnd=1;j
     SearchTask task;
 
 
@@ -68,6 +72,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
     WLANRecyclerAdapter adapter;
     TextView title;//扫描时实时更新
     SwipeRefreshLayout refreshLayout;
+    UDPReceiever udpReceiever;
 
     //Button
     Button btn_back;
@@ -145,6 +150,24 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
         deviceDatalist.clear();
         task = new SearchTask();
         task.execute();
+        udpReceiever=new UDPReceiever();
+
+            udpReceiever.setmReturnListener(new UDPReceiever.ReturnListener() {
+                @Override
+                public void onReturnListener(WLANDeviceData data) {
+                    if (data != null) {
+                        for (WLANDeviceData listData : deviceDatalist) {
+                            if (data.getMac() == null || listData.getMac() == null || listData.getMac().equals(data.getMac())) {
+                                return;
+                            }
+                        }
+                        deviceDatalist.add(0,data);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
+            udpReceiever.execute();
+
     }
 
     void stopSearch() {
@@ -164,6 +187,17 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
                 refreshLayout.setRefreshing(false);
             }
         });
+        Toolbar toolbar= findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.back2);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        Window w = getWindow();
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        w.setStatusBarColor(getResources().getColor(R.color.deepskyblue));
         //按钮监听
         btn_back = findViewById(R.id.btn_WLAN_back);
         btn_auto = findViewById(R.id.btn_WLAN_search);
@@ -390,26 +424,20 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
         checkPermission(context);
         if (manager != null && !manager.isWifiEnabled()) {
 
-            final NiftyDialogBuilder builder = NiftyDialogBuilder.getInstance(WLANConnectActivity.this);
-
-
-            builder.withEffect(Effectstype.Fall)
-                    .withDialogColor(R.color.deepskyblue)
-                    .withTitle("WLAN检测")
-                    .withMessage("未打开WLAN，请问是否开启?")
-                    .isCancelableOnTouchOutside(false)
-                    .withButton1Text("打开")
-                    .withButton2Text("取消")
-                    .setButton1Click(new View.OnClickListener() {
+            new AlertDialog.Builder(this)
+                    .setTitle("无线检测")
+                    .setMessage("未打开Wi-Fi，请问是否开启？")
+                    .setPositiveButton("打开", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(DialogInterface dialog, int which) {
                             manager.setWifiEnabled(true);
-                            builder.dismiss();
+                            dialog.dismiss();
                         }
                     })
-                    .setButton2Click(new View.OnClickListener() {
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
                             finish();
                         }
                     })
@@ -441,6 +469,9 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
+        if (udpReceiever!=null && !udpReceiever.isCancelled()){
+            udpReceiever.cancel(true);
+        }
     }
 
     private void log(String text) {

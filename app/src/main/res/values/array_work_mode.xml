@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="work_modes">
+        <item>直连模式</item>
+        <item>内网模式</item>
+    </string-array>
+    <string-array name="work_modes_value">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>

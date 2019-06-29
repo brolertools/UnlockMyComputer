@@ -33,7 +33,7 @@ public class PingAndConfirmTool {
         Matcher matcher=pattern.matcher(IP);
         if (matcher.matches()){
             Ping p=Ping.onAddress(IP);
-            p.setTimeOutMillis(1000);
+            p.setTimeOutMillis(800);
             try {
                 p.doPing();
             } catch (UnknownHostException e) {

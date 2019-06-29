@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
+import com.kingtous.remotefingerunlock.FileTransferTool.SocketHolder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +34,9 @@ public class SSLSecurityClient {
             sslContext = SSLContext.getInstance("SSL");
             MyX509TrustManager trustManager = new MyX509TrustManager();
             sslContext.init(null, new TrustManager[]{trustManager}, new SecureRandom());
-            return sslContext.getSocketFactory().createSocket(Address, port);
+            Socket socket=sslContext.getSocketFactory().createSocket(Address, port);
+            socket.setSoTimeout(10000);
+            return socket;
         } catch (KeyManagementException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {

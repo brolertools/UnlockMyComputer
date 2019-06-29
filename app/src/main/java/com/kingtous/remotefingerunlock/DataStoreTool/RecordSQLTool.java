@@ -63,6 +63,7 @@ public class RecordSQLTool {
             if (cnt > 0) {
                 result = true;
             }
+            writableDatabase.close();
             return result;
 
         } else return false;
@@ -128,6 +129,7 @@ public class RecordSQLTool {
             if (cnt > 0) {
                 result = true;
             }
+            writableDatabase.close();
             return result;
 
         } else return false;
@@ -176,8 +178,10 @@ public class RecordSQLTool {
         String[] cond = new String[]{String.valueOf(RecordData.TRUE)};
         Cursor cursor = readableDatabase.query("data", null, "isDefault=?", cond, null, null, null);
         if (cursor.moveToNext()) {
+            readableDatabase.close();
             return toRecordData(cursor);
         }
+        readableDatabase.close();
         return null;
     }
 
@@ -207,6 +211,8 @@ public class RecordSQLTool {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
+                readSQL.close();
+                writeSQL.close();
                 return result;
             }
         } else return false;

@@ -8,7 +8,10 @@ import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
+import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
+import com.kingtous.remotefingerunlock.WLANConnectTool.UDPReceiever;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
 import org.json.JSONException;
@@ -23,18 +26,30 @@ import java.nio.charset.StandardCharsets;
 public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> implements DialogInterface.OnClickListener{
 
     private Context context;
-    FileTransferQueryTask(Context context, String IP){
+    FileTransferQueryTask(Context context, String IP,String MAC){
         this.context=context;
         dialog=new ProgressDialog(context);
         this.IP=IP;
+        this.MAC=MAC;
     }
     String message="";
     ProgressDialog dialog;
     private int resultCode=-1;
     String path;
     private String IP;
+    private String MAC;
     private String recvStr;
+    private FileModel model;
 
+    public interface ReturnListener{
+        void onReturnListener(FileModel model);
+    }
+
+    private FileTransferQueryTask.ReturnListener mReturnListener;
+
+    public void setmReturnListener(FileTransferQueryTask.ReturnListener listener){
+        this.mReturnListener=listener;
+    }
 
     @Override
     protected void onPreExecute() {
@@ -55,6 +70,9 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                     .setNegativeButton("确定", null)
                     .show();
         }
+        if (mReturnListener!=null){
+            mReturnListener.onReturnListener(model);
+        }
     }
 
     @Override
@@ -71,17 +89,17 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                 //尝试SSL连接目标IP
                 try {
                     if (SocketHolder.getSocket().isClosed())
-                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.transfer_port));
-//                    SocketHolder.setSocket(new Socket(IP,2090));
+                        SocketHolder.setSocket(FileTransferActivity.CreateSocket(context,IP));
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求
                         JSONObject object=new JSONObject();
                         object.put("action","Query");
                         object.put("path",path);
+                        if (FunctionTool.detectModes(context)==1){
+                            object.put("oriMac",MAC);
+                        }
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
-                        //
-
 //                      stream.close();
                         //读入数据
 //                        SocketHolder.getSocket().setSoTimeout(5000);
@@ -101,28 +119,32 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
 
-                        message=recvStr;
-                        resultCode=0;
 
-                        return new Gson().fromJson(object1,FileModel.class);
-//                        if (!object1.has("status")){
-//                            throw new IOException("未返回状态码");
-//                        }
-//
-//                        if (object1.get("status").getAsString().equals("0")){
-//                            message=recvStr;
-//                            resultCode=0;
-//
-//                            return new Gson().fromJson(object1,FileModel.class);
-//                        }
-//                        else {
-//                            switch (object1.get("status").getAsString()){
-//                                case "-1":
-//                                    throw new IOException("权限错误");
-//                                default:
-//                                    throw new IOException("未知错误");
-//                            }
-//                        }
+//                        return new Gson().fromJson(object1,FileModel.class);
+                        if (object1==null){
+                            // 空值也是离线
+                            throw new IOException(context.getString(R.string.msg_device_offline));
+                        }
+
+                        if (!object1.has("status")){
+                            throw new IOException(context.getString(R.string.msg_no_responce_state));
+                        }
+
+                        if (object1.get("status").getAsString().equals("0")){
+                            message=recvStr;
+                            resultCode=0;
+                            model=new Gson().fromJson(object1,FileModel.class);
+                        }
+                        else {
+                            switch (object1.get("status").getAsString()){
+                                case "-1":
+                                    throw new IOException(context.getString(R.string.msg_permission_error));
+                                case "-2":
+                                    throw new IOException(context.getString(R.string.msg_device_offline));
+                                default:
+                                    throw new IOException(context.getString(R.string.msg_unknown_error));
+                            }
+                        }
 
                     }
                 } catch (IOException e) {

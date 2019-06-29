@@ -5,14 +5,19 @@
 功能：
 - 解锁电脑
 - Wake On LAN
-- 文件传输~~(暂未开发)~~
-- 内网穿透(开发中)
-- 锁上电脑(暂未开发)
+- 文件传输
+- 内网穿透
+- 关闭计算机
 
 # 下载地址
 [Release](https://github.com/Kingtous/UnlockMyComputer/releases)
 
 # 时间轴
+
+## June 29,2019
+
+- 正式定稿app以及配套程序
+- 添加n多功能(如上)
 
 ## June 15,2019
 

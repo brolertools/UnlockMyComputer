@@ -3,7 +3,9 @@ package com.kingtous.remotefingerunlock.WLANConnectTool;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
@@ -68,9 +70,16 @@ public class WLANConnect {
 
 
     private void startConnect(Context context, RecordData data) {
-        WLANClient client = new WLANClient(context, data.getIp(), WLANDeviceData.unlock_port, data);
+        WLANClient client;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (preferences.getString(context.getString(R.string.connect_mode),"0").equals("0")) {
+            client = new WLANClient(context, data.getIp(), WLANDeviceData.unlock_port, data,0);
+        }
+        else{
+            client = new WLANClient(context, context.getString(R.string.nat_server), WLANDeviceData.nat_unlock_port, data,1);
+        }
         Toast.makeText(context, "正在连接中", Toast.LENGTH_LONG).show();
-        client.start();
+        client.execute();
     }
 
 
@@ -81,7 +90,10 @@ public class WLANConnect {
         PingResult result = null;
         try {
             result = p.doPing();
-            String macinfo = ARPInfo.getMACFromIPAddress(data.getIp());
+            String macinfo = ARPInfo.getMACFromIPAddress(data.getIp()).toUpperCase();
+            if (macinfo.equals("00:00:00:00:00:00")){
+                return data;
+            }
             if (!result.isReachable() || (macinfo != null && !macinfo.equals(data.getIp()))) {
 
                 if (data.getMac().equals("") || data.getMac() == null) {
@@ -103,13 +115,11 @@ public class WLANConnect {
                                 ipTmp[0] = device.ip;
                             }
                         }
-
                         @Override
                         public void onFinished(ArrayList<Device> arrayList) {
                         }
                     });
                     if (ipTmp[0] == null) {
-                        //TODO 后期更新，当WiFi无法ping通时调用蓝牙
                         ToastMessageTool.ttl(context, "无法建立连接，请检查设备是否开启服务端");
                         return null;
                     } else {

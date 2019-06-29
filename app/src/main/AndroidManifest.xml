@@ -8,18 +8,24 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/app_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".Application.myApplication"
+        android:networkSecurityConfig="@xml/network_enable_http"
+        android:screenOrientation="portrait"
+        >
         <receiver android:name=".Widget.UnlockWidget_icon">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -53,7 +59,8 @@
         <activity
             android:name=".BluetoothConnectTool.BluetoothConnectActivity"
             android:label="🔍蓝牙选择"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".ToolFragment.AboutFragment"
             android:label="关于"
@@ -73,12 +80,25 @@
         <activity
             android:name=".WLANConnectTool.WLANConnectActivity"
             android:label="🔍无线局域网选择"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".FileTransferTool.FileTransferActivity"
             android:label="📃文件传输"
+            android:theme="@style/AppTheme.NoActionBar"
             />
         <activity android:name=".FileTransferTool.FileTransferFolderActivity"
-            android:label="📃文件传输"/>
+            android:label="📃文件传输"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".MenuTool.SettingActivity"
+            android:label="设置"
+            android:theme="@style/Theme.Settings"
+            />
+        <activity android:name=".Common.QRCodeScannerActivity"
+            android:label="扫描二维码"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
+        <activity android:name=".ToolFragment.ModeFragment" />
 
         <service android:name=".service.UnlockWidgetService" />
     </application>

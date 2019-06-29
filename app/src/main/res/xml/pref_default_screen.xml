@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:entries="@array/work_modes"
+        android:entryValues="@array/work_modes_value"
+        android:key="@string/connect_mode"
+        android:title="连接模式"></ListPreference>
+
+</PreferenceScreen>

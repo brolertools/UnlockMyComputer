@@ -15,9 +15,9 @@ import android.os.StrictMode;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
-import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
-import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
+import com.kingtous.remotefingerunlock.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +30,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class FileTransferDownTask extends AsyncTask<String, String, Void> implements DialogInterface.OnClickListener{
@@ -38,10 +37,11 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
 
 
     private Context context;
-    FileTransferDownTask(Context context, String IP, FileModel.DetailBean detailBean){
+    FileTransferDownTask(Context context, String IP, FileModel.DetailBean detailBean,String MAC){
         this.context=context;
         dialog=new ProgressDialog(context);
         this.IP=IP;
+        this.MAC=MAC;
         this.detailBean= detailBean;
     }
 
@@ -50,6 +50,7 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
     private int resultCode=-1;
     String path;
     private String IP;
+    private String MAC;
     String savePath;
     FileModel.DetailBean detailBean;
 
@@ -77,40 +78,25 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
         else {
             new AlertDialog.Builder(context)
                     .setTitle("下载成功")
-                    .setMessage("保存在:"+savePath+"\n请问是否要打开？")
-                    .setPositiveButton("是", new DialogInterface.OnClickListener() {
+                    .setMessage("保存在:"+savePath+"\n请问接下来...")
+                    .setPositiveButton("打开", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            //
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                                builder.detectAll();
-                                StrictMode.setVmPolicy(builder.build());
-                            }
-                            Intent intent=new Intent();
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.setAction(Intent.ACTION_VIEW);
-                            // 获得拓展名
-                            String type="*/*";
-                            String[] tmp=detailBean.getFile_name().split("\\.");
-                            if (tmp.length!=1){
-                                for (String [] pair:MIME_MapTable){
-                                    if (pair[0].equals(tmp[tmp.length-1])) {
-                                        type=pair[1];
-                                        break;
-                                    }
-                                }
-                            }
-                            intent.setDataAndType(Uri.fromFile(new File(savePath)),type);
-                            try {
-                                context.startActivity(intent);
-                            }
-                            catch (ActivityNotFoundException e){
-                                ToastMessageTool.tts(context,"没有能打开此类型的应用");
-                            }
+                            processFile();
                         }
                     })
-                    .setNegativeButton("否",null)
+                    .setNeutralButton("发送", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            processFile(Intent.ACTION_SEND);
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
                     .show();
         }
     }
@@ -129,14 +115,18 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
             if (path !=null){
                 //尝试SSL连接目标IP
                 try {
-                    if (SocketHolder.getSocket().isClosed())
-                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.transfer_port));
+                    if (SocketHolder.getSocket().isClosed()) {
+                            SocketHolder.setSocket(FileTransferActivity.CreateSocket(context, IP));
+                    }
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求
                         JSONObject object=new JSONObject();
                         object.put("action","Get");
                         object.put("path",path);
+                        if (FunctionTool.detectModes(context)==1){
+                            object.put("oriMac",MAC);
+                        }
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
 //                        stream.close();
@@ -177,21 +167,21 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
                                     JsonObject object1=new Gson().fromJson(cmd,JsonObject.class);
 
                                     if (!object1.has("status")){
-                                        throw new IOException("未返回状态码，且数据异常");
+                                        throw new IOException(context.getString(R.string.msg_no_responce_state));
                                     }
 
                                     switch (object1.get("status").getAsString()){
                                         case "-1":
-                                            throw new IOException("权限错误，请检查运行权限");
+                                            throw new IOException(context.getString(R.string.msg_permission_error));
                                         default:
-                                            throw new IOException("未知错误");
+                                            throw new IOException(context.getString(R.string.msg_unknown_error));
                                     }
                                 } catch (JsonSyntaxException e){
                                     //不是
-                                    throw  new IOException("文件传输中断或发送的不是有用的数据");
+                                    throw  new IOException(context.getString(R.string.msg_invalid_data));
                                 }catch (NullPointerException e){
                                     // 没有发数据
-                                    throw new IOException("远程设备未发送任何数据");
+                                    throw new IOException(context.getString(R.string.msg_no_responce_data));
                                 }
                                 finally {
                                     br.close();
@@ -235,6 +225,43 @@ public class FileTransferDownTask extends AsyncTask<String, String, Void> implem
         }).start();
         this.cancel(true);
 
+    }
+
+    private void processFile(){
+        processFile(Intent.ACTION_VIEW);
+    }
+
+    private void processFile(String action){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            builder.detectAll();
+            StrictMode.setVmPolicy(builder.build());
+        }
+        Intent intent=new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setAction(action);
+        // 获得拓展名
+        String type="*/*";
+        String[] tmp=detailBean.getFile_name().split("\\.");
+        if (tmp.length!=1){
+            for (String [] pair:MIME_MapTable){
+                if (pair[0].equals(tmp[tmp.length-1])) {
+                    if (pair[0].equals("apk") && action.equals(Intent.ACTION_VIEW)){
+                        // 打开安装包需要另一个action
+                        intent.setAction(Intent.ACTION_INSTALL_PACKAGE);
+                    }
+                    type=pair[1];
+                    break;
+                }
+            }
+        }
+        intent.setDataAndType(Uri.fromFile(new File(savePath)),type);
+        try {
+            context.startActivity(intent);
+        }
+        catch (ActivityNotFoundException e){
+            ToastMessageTool.tts(context,"没有能打开此类型的应用");
+        }
     }
 
     private final String[][] MIME_MapTable={

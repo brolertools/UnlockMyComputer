@@ -7,6 +7,23 @@
     tools:context=".BluetoothConnectTool.BluetoothConnectActivity"
     android:background="@color/white">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/deepskyblue"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:fitsSystemWindows="true"
+        >
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
 
     <TextView
         android:layout_width="wrap_content"
@@ -16,6 +33,7 @@
         android:textSize="20sp"
         android:layout_marginTop="8dp"
         android:layout_marginLeft="16dp"
+        android:layout_below="@+id/bar_layout"
         />
 
     <TextView

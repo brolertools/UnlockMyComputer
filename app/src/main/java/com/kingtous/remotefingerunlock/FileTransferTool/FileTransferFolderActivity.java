@@ -1,47 +1,61 @@
 package com.kingtous.remotefingerunlock.FileTransferTool;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.R;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Stack;
-import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class FileTransferFolderActivity extends AppCompatActivity implements FileTransferFolderAdapter.OnItemClickListener, FileTransferFolderAdapter.OnItemLongClickListener {
+public class FileTransferFolderActivity extends AppCompatActivity implements FileTransferFolderAdapter.OnItemClickListener, FileTransferFolderAdapter.OnItemLongClickListener, FileTransferQueryTask.ReturnListener {
 
 
     TextView folderView;
     RecyclerView folderRecyclerView;
     FileTransferFolderAdapter adapter;
     FloatingActionButton fab_stop;
+    FloatingActionButton fab_poweroff;
     Stack<String> folderStack=new Stack<>();
     FileModel model=new FileModel();
+    int flags;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_transfer_folder_show);
+        Toolbar toolbar= (Toolbar)findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.back2);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        Window w = getWindow();
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        w.setStatusBarColor(getResources().getColor(R.color.deepskyblue));
         initModel();
         initView();
 //        tryIon();
@@ -50,6 +64,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     void initModel(){
         Intent intent=getIntent();
         String data=intent.getStringExtra("detail");
+        flags=intent.getIntExtra("flags",0);
         model=new Gson().fromJson(data,FileModel.class);
         updateModel(model);
     }
@@ -88,18 +103,30 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         folderView=findViewById(R.id.file_transfer_folder_current_folder);
         folderRecyclerView=findViewById(R.id.file_transfer_folder_recyclerview);
         fab_stop=findViewById(R.id.file_transfer_folder_fab_stop);
+        fab_poweroff=findViewById(R.id.file_transfer_folder_fab_poweroff);
         fab_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // 关闭连接
                 if (SocketHolder.getSocket()!=null && !SocketHolder.getSocket().isClosed()){
-                    try {
-                        SocketHolder.getSocket().close();
-                    } catch (IOException e) {
-                        ToastMessageTool.tts(FileTransferFolderActivity.this,e.getMessage());
-                    }
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    SocketHolder.getSocket().close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
                 }
                 finish();
+            }
+        });
+        fab_poweroff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FunctionTool.shutdown(FileTransferFolderActivity.this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac"),flags);
             }
         });
         LinearLayoutManager manager=new LinearLayoutManager(this);
@@ -117,6 +144,8 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         }
 
     }
+
+
 
 //    public void tryIon() {
 //        JsonObject object=new JsonObject();
@@ -147,11 +176,11 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             case FileTransferFolderAdapter.FILE:
                 // 请求文件大小
                 try {
-                    PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                    PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                     detailBean.setSize(propModel.getFile_size());
                 // 下载
                 FileTransferDownTask downTask=
-                        new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position));
+                        new FileTransferDownTask(this,getIntent().getStringExtra("ip"),model.getDetail().get(Position),getIntent().getStringExtra("mac"));
                 downTask.execute(model.getCurrent_folder()+"/"+detailBean.getFile_name());
                 } catch (Exception e){
                     showErr(e.getMessage());
@@ -173,8 +202,9 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
                 }
 
                 try {
-                    FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(default_act_folder).get();
-                    updateModel(modelt);
+                    FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac"));
+                    task.setmReturnListener(this);
+                    task.execute(default_act_folder);
                 } catch (Exception e){
                     showErr(e.getMessage());
                 }
@@ -187,7 +217,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         if (model.getDetail().get(Position).getAttributes()==FileTransferFolderAdapter.FILE){
             FileModel.DetailBean detailBean=model.getDetail().get(Position);
             try {
-                PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
+                PropModel propModel=new FileTransferPropTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac")).execute(model.getCurrent_folder()+"/"+detailBean.getFile_name()).get();
                 View v=LayoutInflater.from(this).inflate(R.layout.file_transfer_file_item_info,null,false);
                 ((TextView)v.findViewById(R.id.file_name)).setText(propModel.getFile_name());
                 ((TextView)v.findViewById(R.id.file_size)).setText(String.valueOf(((double)propModel.getFile_size())/1024)+"KB");
@@ -223,8 +253,9 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         if (folderStack.size()>0){
             String folder=folderStack.pop();
             try {
-                FileModel modelt=new FileTransferQueryTask(this,getIntent().getStringExtra("ip")).execute(folder).get();
-                updateModel(modelt);
+                FileTransferQueryTask task=new FileTransferQueryTask(this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac"));
+                task.setmReturnListener(this);
+                task.execute(folder);
             } catch (Exception e){
                 showErr(e.getMessage());
             }
@@ -233,10 +264,8 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             super.onBackPressed();
     }
 
-
-    public static void main(String [] args){
-        String s="/./E:\\/Downloads";
-        String path=s.substring(0,s.lastIndexOf("/"));
-        return;
+    @Override
+    public void onReturnListener(FileModel model) {
+        updateModel(model);
     }
 }

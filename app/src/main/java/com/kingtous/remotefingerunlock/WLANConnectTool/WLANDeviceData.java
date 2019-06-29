@@ -2,12 +2,19 @@ package com.kingtous.remotefingerunlock.WLANConnectTool;
 
 public class WLANDeviceData {
 
+    // 直连模式
     public static int unlock_port = 2084;
     public static int transfer_port = 2090;
+    public static int unlock_udp_port =8970;
+    public static int heart_beat_port=2076;
+    // http代理
+    public static int nat_transfer_port=2072;
+    public static int nat_wake_on_lan=2073;
+    public static int nat_unlock_port = 2075;
 
-    String name;
-    String mac;
-    String ip;
+    private String name;
+    private String mac;
+    private String ip;
 
     public WLANDeviceData(String name, String mac, String ip) {
         if (name == null || name.equals("")) {

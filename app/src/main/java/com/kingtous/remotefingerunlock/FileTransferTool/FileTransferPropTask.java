@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
+import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Security.SSLSecurityClient;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 
@@ -23,17 +25,20 @@ import java.nio.charset.StandardCharsets;
 public class FileTransferPropTask extends AsyncTask<String, String, PropModel> implements DialogInterface.OnClickListener{
 
     private Context context;
-    FileTransferPropTask(Context context, String IP){
+    FileTransferPropTask(Context context, String IP,String MAC){
         this.context=context;
         dialog=new ProgressDialog(context);
         this.IP=IP;
+        this.MAC=MAC;
     }
     String message="";
     ProgressDialog dialog;
     private int resultCode=-1;
     String path;
     private String IP;
+    String MAC;
     private String recvStr;
+    private static long high_base=4294967296L;
 
 
     @Override
@@ -70,12 +75,15 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                 //尝试SSL连接目标IP
                 try {
                     if (SocketHolder.getSocket().isClosed())
-                        SocketHolder.setSocket(SSLSecurityClient.CreateSocket(context, IP, WLANDeviceData.transfer_port));
+                        SocketHolder.setSocket(FileTransferActivity.CreateSocket(context,IP));
 //                    SocketHolder.setSocket(new Socket(IP,2090));
                     if (SocketHolder.getSocket() != null) {
                         OutputStream stream=SocketHolder.getSocket().getOutputStream();
                         //发送目录请求
                         JSONObject object=new JSONObject();
+                        if (FunctionTool.detectModes(context)==1){
+                            object.put("oriMac",MAC);
+                        }
                         object.put("action","Prop");
                         object.put("path",path);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
@@ -99,21 +107,27 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                         recvStr =new String(byteArrayOutputStream.toByteArray());
                         JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
 
+                        if (object1==null){
+                            throw new IOException(context.getString(R.string.msg_device_offline));
+                        }
                         if (!object1.has("status")){
-                            throw new IOException("未返回状态码，且数据异常");
+                            throw new IOException(context.getString(R.string.msg_no_responce_data));
                         }
 
                         if (object1.get("status").getAsString().equals("0")){
                             message=recvStr;
                             resultCode=0;
+                            PropModel pModel=new Gson().fromJson(object1,PropModel.class);
+                            long t_file_size=pModel.getFile_size_high()*high_base+pModel.getFile_size();
+                            pModel.setFile_size(t_file_size);
                             return new Gson().fromJson(object1,PropModel.class);
                         }
                         else {
                             switch (object1.get("status").getAsString()){
                                 case "-1":
-                                    throw new IOException("权限错误");
+                                    throw new IOException(context.getString(R.string.msg_permission_error));
                                 default:
-                                    throw new IOException("未知错误");
+                                    throw new IOException(context.getString(R.string.msg_unknown_error));
                             }
                         }
 
