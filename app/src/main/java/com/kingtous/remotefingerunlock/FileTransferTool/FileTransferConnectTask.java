@@ -29,6 +29,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
 
     private Context context;
     private Socket socket;
+    private String macToSend;
 
     FileTransferConnectTask(Context context,RecordData data,int flags){
         // flags=0 正常模式，flags=1 内网模式
@@ -36,8 +37,8 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
         dialog=new ProgressDialog(context);
         this.data=data;
 
-        // 统一 mac 地址格式： 无：，大写
-        data.setMac(data.getMac().replace(":","").toUpperCase());
+        // mac 地址格式： 无：，大写
+        macToSend=data.getMac().replace(":","").toUpperCase();
 
         this.flags=flags;
     }
@@ -114,7 +115,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         //发送根目录请求
                         JSONObject object=new JSONObject();
                         if (flags==1){
-                            object.put("oriMac",data.getMac());
+                            object.put("oriMac",macToSend);
                         }
                         object.put("action","Query") ;
                         object.put("path","/.");
