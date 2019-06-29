@@ -54,13 +54,14 @@ public class FunctionTool {
                                     .show();
                             return;
                         }
+                        String MAC_adj=FunctionTool.macAddressAdjust(MAC);
 
                         String _IP=IP;
                         if (flags==1){
                             _IP=context.getString(R.string.nat_server);
                         }
                         FileTransferShutDownTask transferShutDownTask=
-                                new FileTransferShutDownTask(context,_IP,MAC);
+                                new FileTransferShutDownTask(context,_IP,MAC_adj);
                         transferShutDownTask.setmReturnListener(new FileTransferShutDownTask.ReturnListener() {
                             @Override
                             public void onReturnListener(int resultCode, String message) {

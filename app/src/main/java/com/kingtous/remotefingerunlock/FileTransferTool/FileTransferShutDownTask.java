@@ -118,7 +118,6 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                     if (!object1.has("status")){
                         throw new IOException(context.getString(R.string.msg_no_responce_state));
                     }
-
                     if (object1.get("status").getAsString().equals("0")){
                         message=recvStr;
                         resultCode=0;
