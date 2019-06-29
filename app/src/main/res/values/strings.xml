@@ -33,5 +33,6 @@
     <string name="msg_connecting_nat">正在连接至内网服务器，等待回应</string>
     <string name="msg_shutdown_success">关机成功！</string>
     <string name="msg_shutdown_error">关机失败</string>
+    <string name="msg_send_wakeonlan_success">已发送Wake On LAN数据包，请自行检查远程端是否接收到</string>
 
 </resources>

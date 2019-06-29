@@ -108,13 +108,12 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                     try {
                         object1=new Gson().fromJson(recvStr,JsonObject.class);
                         if (object1==null){
+                            resultCode=0;
                             throw new IOException(context.getString(R.string.msg_shutdown_success));
                         }
-                    }catch (JsonSyntaxException e){
+                    } catch (JsonSyntaxException e){
                         throw new IOException(context.getString(R.string.msg_invalid_data));
                     }
-                    message=recvStr;
-                    resultCode=0;
 //                        return new Gson().fromJson(object1,FileModel.class);
                     if (!object1.has("status")){
                         throw new IOException(context.getString(R.string.msg_no_responce_state));
@@ -126,6 +125,8 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                     }
                     else {
                         switch (object1.get("status").getAsString()){
+                            case "-2":
+                                throw new IOException(context.getString(R.string.msg_device_offline));
                             case "-5":
                                 throw new IOException(context.getString(R.string.msg_shutdown_error));
                             default:
@@ -141,7 +142,8 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
             }
             finally {
                 if (recvStr!=null && !recvStr.equals("")){
-                    message=message+"\n收到以下内容：\n"+recvStr;
+                    // 预留 debug 项 ，可加 recvStr 在 message中
+                    message=message;
                 }
             }
 

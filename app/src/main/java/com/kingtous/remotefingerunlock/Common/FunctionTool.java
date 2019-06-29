@@ -65,10 +65,10 @@ public class FunctionTool {
                             @Override
                             public void onReturnListener(int resultCode, String message) {
                                 if (resultCode==0){
-                                    ToastMessageTool.tts(context,"关机指令发送成功");
+                                    FunctionTool.showAlert(context,context.getString(R.string.msg_shutdown_success));
                                 }
                                 else {
-                                    ToastMessageTool.tts(context,message);
+                                    FunctionTool.showAlert(context,message);
                                 }
                             }
                         });
@@ -82,6 +82,11 @@ public class FunctionTool {
 
     public static String macAddressAdjust(String macAddress){
         return macAddress.replace(":","").toUpperCase();
+    }
+
+
+    public static void showAlert(Context context,String message){
+        new AlertDialog.Builder(context).setMessage(message).setPositiveButton("确定",null).show();
     }
 
 

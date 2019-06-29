@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.PopupMenu;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
@@ -22,6 +23,8 @@ import com.kingtous.remotefingerunlock.WLANConnectTool.WLANConnectActivity;
 import com.kingtous.remotefingerunlock.WLANConnectTool.WLANDeviceData;
 import com.stealthcopter.networktools.WakeOnLan;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -116,9 +119,30 @@ public class RecordPopupMenuTool {
                                 object.addProperty("oriMac", FunctionTool.macAddressAdjust(data.getMac()));
                                 object.addProperty("ip",data.getIp());
                                 stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
+
+
+                                //读入数据
+                                BufferedInputStream buffered = new BufferedInputStream(socket.getInputStream());
+                                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                                int r=-1;
+                                byte buff[] =new byte[1024];
+                                while((r =buffered .read(buff,0,1024))!=-1)
+                                {
+                                    byteArrayOutputStream.write(buff,0,r);
+                                }
                                 stream.close();
                                 socket.close();
-                                result = 0;
+                                String recvStr =new String(byteArrayOutputStream.toByteArray());
+
+                                JsonObject object1=new Gson().fromJson(recvStr,JsonObject.class);
+                                if (object1==null)
+                                    result = 0;
+                                else {
+                                    if (object1.has("status") && object1.get("status").getAsString().equals("-2")){
+                                        // 暂时只有这一个 -2 的错误
+                                        throw new IOException(context.getString(R.string.msg_device_offline));
+                                    }
+                                }
                             }
                         }
                     }catch (SocketException e){
@@ -126,9 +150,9 @@ public class RecordPopupMenuTool {
                     }
                 }
                 if (result==0)
-                    ToastMessageTool.ttl(context, "已发送Wake On LAN数据包，请自行检查远程端是否接收到");
+                    FunctionTool.showAlert(context,context.getString(R.string.msg_send_wakeonlan_success));
             } catch (IOException e) {
-                ToastMessageTool.ttl(context, e.getMessage());
+                FunctionTool.showAlert(context,e.getMessage());
             }
             Looper.loop();
         }
