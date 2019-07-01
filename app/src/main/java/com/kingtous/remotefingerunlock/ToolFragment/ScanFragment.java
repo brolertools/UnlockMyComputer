@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.kingtous.remotefingerunlock.BluetoothConnectTool.BluetoothConnectActivity;
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.QRCodeScannerActivity;
 import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
@@ -221,10 +222,12 @@ public class ScanFragment extends Fragment implements EasyPermissions.Permission
                             }
                             if (! RegexTool.isStdMac(mac.getText().toString())){
                                 s = ARPInfo.getMACFromIPAddress(ip.getText().toString());
-
                                 if (s == null) {
-                                    Toast.makeText(context,"未获取到ip对应的mac地址",Toast.LENGTH_LONG).show();
-                                } else {
+                                    if (!matcher1.matches()){
+                                        Toast.makeText(getContext(),"无有效Mac地址，随机生成",Toast.LENGTH_LONG).show();
+                                        mac.setText(FunctionTool.getMacAddrWithFormat(":"));
+                                    }
+                                }else {
                                     Toast.makeText(context, "自动获取到ip对应的mac地址\n" + s.toUpperCase(), Toast.LENGTH_LONG).show();
                                     mac.setText(s.toUpperCase());
                                 }

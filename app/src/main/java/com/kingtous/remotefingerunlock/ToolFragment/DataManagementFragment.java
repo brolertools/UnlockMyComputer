@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -279,6 +280,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
             //是默认的指纹设置
             checkBox.setChecked(true);
         } else checkBox.setChecked(false);
+        Log.d("mac地址",macEdit.getText().toString());
 
         new AlertDialog.Builder(getContext())
                 .setView(view1)
@@ -296,7 +298,7 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                             Pattern pattern = Pattern.compile(RegexTool.macRegex);
                             Matcher matcher = pattern.matcher(macEdit.getText().toString().toUpperCase());
                             if (!matcher.matches()) {
-                                Toast.makeText(getContext(), "地址不合法", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Mac地址不合法", Toast.LENGTH_LONG).show();
                                 return;
                             }
                         } else {
@@ -304,18 +306,23 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                             Pattern pattern = Pattern.compile(RegexTool.ipRegex);
                             Matcher matcher = pattern.matcher(ipEdit.getText().toString());
                             if (!matcher.matches()) {
-                                Toast.makeText(getContext(), "地址不合法", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "IP地址不合法", Toast.LENGTH_LONG).show();
                                 return;
                             } else {
                                 // ping，获取mac
+                                String me=macEdit.getText().toString();
+                                Pattern pattern1=Pattern.compile(RegexTool.macRegex);
+                                Matcher macMatch=pattern1.matcher(me);
                                 String s = ARPInfo.getMACFromIPAddress(ipEdit.getText().toString());
                                 if (s == null) {
-//                                                Toast.makeText(getContext(),"未获取到ip对应的mac地址,不作更改",Toast.LENGTH_LONG).show();
+                                    if (!macMatch.matches()){
+                                        Toast.makeText(getContext(),"无有效Mac地址，随机生成",Toast.LENGTH_LONG).show();
+                                        newRecordData.setMac(FunctionTool.getMacAddrWithFormat(":"));
+                                    }
                                 } else {
                                     newRecordData.setMac(s.toUpperCase());
                                     Toast.makeText(getContext(), "更新成功并获取到Ip对应的Mac地址", Toast.LENGTH_LONG).show();
                                 }
-
                             }
                         }
                         if (checkBox.isChecked()) {
@@ -367,6 +374,12 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (writeSQL!=null){
+            writeSQL.close();
+        }
+        if (readSQL!=null){
+            readSQL.close();
+        }
         if (helper!=null){
             helper.close();
         }

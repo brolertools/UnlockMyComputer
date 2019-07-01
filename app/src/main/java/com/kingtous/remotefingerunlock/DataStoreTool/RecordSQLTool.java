@@ -63,7 +63,6 @@ public class RecordSQLTool {
             if (cnt > 0) {
                 result = true;
             }
-            writableDatabase.close();
             return result;
 
         } else return false;
@@ -129,7 +128,6 @@ public class RecordSQLTool {
             if (cnt > 0) {
                 result = true;
             }
-            writableDatabase.close();
             return result;
 
         } else return false;
@@ -165,6 +163,7 @@ public class RecordSQLTool {
                 result = false;
             } finally {
                 cursor.close();
+                writableDatabase.close();
                 return result;
             }
         } else return false;
@@ -181,7 +180,6 @@ public class RecordSQLTool {
             readableDatabase.close();
             return toRecordData(cursor);
         }
-        readableDatabase.close();
         return null;
     }
 
