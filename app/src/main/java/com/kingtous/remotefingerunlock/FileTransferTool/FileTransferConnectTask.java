@@ -110,7 +110,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                     SocketHolder.setSocket(FileTransferActivity.CreateSocket(context,IP));
                     socket=SocketHolder.getSocket();
                     if (socket != null) {
-                        socket.setSoTimeout(3000);
+//                        socket.setSoTimeout(3000);
                         OutputStream stream=socket.getOutputStream();
                         //发送根目录请求
                         JSONObject object=new JSONObject();

@@ -25,6 +25,9 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
+import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
@@ -205,7 +208,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
 
         new AlertDialog.Builder(this).setTitle("请输入设备的账户名，密码")
                 .setView(view)
-                .setPositiveButton("发送", new DialogInterface.OnClickListener() {
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -220,6 +223,9 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                                     new RecordData("Bluetooth", name, user, passwd, null, deviceSelected.getAddress().toUpperCase()));
                             if (!result)
                                 log("保存失败，存在同MAC地址的记录或者数据库异常");
+                            else{
+                                ToastMessageTool.ttl(BluetoothConnectActivity.this,"保存成功");
+                            }
                         }
                         if (box_default.isChecked()) {
                             //设置为指纹默认
@@ -227,7 +233,7 @@ public class BluetoothConnectActivity extends SwipeBackActivity implements EasyP
                             UnlockWidget.update(getApplicationContext());
                         }
                         helper.close();
-                        startConnect();
+                        //startConnect();
                     }
                 })
                 .setNegativeButton("取消", null).show();

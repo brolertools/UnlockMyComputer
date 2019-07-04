@@ -178,7 +178,10 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
                     Connect.start(getContext(), recordData);
                 }
                 else if (type==RecordAdapter.SHUTDOWN_BUTTON){
-                    FunctionTool.shutdown(getContext(),recordData.getIp(),recordData.getMac(),FunctionTool.detectModes(getContext()));
+                    if (recordData.getType().equals("WLAN"))
+                        FunctionTool.shutdown(getContext(),recordData.getIp(),recordData.getMac(),FunctionTool.detectModes(getContext()));
+                    else
+                        ToastMessageTool.ttl(getContext(),"非WLAN记录，不能使用关机功能");
                 }
                 else if (type == RecordAdapter.MORE_BUTTON) {
                     //更多

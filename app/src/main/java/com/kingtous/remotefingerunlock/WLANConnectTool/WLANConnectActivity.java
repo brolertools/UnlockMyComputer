@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.kingtous.remotefingerunlock.BluetoothConnectTool.BluetoothConnectActivity;
 import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
@@ -221,7 +222,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
 
                 new AlertDialog.Builder(WLANConnectActivity.this)
                         .setView(view)
-                        .setPositiveButton("连接", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // 手动添加
@@ -259,9 +260,16 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
                                                 null,
                                                 1
                                         );
-                                        RecordSQLTool.addtoSQL(helper, dataTmp);
+                                        if(RecordSQLTool.addtoSQL(helper, dataTmp)){
+                                            ToastMessageTool.ttl(WLANConnectActivity.this,"保存成功");
+                                        }
+                                        else{
+                                            ToastMessageTool.ttl(WLANConnectActivity.this,"保存失败，存在相同设备");
+                                        }
+
                                     }
-                                    startConnect(dataTmp);
+//                                    startConnect(dataTmp);
+
                                 } else {
                                     new AlertDialog.Builder(WLANConnectActivity.this)
                                             .setMessage("输入IP有误，请核对")
@@ -296,7 +304,7 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
 
                 new AlertDialog.Builder(WLANConnectActivity.this)
                         .setView(view1)
-                        .setPositiveButton("连接", new DialogInterface.OnClickListener() {
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (matcher.matches()) {
@@ -317,9 +325,14 @@ public class WLANConnectActivity extends AppCompatActivity implements EasyPermis
                                                 null,
                                                 1
                                         );
-                                        RecordSQLTool.addtoSQL(helper, dataTmp);
+                                        if(RecordSQLTool.addtoSQL(helper, dataTmp)){
+                                            ToastMessageTool.ttl(WLANConnectActivity.this,"保存成功");
+                                        }
+                                        else{
+                                            ToastMessageTool.ttl(WLANConnectActivity.this,"保存失败，存在相同设备");
+                                        }
                                     }
-                                    startConnect(dataTmp);
+//                                    startConnect(dataTmp);
                                 } else {
                                     new AlertDialog.Builder(WLANConnectActivity.this)
                                             .setMessage("输入IP有误，请核对")
