@@ -132,7 +132,9 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                                 throw new IOException(context.getString(R.string.msg_unknown_error));
                         }
                     }
-
+                }
+                else {
+                    throw new IOException(context.getString(R.string.msg_server_connect_failure));
                 }
             } catch (IOException e) {
                 message=e.getMessage();

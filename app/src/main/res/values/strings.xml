@@ -15,7 +15,7 @@
     <string name="defaultUnlockMethod">无默认解锁方式</string>
     <string name="defaultUser">无默认用户名</string>
     <string name="appwidget_text">EXAMPLE</string>
-    <string name="nat_server">39.107.226.2</string>
+    <string name="nat_server">remote.kingtous.cn</string>
     <string name="store_success">存储成功</string>
     <string name="input_illegal">输入数据不合法</string>
     <string name="store_failed_due_same_mac_user">存储失败，存在相同的 Mac地址和User账号的记录</string>
@@ -34,5 +34,7 @@
     <string name="msg_shutdown_success">关机成功！</string>
     <string name="msg_shutdown_error">关机失败</string>
     <string name="msg_send_wakeonlan_success">已发送Wake On LAN数据包，请自行检查远程端是否接收到</string>
+    <string name="msg_dev_connect_failure">无法建立连接，远程设备未上线</string>
+    <string name="msg_server_connect_failure">无法建立连接，服务器未上线</string>
 
 </resources>

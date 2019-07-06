@@ -16,6 +16,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -37,4 +43,5 @@ dependencies {
     implementation 'com.koushikdutta.ion:ion:2.+'
     implementation 'com.tencent.bugly:crashreport:latest.release'
     implementation 'cn.bingoogolapple:bga-qrcode-zxing:1.3.6'
+    implementation 'com.king.zxing:zxing-lite:1.1.2-androidx'
 }

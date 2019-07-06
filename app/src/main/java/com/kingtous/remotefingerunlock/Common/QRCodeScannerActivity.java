@@ -19,6 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import cn.bingoogolapple.qrcode.core.BarcodeType;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 
@@ -39,6 +41,9 @@ public class QRCodeScannerActivity extends AppCompatActivity implements QRCodeVi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
         zXingView=findViewById(R.id.qrscanner);
+        zXingView.setType(BarcodeType.ONLY_QR_CODE,null);
+
+
         btn_flashlight=findViewById(R.id.qrscanner_flashlight);
         zXingView.setDelegate(this);
         setResult(ERR);
