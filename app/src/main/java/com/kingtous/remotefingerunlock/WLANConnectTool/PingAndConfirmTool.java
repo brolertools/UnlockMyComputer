@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Patterns;
 
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
@@ -64,6 +65,9 @@ public class PingAndConfirmTool {
                         return IP;
                     } else {
                         //mac不正确，寻找新的
+                        if (FunctionTool.detectModes(context)==Integer.valueOf(FunctionTool.remoteMode)){
+                            return IP;
+                        }
                         String ip = ARPInfo.getIPAddressFromMAC(dataTmp.getMac());
                         if (ip == null) {
                             final String[] ipTmp = new String[1];

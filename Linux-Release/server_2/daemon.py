@@ -51,7 +51,11 @@ class MasterHolderd(threading.Thread):
 
     def run(self):
         while True:
-            self.waitConnect()
+        	try:
+            	self.waitConnect()
+            except Exception:
+        		print(self.port,"重置")
+        		time.sleep(1)
 
     def waitConnect(self):
         print('M:等待连接')
@@ -105,7 +109,11 @@ class ClientHolderd(threading.Thread):
 
     def run(self):
         while True:
-            self.waitConnect()
+        	try:
+        		self.waitConnect()
+        	except Exception:
+        		print(self.client_port,"重置")
+        		time.sleep(1)
 
     def waitConnect(self):
         print('D:等待连接')
