@@ -14,6 +14,8 @@ import java.io.IOException;
 
 import androidx.appcompat.app.AlertDialog;
 
+import moe.feng.support.biometricprompt.BiometricPromptCompat;
+
 public class FunctionTool {
 
     public static final String directMode="0";
@@ -128,5 +130,20 @@ public class FunctionTool {
         String byteStr = String.format("%c%c", macSeed.charAt(h),
                 macSeed.charAt(l));
         return byteStr;
+    }
+
+    public static BiometricPromptCompat getAuthFingerPrompt(Context context){
+        if (context!=null)
+            return new BiometricPromptCompat.Builder(context)
+                .setTitle("身份验证")
+                .setDescription("请验证您的指纹")
+                .setNegativeButton("取消操作", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ToastMessageTool.tts(context,"取消验证");
+                    }
+                })
+                .build();
+        return null;
     }
 }

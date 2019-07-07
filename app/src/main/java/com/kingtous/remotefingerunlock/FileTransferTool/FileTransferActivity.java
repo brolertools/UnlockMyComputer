@@ -2,6 +2,7 @@ package com.kingtous.remotefingerunlock.FileTransferTool;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
@@ -23,10 +25,13 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+
+import moe.feng.support.biometricprompt.BiometricPromptCompat;
 
 public class FileTransferActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -112,8 +117,29 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
                 Log.d("DEBUG","ok clicked");
                 if (device_selected_index!=-1 && device_selected_index<list.size()){
                     int flags=mode_selected_index;
-                    FileTransferConnectTask task=new FileTransferConnectTask(this,list.get(device_selected_index),flags);
-                    task.execute();
+                    BiometricPromptCompat promptCompat=FunctionTool.getAuthFingerPrompt(this);
+                    promptCompat.authenticate(new CancellationSignal(), new BiometricPromptCompat.IAuthenticationCallback() {
+                        @Override
+                        public void onAuthenticationError(int errorCode, @Nullable CharSequence errString) {
+
+                        }
+
+                        @Override
+                        public void onAuthenticationHelp(int helpCode, @Nullable CharSequence helpString) {
+
+                        }
+
+                        @Override
+                        public void onAuthenticationSucceeded(@NonNull BiometricPromptCompat.IAuthenticationResult result) {
+                            FileTransferConnectTask task=new FileTransferConnectTask(FileTransferActivity.this,list.get(device_selected_index),flags);
+                            task.execute();
+                        }
+
+                        @Override
+                        public void onAuthenticationFailed() {
+
+                        }
+                    });
                 }
                 else {
                     Log.e("ERROR","index错误");

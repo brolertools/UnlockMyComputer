@@ -16,11 +16,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
-        checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
-        abortOnError false
+//    lintOptions {
+//        checkReleaseBuilds false
+//        // Or, if you prefer, you can continue to check for errors in release builds,
+//        // but continue the build even when errors are found:
+//        abortOnError false
+//    }
+    compileOptions {
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+
+        targetCompatibility JavaVersion.VERSION_1_8
+
     }
 }
 
@@ -44,4 +51,5 @@ dependencies {
     implementation 'com.tencent.bugly:crashreport:latest.release'
     implementation 'cn.bingoogolapple:bga-qrcode-zxing:1.3.6'
     implementation 'com.king.zxing:zxing-lite:1.1.2-androidx'
+    implementation 'moe.feng.support.biometricprompt:library:1.0.0'
 }
