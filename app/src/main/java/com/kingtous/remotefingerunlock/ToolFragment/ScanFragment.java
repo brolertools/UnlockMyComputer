@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,12 +42,14 @@ import java.util.regex.Matcher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import moe.feng.support.biometricprompt.BiometricPromptCompat;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import static com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment.iPpattern;
 import static com.kingtous.remotefingerunlock.ToolFragment.DataManagementFragment.maCpattern;
 
-public class ScanFragment extends Fragment implements EasyPermissions.PermissionCallbacks {
+public class ScanFragment extends Fragment implements EasyPermissions.PermissionCallbacks,View.OnClickListener {
 
     public ScanFragment() {
 
@@ -76,44 +79,10 @@ public class ScanFragment extends Fragment implements EasyPermissions.Permission
         btn_ML = view.findViewById(R.id.btn_MANUAL);
         btn_QR = view.findViewById(R.id.btn_qrcode);
 
-        btn_WL.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), WLANConnectActivity.class);
-                startActivityForResult(intent, WL_RequestCode);
-            }
-        });
-
-
-        btn_BT.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), BluetoothConnectActivity.class);
-                startActivityForResult(intent, BT_RequestCode);
-            }
-        });
-
-        btn_ML.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View diaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add, null, false);
-                add(getContext(),diaView);
-            }
-        });
-
-        btn_QR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //权限申请
-                if (EasyPermissions.hasPermissions(Objects.requireNonNull(getContext()),permissions)){
-                    Intent intent = new Intent(getContext(), QRCodeScannerActivity.class);
-                    startActivityForResult(intent, QR_RequestCode);
-                }
-                else {
-                    EasyPermissions.requestPermissions(Objects.requireNonNull(getActivity()),"申请使用相机",CAMERA_GRANT,permissions);
-                }
-            }
-        });
+        btn_WL.setOnClickListener(this);
+        btn_BT.setOnClickListener(this);
+        btn_ML.setOnClickListener(this);
+        btn_QR.setOnClickListener(this);
 
         return view;
     }
@@ -271,5 +240,53 @@ public class ScanFragment extends Fragment implements EasyPermissions.Permission
         {
             EasyPermissions.requestPermissions(Objects.requireNonNull(getActivity()),"申请使用相机",CAMERA_GRANT,permissions);
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        // 先验证指纹
+        BiometricPromptCompat promptCompat=FunctionTool.getAuthFingerPrompt(getContext());
+        promptCompat.authenticate(new CancellationSignal(), new BiometricPromptCompat.IAuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @Nullable CharSequence errString) {
+
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, @Nullable CharSequence helpString) {
+
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPromptCompat.IAuthenticationResult result) {
+                int id=view.getId();
+                if (id==btn_WL.getId()){
+                    Intent intent = new Intent(getContext(), WLANConnectActivity.class);
+                    startActivityForResult(intent, WL_RequestCode);
+                }
+                else if (id==btn_BT.getId()){
+                    Intent intent = new Intent(getContext(), BluetoothConnectActivity.class);
+                    startActivityForResult(intent, BT_RequestCode);
+                }
+                else if (id==btn_ML.getId()){
+                    View diaView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_manual_add,null, false);
+                    add(getContext(),diaView);
+                }
+                else if (id==btn_QR.getId()){
+                    if (EasyPermissions.hasPermissions(Objects.requireNonNull(getContext()),permissions)){
+                        Intent intent = new Intent(getContext(), QRCodeScannerActivity.class);
+                        startActivityForResult(intent, QR_RequestCode);
+                    }
+                    else {
+                        EasyPermissions.requestPermissions(Objects.requireNonNull(getActivity()),"申请使用相机",CAMERA_GRANT,permissions);
+                    }
+                }
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+
+            }
+        });
     }
 }

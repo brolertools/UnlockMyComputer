@@ -4,10 +4,10 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,34 +23,33 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.kingtous.remotefingerunlock.Common.Connect;
 import com.kingtous.remotefingerunlock.Common.FunctionTool;
 import com.kingtous.remotefingerunlock.Common.RegexTool;
 import com.kingtous.remotefingerunlock.Common.ToastMessageTool;
 import com.kingtous.remotefingerunlock.DataStoreTool.DataQueryHelper;
-import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordAdapter;
+import com.kingtous.remotefingerunlock.DataStoreTool.RecordData;
 import com.kingtous.remotefingerunlock.DataStoreTool.RecordSQLTool;
 import com.kingtous.remotefingerunlock.MenuTool.RecordPopupMenuTool;
 import com.kingtous.remotefingerunlock.R;
 import com.kingtous.remotefingerunlock.Widget.UnlockWidget;
 import com.stealthcopter.networktools.ARPInfo;
-import com.stealthcopter.networktools.Ping;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import jp.wasabeef.recyclerview.animators.FlipInTopXAnimator;
+import moe.feng.support.biometricprompt.BiometricPromptCompat;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class DataManagementFragment extends Fragment implements EasyPermissions.PermissionCallbacks {
@@ -168,42 +167,32 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
         adapter.setOnItemClickListener(new RecordAdapter.OnItemClickListener() {
 
             @Override
-            public void OnClick(View view, int type, final RecordData recordData) {
-                if (type == RecordAdapter.BOOT_BUTTON) {
-                    //开机
-                    boot(getContext(),recordData);
-                } else if (type == RecordAdapter.UNLOCK_BUTTON) {
-                    //解锁
-                    Toast.makeText(getContext(), "正在解锁", Toast.LENGTH_LONG).show();
-                    Connect.start(getContext(), recordData);
-                }
-                else if (type==RecordAdapter.SHUTDOWN_BUTTON){
-                    if (recordData.getType().equals("WLAN"))
-                        FunctionTool.shutdown(getContext(),recordData.getIp(),recordData.getMac(),FunctionTool.detectModes(getContext()));
-                    else
-                        ToastMessageTool.ttl(getContext(),"非WLAN记录，不能使用关机功能");
-                }
-                else if (type == RecordAdapter.MORE_BUTTON) {
-                    //更多
-                    PopupMenu menu = RecordPopupMenuTool.createInstance(Objects.requireNonNull(getContext()), view);
-                    menu.show();
-                    menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            switch (item.getItemId()) {
-                                case R.id.record_edit:
-                                    edit(getContext(),recordData);
-                                    break;
-                                case R.id.record_delete:
-                                    delete(getContext(),recordData);
-                                    break;
-                                default:
-                                    return false;
-                            }
-                            return true;
-                        }
-                    });
-                }
+            public void OnClick(final View view, final int type, final RecordData recordData) {
+                BiometricPromptCompat biometricPrompt=FunctionTool.getAuthFingerPrompt(getContext());
+
+                biometricPrompt.authenticate(new CancellationSignal(),new BiometricPromptCompat.IAuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationError(int errorCode, @Nullable CharSequence errString) {
+
+                    }
+
+                    @Override
+                    public void onAuthenticationHelp(int helpCode, @Nullable CharSequence helpString) {
+
+                    }
+
+                    @Override
+                    public void onAuthenticationSucceeded(@NonNull BiometricPromptCompat.IAuthenticationResult result) {
+                        processEvent(view,type,recordData);
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+
+                    }
+                });
+
+
 
             }
         });
@@ -212,7 +201,45 @@ public class DataManagementFragment extends Fragment implements EasyPermissions.
     }
 
 
-    public void boot(Context context, final RecordData recordData){
+    private void processEvent(View view, int type, final RecordData recordData){
+        if (type == RecordAdapter.BOOT_BUTTON) {
+            //开机
+            boot(getContext(),recordData);
+        } else if (type == RecordAdapter.UNLOCK_BUTTON) {
+            //解锁
+            Toast.makeText(getContext(), "正在解锁", Toast.LENGTH_LONG).show();
+            Connect.start(getContext(), recordData);
+        }
+        else if (type==RecordAdapter.SHUTDOWN_BUTTON){
+            if (recordData.getType().equals("WLAN"))
+                FunctionTool.shutdown(getContext(),recordData.getIp(),recordData.getMac(),FunctionTool.detectModes(getContext()));
+            else
+                ToastMessageTool.ttl(getContext(),"非WLAN记录，不能使用关机功能");
+        }
+        else if (type == RecordAdapter.MORE_BUTTON) {
+            //更多
+            PopupMenu menu = RecordPopupMenuTool.createInstance(Objects.requireNonNull(getContext()), view);
+            menu.show();
+            menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.record_edit:
+                            edit(getContext(),recordData);
+                            break;
+                        case R.id.record_delete:
+                            delete(getContext(),recordData);
+                            break;
+                        default:
+                            return false;
+                    }
+                    return true;
+                }
+            });
+        }
+    }
+
+    private void boot(Context context, final RecordData recordData){
         if (recordData.getMac().equals("")) {
             new AlertDialog.Builder(getContext()).setMessage("记录无MAC地址").setPositiveButton("确定", null).show();
         }
