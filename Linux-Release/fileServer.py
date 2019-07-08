@@ -2,6 +2,8 @@ import socket
 import ssl
 import threading
 import sys
+
+sys.path.append('..')
 from pathConvertor import *
 from socketSender import *
 
@@ -79,12 +81,6 @@ class Reader(threading.Thread):
                         if self.client.sendall(send_str.encode('utf-8')) is None:
                             print('发送成功')
                             print(send_str)
-                    elif act.get('action', -1) == 'shutdown':
-                        print('关机')
-                        json_tobe_send['status'] = '0'
-                        send_str = json.JSONEncoder().encode(json_tobe_send)
-                        self.client.sendall(send_str.encode('utf-8'))
-                        os.system("shutdown now")
                     break
 
                 except PermissionError:
@@ -140,12 +136,6 @@ def startWLAN():
     lst = Listener(FILE_LOCAL_PORT)  # create a listen thread
     lst.start()  # then start
 
-class file_local_tr(threading.Thread):
-    def __init__(self):
-        super().__init__()
-
-    def run(self):
-        startWLAN()
 
 if __name__ == '__main__':
     startWLAN()

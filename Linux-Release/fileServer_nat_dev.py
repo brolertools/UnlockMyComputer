@@ -1,7 +1,11 @@
+# 只适用于Linux
+
 import socket
 import ssl
 import threading
 import sys
+
+sys.path.append('..')
 from pathConvertor import *
 from socketSender import *
 
@@ -14,9 +18,23 @@ class Reader(threading.Thread):
 
     def run(self):
         while True:
-            data = self.client.recv(BUFSIZE)
+            send_str = {}
+            send_str['mac'] = getMacAddress()
+            send_str = json.JSONEncoder().encode(send_str)
+            try:
+                self.client.sendall(send_str.encode('utf-8'))
+            except BrokenPipeError:
+                print('服务器断线')
+            print('发送', send_str)
+            try:
+                data = self.client.recv(BUFSIZE)
+            except ConnectionResetError:
+                break
             if data:
                 string = bytes.decode(data, encoding)
+                if string == '':
+                    print('收到包')
+                    break
 
                 act = json.loads(string)
                 json_tobe_send = dict()
@@ -68,7 +86,11 @@ class Reader(threading.Thread):
                             print('传输', path_t)
                             with open(path_t, 'rb') as f:
                                 for data in f:
-                                    self.client.sendall(data)
+                                    try:
+                                        self.client.sendall(data)
+                                    except BrokenPipeError:
+                                        print('服务器断线')
+                                        break
                     elif act.get('action', -1) == 'Prop':
                         path = act['path']
                         path_t = pathAdjtor(path)
@@ -79,12 +101,6 @@ class Reader(threading.Thread):
                         if self.client.sendall(send_str.encode('utf-8')) is None:
                             print('发送成功')
                             print(send_str)
-                    elif act.get('action', -1) == 'shutdown':
-                        print('关机')
-                        json_tobe_send['status'] = '0'
-                        send_str = json.JSONEncoder().encode(json_tobe_send)
-                        self.client.sendall(send_str.encode('utf-8'))
-                        os.system("shutdown now")
                     break
 
                 except PermissionError:
@@ -98,54 +114,47 @@ class Reader(threading.Thread):
         print('关闭会话')
         self.client.close()
 
-    def readline(self):
-        rec = self.inputs.readline()
-        if rec:
-            string = bytes.decode(rec, encoding)
-            if len(string) > 2:
-                string = string[0:-2]
-            else:
-                string = ' '
-        else:
-            string = False
-        return string
 
-
-# a listen thread, listen remote connect
-# when a remote machine request to connect, it will create a read thread to handle
-class Listener(threading.Thread):
+class Connector(threading.Thread):
     def __init__(self, port):
         threading.Thread.__init__(self)
-        # SSL
-        self.SSLContext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        self.SSLContext.load_cert_chain(certfile='cacert.pem', keyfile='privkey.pem')
         self.port = port
+        # SSL
+        self.sock = None
+        self.ssl_sock = None
+        self.init()
+
+    def init(self, after_idle_sec=1, interval_sec=3, max_fails=5):
+        # 当闲置1s时，3s一次发送keepalive ping，失败5次则断开连接
+        # 只适用于Linux
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        self.sock.bind(("0.0.0.0", port))
-        self.sock.listen(0)
+        # self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, after_idle_sec)
+        # self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, interval_sec)
+        # self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, max_fails)
+        self.ssl_sock = ssl.wrap_socket(self.sock, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
 
     def run(self):
-        print("listener started")
+        print("Connector started")
         while True:
-            client, cltadd = self.sock.accept()
-            ssl_conn = self.SSLContext.wrap_socket(client, server_side=True)
-            Reader(ssl_conn).start()
-            cltadd = cltadd
-            print("accept a connect")
+            if not self.ssl_sock._connected:
+                try:
+                    self.ssl_sock.connect((NAT_SERVER, self.port))
+                    Reader(self.ssl_sock).start()
+                    print('连接成功')
+                except ConnectionError:
+                    print('连接失败，3s后重试')
+                    self.init()
+
+            if self.ssl_sock._closed:
+                print('重新连接')
+                self.init()
 
 
 def startWLAN():
-    lst = Listener(FILE_LOCAL_PORT)  # create a listen thread
+    lst = Connector(FILE_MASTER_PORT)  # create a listen thread
     lst.start()  # then start
 
-class file_local_tr(threading.Thread):
-    def __init__(self):
-        super().__init__()
-
-    def run(self):
-        startWLAN()
 
 if __name__ == '__main__':
     startWLAN()

@@ -1,8 +1,6 @@
 import daemon
 import threading
 import sys
-
-sys.path.append('..')
 from pathConvertor import *
 
 
