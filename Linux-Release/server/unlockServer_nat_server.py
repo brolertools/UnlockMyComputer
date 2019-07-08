@@ -22,7 +22,10 @@ class UnlockSocketExchanger(threading.Thread):
                 self.master.sendall(req)
                 # 等待回应
                 rep = self.master.recv(BUFSIZE)
-                self.client.sendall(rep)
+                if rep is None or rep == '':
+                    daemon.sendError(self.client)
+                else:
+                    self.client.sendall(rep)
                 print('发送成功')
             except BrokenPipeError or TimeoutError or ConnectionResetError:
                 print('对方不在线')

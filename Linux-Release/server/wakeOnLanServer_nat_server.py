@@ -22,7 +22,10 @@ class WakeSocketExchanger(threading.Thread):
             try:
                 self.master.sendall(req)
                 rep = self.master.recv(BUFSIZE)
-                self.client.sendall(rep)
+                if rep is None or rep == '':
+                    daemon.sendError(self.client)
+                else:
+                    self.client.sendall(rep)
                 print('发送成功')
             except BrokenPipeError or TimeoutError or ConnectionResetError:
                 print('对方不在线或者异常')
@@ -37,7 +40,7 @@ def startWake():
     lst.start()  # then start
 
     # 接收客户端连接请求并与服务端对接
-    rcv = daemon.ClientHolderd(WAKE_ON_LAN_DEV_PORT,WAKE_ON_LAN_CLIENT_PORT, WakeSocketExchanger)
+    rcv = daemon.ClientHolderd(WAKE_ON_LAN_DEV_PORT, WAKE_ON_LAN_CLIENT_PORT, WakeSocketExchanger)
     rcv.start()
 
     # 实时Client连接
