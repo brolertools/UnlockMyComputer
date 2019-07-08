@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
     FileTransferFolderAdapter adapter;
     FloatingActionButton fab_stop;
     FloatingActionButton fab_poweroff;
+    FloatingActionButton fab_showFiles;
     Stack<String> folderStack=new Stack<>();
     FileModel model=new FileModel();
     int flags;
@@ -104,6 +106,7 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
         folderRecyclerView=findViewById(R.id.file_transfer_folder_recyclerview);
         fab_stop=findViewById(R.id.file_transfer_folder_fab_stop);
         fab_poweroff=findViewById(R.id.file_transfer_folder_fab_poweroff);
+        fab_showFiles=findViewById(R.id.file_transfer_folder_showFiles);
         fab_stop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -127,6 +130,12 @@ public class FileTransferFolderActivity extends AppCompatActivity implements Fil
             @Override
             public void onClick(View v) {
                 FunctionTool.shutdown(FileTransferFolderActivity.this,getIntent().getStringExtra("ip"),getIntent().getStringExtra("mac"),flags);
+            }
+        });
+        fab_showFiles.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(FunctionTool.getFolderIntent(FileTransferFolderActivity.this));
             }
         });
         LinearLayoutManager manager=new LinearLayoutManager(this);

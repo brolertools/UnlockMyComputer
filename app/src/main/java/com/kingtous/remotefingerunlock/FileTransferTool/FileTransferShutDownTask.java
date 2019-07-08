@@ -84,7 +84,7 @@ public class FileTransferShutDownTask extends AsyncTask<String, String, Void> im
                     object.put("action","shutdown");
                     object.put("mac",MAC);
                     if (FunctionTool.detectModes(context)==1){
-                        object.put("oriMac",MAC);
+                        object.put("oriMac",FunctionTool.macAddressAdjust(MAC));
                     }
                     stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
 //                      stream.close();

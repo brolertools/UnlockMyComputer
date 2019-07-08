@@ -38,6 +38,7 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
     Spinner spinner_devices;
 //    Spinner spinner_mode;
     Button btn_ok;
+    Button btn_showFiles;
     int device_selected_index=-1;
     int mode_selected_index=0; // 默认为正常模式
     SharedPreferences preferences;
@@ -52,7 +53,9 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
         spinner_devices=findViewById(R.id.file_transfer_spinner_devices);
 //        spinner_mode=findViewById(R.id.file_transfer_spinner_mode);
         btn_ok=findViewById(R.id.file_transfer_btn_ok);
+        btn_showFiles=findViewById(R.id.file_transfer_showFiles);
         btn_ok.setOnClickListener(this);
+        btn_showFiles.setOnClickListener(this);
         preferences= PreferenceManager.getDefaultSharedPreferences(this);
         mode_selected_index=Integer.valueOf(preferences.getString(getString(R.string.connect_mode),"0"));
 
@@ -144,6 +147,9 @@ public class FileTransferActivity extends AppCompatActivity implements View.OnCl
                 else {
                     Log.e("ERROR","index错误");
                 }
+                break;
+            case R.id.file_transfer_showFiles:
+                startActivity(FunctionTool.getFolderIntent(this));
                 break;
         }
     }

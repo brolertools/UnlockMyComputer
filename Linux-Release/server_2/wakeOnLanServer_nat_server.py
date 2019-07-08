@@ -22,6 +22,8 @@ class WakeSocketExchanger(threading.Thread):
         if req:
             try:
                 self.master.sendall(req)
+                rep = self.master.recv(BUFSIZE)
+                self.client.sendall(rep)
                 print('发送成功')
             except BrokenPipeError or TimeoutError or ConnectionResetError:
                 print('对方不在线或者异常')

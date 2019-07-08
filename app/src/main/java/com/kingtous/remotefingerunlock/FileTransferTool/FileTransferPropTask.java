@@ -82,10 +82,11 @@ public class FileTransferPropTask extends AsyncTask<String, String, PropModel> i
                         //发送目录请求
                         JSONObject object=new JSONObject();
                         if (FunctionTool.detectModes(context)==1){
-                            object.put("oriMac",MAC);
+                            object.put("oriMac",FunctionTool.macAddressAdjust(MAC));
                         }
                         object.put("action","Prop");
                         object.put("path",path);
+                        object.put("mac",MAC);
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
                         stream.close();

@@ -10,6 +10,9 @@ MAC_ADDR = None
 IP = None
 PC_NAME = None
 
+OFFLINE = '-2'
+OK = '0'
+
 
 class bindID(threading.Thread):
     def __init__(self):
@@ -59,3 +62,11 @@ def startBind():
             f.write(data['pcname'] + '\n' + data['macaddr'] + '\n' + address[0])
             f.close()
             return
+
+
+def sendStatus(sock, status):
+    json_tobe_send = dict()
+    json_tobe_send.clear()
+    json_tobe_send['status'] = status
+    send_str = json.JSONEncoder().encode(json_tobe_send)
+    sock.sendall(send_str)

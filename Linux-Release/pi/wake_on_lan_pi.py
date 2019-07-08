@@ -83,6 +83,7 @@ class Reader(threading.Thread):
                     s.sendto(send_data, (IP, port))
                 s.close()
                 print('发送成功')
+                sendStatus(self.client, OK)
             else:
                 break
 

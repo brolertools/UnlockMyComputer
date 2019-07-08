@@ -119,6 +119,7 @@ public class FileTransferConnectTask extends AsyncTask<RecordData, String, Void>
                         }
                         object.put("action","Query") ;
                         object.put("path","/.");
+                        object.put("mac",data.getMac());
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
                         //
 

@@ -89,4 +89,17 @@
         android:clickable="true"
         app:srcCompat="@android:drawable/ic_lock_power_off"
         android:focusable="true" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/file_transfer_folder_showFiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="144dp"
+        android:clickable="true"
+        app:srcCompat="@android:drawable/stat_sys_download_done"
+        android:focusable="true" />
 </FrameLayout>

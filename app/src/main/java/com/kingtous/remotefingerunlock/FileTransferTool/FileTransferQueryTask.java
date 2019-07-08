@@ -96,8 +96,9 @@ public class FileTransferQueryTask extends AsyncTask<String, String, FileModel> 
                         JSONObject object=new JSONObject();
                         object.put("action","Query");
                         object.put("path",path);
+                        object.put("mac",MAC);
                         if (FunctionTool.detectModes(context)==1){
-                            object.put("oriMac",MAC);
+                            object.put("oriMac",FunctionTool.macAddressAdjust(MAC));
                         }
                         stream.write(object.toString().getBytes(StandardCharsets.UTF_8));
 //                      stream.close();

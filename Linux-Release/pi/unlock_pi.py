@@ -78,9 +78,12 @@ class Reader(threading.Thread):
                     ssl_sock = ssl.wrap_socket(s, ca_certs="cacert.pem", cert_reqs=ssl.CERT_REQUIRED)
                     ssl_sock.connect((IP, UNLOCK_PORT))
                     ssl_sock.sendall(data)
+                    sendStatus(OK)
                     print('发送成功')
                 except ConnectionRefusedError:
                     print('所控制的设备还未上线')
+                    sendStatus(OFFLINE)
+
             else:
                 break
 
