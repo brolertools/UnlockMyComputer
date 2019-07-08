@@ -1,10 +1,8 @@
-蓝牙客户端 For Linux using systemd+loginctl
+Linux PC + 树莓派端 + 服务器端
 
 ## 使用方法(python3)
 
-- blue.py 开启蓝牙单模式
-- wifi.py 开启WiFi单模式
-- \_\_init\_\_.py 开启蓝牙+WiFi双通道模式
+- \_\_init\_\_.py 开启服务
 
 
 ## 使用说明

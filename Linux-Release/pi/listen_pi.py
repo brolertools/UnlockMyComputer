@@ -2,8 +2,6 @@ import os
 import socket
 import sys
 import json
-
-sys.path.append('..')
 from Config import *
 
 MAC_ADDR = None

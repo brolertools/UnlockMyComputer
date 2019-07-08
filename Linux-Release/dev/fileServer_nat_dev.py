@@ -5,7 +5,6 @@ import ssl
 import threading
 import sys
 
-sys.path.append('..')
 from pathConvertor import *
 from socketSender import *
 

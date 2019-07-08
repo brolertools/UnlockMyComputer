@@ -8,7 +8,6 @@ import re
 import sys
 from listen_pi import *
 
-sys.path.append('..')
 from Config import *
 
 MAC_ADDR = None
